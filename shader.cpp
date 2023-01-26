@@ -2,9 +2,11 @@
 //--------------------------------------------------------------------------------
 
 #include "shader.h"
+#include "Tracy.hpp"
 
 //--------------------------------------------------------------------------------
 Shader::Shader(const std::string& shader_source_code_path, GLenum shader_type) {
+	ZoneScoped;
 	shader_source_code = read_from_file_into_std_string(shader_source_code_path);
 	//shader_source_code = &file_contents;
 	const char* shader_code = shader_source_code.c_str();

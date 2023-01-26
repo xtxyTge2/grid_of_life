@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cube.h"
+#include "Tracy.hpp"
 
 Cube::Cube() :
 	m_position(glm::vec3(0.0f, 0.0f, 0.0f)),
@@ -18,6 +19,7 @@ Cube::~Cube() {
 }
 
 void Cube::register_backbuffer_and_attributes(GLuint VAO, GLuint VBO) {
+	ZoneScoped;
 	const float vertices[] = {
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -81,10 +83,12 @@ void Cube::register_backbuffer_and_attributes(GLuint VAO, GLuint VBO) {
 }
 
 void Cube::draw() {
+	ZoneScoped;
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
 void Cube::update_model_matrix() {
+	ZoneScoped;
 	glm::mat4 new_model = glm::mat4(1.0f);
 	new_model = glm::translate(new_model, m_position);
 	new_model = glm::rotate(new_model, glm::radians(m_angle), glm::vec3(1.0f, 0.3f, 0.5f));
@@ -92,6 +96,7 @@ void Cube::update_model_matrix() {
 }
 
 Cube_Render_Data* Cube::create_render_data() {
+	ZoneScoped;
 	Cube_Render_Data* render_data = new Cube_Render_Data();
 	render_data->position = m_position;
 	
@@ -158,6 +163,7 @@ Cube_Render_Data::~Cube_Render_Data() {
 }
 
 void Cube_Render_Data::send_data_to_vertexbuffer(GLuint VAO, GLuint VBO) {
+	ZoneScoped;
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 

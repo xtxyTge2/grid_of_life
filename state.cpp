@@ -2,6 +2,7 @@
 
 //--------------------------------------------------------------------------------
 #include "state.h"
+#include "Tracy.hpp"
 
 //--------------------------------------------------------------------------------
 State::State() :
@@ -83,6 +84,7 @@ void State::process_input() {
 }
 
 void State::reset_grid() {
+	ZoneScoped;
 	int rows = 20;
 	int columns = 20;
 	
@@ -324,23 +326,27 @@ Matrix<T>::~Matrix() {
 //--------------------------------------------------------------------------------
 template <typename T>
 size_t Matrix<T>::index(size_t r, size_t c) {
+	ZoneScoped;
 	return r * columns + c;
 }
 
 //--------------------------------------------------------------------------------
 template <typename T>
 T Matrix<T>::get(size_t r, size_t c) {
+	ZoneScoped;
 	return data[index(r, c)];
 }
 
 //--------------------------------------------------------------------------------
 template <typename T>
 void Matrix<T>::set(size_t r, size_t c, T value) {
+	ZoneScoped;
 	data[index(r, c)] = value;
 }
 
 template<typename T>
 void Matrix<T>::increment_if_valid_index(size_t r, size_t c) {
+	ZoneScoped;
 	if (r < 0 || r >= rows || c < 0 || c >= columns) return;
 	T prev_value = get(r, c);
 	set(r, c, prev_value + 1);
@@ -358,6 +364,7 @@ Timer::~Timer() {
 }
 
 void Timer::update() {
+	ZoneScoped;
 	float m_current_frame_time = (float) glfwGetTime();
 	m_delta_time = m_current_frame_time - m_last_frame_time;
 	m_last_frame_time = m_current_frame_time;

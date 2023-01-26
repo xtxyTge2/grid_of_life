@@ -2,12 +2,14 @@
 
 //--------------------------------------------------------------------------------
 #include "texture.h"
+#include "Tracy.hpp"
 
 //--------------------------------------------------------------------------------
 Texture::Texture() : id(0), name(""), gl_texture_identifier(0), texture_data({}) {
 }
 
 void Texture::bind() {
+	ZoneScoped;
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
 
@@ -35,6 +37,7 @@ Texture::~Texture() {
 }
 
 void Texture::load_data_from_file(std::string& path) {	
+	ZoneScoped;
 	texture_data = {};
 
 	unsigned char* image_data = load_image_from_file(path, &texture_data.width, &texture_data.height, &texture_data.number_of_channels);
@@ -59,6 +62,7 @@ Texture_Catalog::~Texture_Catalog() {
 
 //--------------------------------------------------------------------------------
 void Texture_Catalog::load_and_bind_all_textures(std::vector<std::string>& texture_file_paths) {
+	ZoneScoped;
 	for (int i = 0; i < texture_file_paths.size(); i++) {
 		Texture* texture = new Texture();
 		texture->name = "texture" + std::to_string(i);

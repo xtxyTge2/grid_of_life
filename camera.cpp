@@ -3,10 +3,11 @@
 
 #include "camera.h"
 #include <iostream>
-
+#include "Tracy.hpp"
 
 //--------------------------------------------------------------------------------
 float clip(float value, float lower, float higher) {
+	ZoneScoped;
 	//assert(lower <= higher);
 
 	// dont do anything if lower > higher.
@@ -28,6 +29,7 @@ float clip(float value, float lower, float higher) {
 
 //--------------------------------------------------------------------------------
 static void print_mat3(glm::mat3 matrix) {
+	ZoneScoped;
 	std::cout << "matrix: \n";
 	for (int r = 0; r < 3; r++) {
 		std::cout << matrix[r].x << " " << matrix[r].y << " " << matrix[r].z << "\n";
@@ -49,6 +51,7 @@ Camera::~Camera() {
 
 //--------------------------------------------------------------------------------
 glm::mat4 Camera::get_view_matrix() {
+	ZoneScoped;
 	glm::vec3 up_direction = orientation_vector_matrix[1];
 	glm::vec3 front_direction = orientation_vector_matrix[2];
 	return glm::lookAt(position, position + front_direction, up_direction);
@@ -56,11 +59,13 @@ glm::mat4 Camera::get_view_matrix() {
 
 //--------------------------------------------------------------------------------
 glm::mat4 Camera::get_projection_matrix(int viewport_width, int viewport_height) {
+	ZoneScoped;
 	return glm::perspective(glm::radians(50.0f), ((float)viewport_width) / ((float) viewport_height), 0.3f, 10000.0f);
 }
 
 //--------------------------------------------------------------------------------
 void Camera::move(Camera_Move_Direction direction) {
+	ZoneScoped;
 	glm::vec3 left_direction = orientation_vector_matrix[0];
 	glm::vec3 front_direction = orientation_vector_matrix[2];
 	switch (direction) {
@@ -85,6 +90,7 @@ void Camera::move(Camera_Move_Direction direction) {
 
 //--------------------------------------------------------------------------------
 Camera_Render_Data* Camera::create_render_data(int viewport_width, int viewport_height) {
+	ZoneScoped;
 	Camera_Render_Data* render_data = new Camera_Render_Data();
 
 	render_data->model = glm::mat4(1.0f);

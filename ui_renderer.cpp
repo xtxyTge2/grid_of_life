@@ -3,8 +3,8 @@
 //--------------------------------------------------------------------------------
 #include "ui_renderer.h"
 #include "imgui_internal.h"
+#include "Tracy.hpp"
 
-static bool OwnBeginMainMenuBar();
 
 //--------------------------------------------------------------------------------
 UI_Renderer::UI_Renderer() :
@@ -14,6 +14,7 @@ m_ui_state(nullptr)
 
 //--------------------------------------------------------------------------------
 UI_Renderer::~UI_Renderer() {
+	ZoneScoped;
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -21,6 +22,7 @@ UI_Renderer::~UI_Renderer() {
 
 //--------------------------------------------------------------------------------
 void UI_Renderer::initialise(GLFWwindow* window) {
+	ZoneScoped;
 	m_window = window;
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -32,11 +34,13 @@ void UI_Renderer::initialise(GLFWwindow* window) {
 }
 
 bool UI_Renderer::imgui_wants_to_capture_io() {
+	ZoneScoped;
 	ImGuiIO& io = ImGui::GetIO(); (void) io;
 	return io.WantTextInput || io.WantSetMousePos || io.WantCaptureMouse || io.WantCaptureKeyboard || io.WantSaveIniSettings || io.WantCaptureMouseUnlessPopupClose;
 }
 
 void UI_Renderer::render_frame(State_Render_Data& state_render_data) {
+	ZoneScoped;
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -60,6 +64,7 @@ m_current_index(0)
 UI_State::~UI_State() {}
 
 void UI_State::update_render_data(State_Render_Data& state_render_data) {
+	ZoneScoped;
 	float sz = ImGui::GetTextLineHeight();
 	const ImGuiViewport* viewport = ImGui::GetMainViewport();
 	const ImVec2 base_pos = viewport->Pos;
@@ -148,6 +153,7 @@ void UI_State::update_render_data(State_Render_Data& state_render_data) {
 
 
 void UI_State::add_cell_number(float value) {
+	ZoneScoped;
 	m_cell_number_values[m_current_index] = value;
 	m_current_index++;
 	m_current_index = m_current_index % m_cell_number_values_size;
