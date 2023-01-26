@@ -12,8 +12,6 @@ class UI_State {
 public:
 	UI_State();
 
-	~UI_State();
-
 	void update_render_data(State_Render_Data& state_render_data);
 
 	void add_cell_number(float value);
@@ -47,5 +45,3 @@ public:
 	GLFWwindow* m_window;
 	UI_State* m_ui_state;
 };
-	
-

@@ -24,6 +24,7 @@ unsigned char* load_image_from_file(const std::string& full_path, int* width, in
 	return stbi_load(full_path.c_str(), width, height, number_of_channels, 0);
 }
 
+//--------------------------------------------------------------------------------
 void free_image_data(unsigned char* data) {
 	ZoneScoped;
 	stbi_image_free(data);

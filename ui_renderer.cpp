@@ -33,12 +33,14 @@ void UI_Renderer::initialise(GLFWwindow* window) {
 	m_ui_state = new UI_State();
 }
 
+//--------------------------------------------------------------------------------
 bool UI_Renderer::imgui_wants_to_capture_io() {
 	ZoneScoped;
 	ImGuiIO& io = ImGui::GetIO(); (void) io;
 	return io.WantTextInput || io.WantSetMousePos || io.WantCaptureMouse || io.WantCaptureKeyboard || io.WantSaveIniSettings || io.WantCaptureMouseUnlessPopupClose;
 }
 
+//--------------------------------------------------------------------------------
 void UI_Renderer::render_frame(State_Render_Data& state_render_data) {
 	ZoneScoped;
 	ImGui_ImplOpenGL3_NewFrame();
@@ -51,6 +53,7 @@ void UI_Renderer::render_frame(State_Render_Data& state_render_data) {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+//--------------------------------------------------------------------------------
 UI_State::UI_State() :
 	m_grid_is_running(false),
 m_grid_update_speed(50.0f),
@@ -61,8 +64,7 @@ m_show_grid_info(true),
 m_current_index(0)
 {}
 
-UI_State::~UI_State() {}
-
+//--------------------------------------------------------------------------------
 void UI_State::update_render_data(State_Render_Data& state_render_data) {
 	ZoneScoped;
 	float sz = ImGui::GetTextLineHeight();
@@ -151,7 +153,7 @@ void UI_State::update_render_data(State_Render_Data& state_render_data) {
 	}
 }
 
-
+//--------------------------------------------------------------------------------
 void UI_State::add_cell_number(float value) {
 	ZoneScoped;
 	m_cell_number_values[m_current_index] = value;

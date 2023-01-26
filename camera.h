@@ -19,8 +19,6 @@ enum Camera_Move_Direction {
 class Camera_Render_Data {
 public:
 	Camera_Render_Data();
-
-	~Camera_Render_Data();
 	//--------------------------------------------------------------------------------
 	// data
 	glm::mat4 model;
@@ -32,8 +30,6 @@ public:
 class Camera {
 public:
 	Camera();
-
-	~Camera();
 
 	void initialise();
 
@@ -54,8 +50,6 @@ public:
 class Mouse {
 public:
 	Mouse();
-	
-	~Mouse();
 
 	void initialise(float x, float y);
 

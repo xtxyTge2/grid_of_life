@@ -8,8 +8,6 @@ class Cube_Render_Data {
 public:
 	Cube_Render_Data();
 
-	~Cube_Render_Data();
-
 	void send_data_to_vertexbuffer(GLuint VAO, GLuint VBO);
 	//--------------------------------------------------------------------------------
 	glm::vec3 position;
@@ -23,8 +21,6 @@ class Cube {
 public:
 	Cube();
 
-	~Cube();
-
 	void draw();
 
 	void register_backbuffer_and_attributes(GLuint VAO, GLuint VBO);
@@ -32,9 +28,8 @@ public:
 	Cube_Render_Data* create_render_data();
 
 	void update_model_matrix();
-//--------------------------------------------------------------------------------
-// data
-
+	//--------------------------------------------------------------------------------
+	// data
 	glm::vec3 m_position;
 	glm::vec3 m_normal;
 	float m_angle;

@@ -15,9 +15,6 @@ State::State() :
 
 }
 
-State::~State() {
-}
-
 //--------------------------------------------------------------------------------
 void State::initialise(GLFWwindow* window) {
 	ZoneScoped;
@@ -83,6 +80,7 @@ void State::process_input() {
 	m_camera->move(direction);
 }
 
+//--------------------------------------------------------------------------------
 void State::reset_grid() {
 	ZoneScoped;
 	int rows = 20;
@@ -113,12 +111,6 @@ State_Render_Data::State_Render_Data() {
 }
 
 //--------------------------------------------------------------------------------
-State_Render_Data::~State_Render_Data() {
-
-}
-
-
-//--------------------------------------------------------------------------------
 State_Render_Data State::create_render_data() {
 	ZoneScoped;
 	State_Render_Data* render_data = new State_Render_Data();
@@ -134,12 +126,14 @@ State_Render_Data State::create_render_data() {
 	return *render_data;
 }
 
+//--------------------------------------------------------------------------------
 Grid::Grid(int r, int c, int origin_r, int origin_c) : rows(r), columns(c), origin_row(origin_r), origin_column(origin_c), iteration(0) {
 	ZoneScoped;
 	cells = new Matrix<bool>(r, c, false);
 	neighbour_count = new Matrix<unsigned int>(r, c, 0);
 }
 
+//--------------------------------------------------------------------------------
 std::vector<Cube> Grid::create_cubes_for_alive_grid_cells() {
 	ZoneScoped;
 	std::vector<Cube> cubes;
@@ -157,11 +151,12 @@ std::vector<Cube> Grid::create_cubes_for_alive_grid_cells() {
 	return cubes;
 }
 
+//--------------------------------------------------------------------------------
 void Grid::update() {
 	
 }
 
-
+//--------------------------------------------------------------------------------
 void Grid::next_iteration() {
 	ZoneScoped;
 
@@ -190,6 +185,7 @@ void Grid::next_iteration() {
 	}
 }
 
+//--------------------------------------------------------------------------------
 void Grid::update_neighbour_count() {
 	ZoneScoped;
 	// @Speed: just memset to zero ? 
@@ -295,11 +291,6 @@ Grid_Render_Data::Grid_Render_Data() {
 }
 
 //--------------------------------------------------------------------------------
-Grid_Render_Data::~Grid_Render_Data() {
-	
-}
-
-//--------------------------------------------------------------------------------
 template<typename T>
 Matrix<T>::Matrix(size_t r, size_t c) : rows(r), columns(c), data({}) {
 	//data.reserve(rows * columns);
@@ -314,12 +305,6 @@ Matrix<T>::Matrix(size_t r, size_t c, T default_value): rows(r), columns(c), dat
 			data.push_back(default_value);
 		}
 	}
-
-}
-
-//--------------------------------------------------------------------------------
-template <typename T>
-Matrix<T>::~Matrix() {
 
 }
 
@@ -344,6 +329,7 @@ void Matrix<T>::set(size_t r, size_t c, T value) {
 	data[index(r, c)] = value;
 }
 
+//--------------------------------------------------------------------------------
 template<typename T>
 void Matrix<T>::increment_if_valid_index(size_t r, size_t c) {
 	ZoneScoped;
@@ -352,6 +338,7 @@ void Matrix<T>::increment_if_valid_index(size_t r, size_t c) {
 	set(r, c, prev_value + 1);
 }
 
+//--------------------------------------------------------------------------------
 Timer::Timer() :
 	m_delta_time(0.0f),
 	m_last_frame_time(0.0f)
@@ -359,10 +346,7 @@ Timer::Timer() :
 
 }
 
-Timer::~Timer() {
-	
-}
-
+//--------------------------------------------------------------------------------
 void Timer::update() {
 	ZoneScoped;
 	float m_current_frame_time = (float) glfwGetTime();

@@ -19,8 +19,6 @@
 #include "texture.h"
 #include "ui_renderer.h"
 
-
-
 //--------------------------------------------------------------------------------
 void set_input_callbacks(GLFWwindow*);
 void framebuffer_size_callback(GLFWwindow*, int, int);

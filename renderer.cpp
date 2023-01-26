@@ -16,12 +16,6 @@ World_Renderer::World_Renderer() :
 }
 
 //--------------------------------------------------------------------------------
-World_Renderer::~World_Renderer() {
-
-}
-
-//--------------------------------------------------------------------------------
-//TODO
 void World_Renderer::initialise(GLFWwindow* window) {
 	ZoneScoped;
 	m_window = window;
@@ -59,6 +53,7 @@ void World_Renderer::update_shader_program(glm::mat4 model, glm::mat4 view, glm:
 	m_shader_program->set_uniform_mat4("projection", projection);
 }
 
+//--------------------------------------------------------------------------------
 void World_Renderer::render_frame(State_Render_Data& render_data) {
 	ZoneScoped;
 	Camera_Render_Data* camera_data = render_data.camera_render_data;
@@ -75,11 +70,12 @@ void World_Renderer::render_frame(State_Render_Data& render_data) {
 	}
 }
 
-
+//--------------------------------------------------------------------------------
 void World_Renderer::render_cube(Cube_Render_Data& data) {
 
 }
 
+//--------------------------------------------------------------------------------
 Renderer::Renderer() :
 	window(nullptr),
 	world_renderer(nullptr),
@@ -88,10 +84,7 @@ Renderer::Renderer() :
 
 }
 
-Renderer::~Renderer() {
-
-}
-
+//--------------------------------------------------------------------------------
 void Renderer::initialise(GLFWwindow* w) {
 	ZoneScoped;
 	window = w;
@@ -103,6 +96,7 @@ void Renderer::initialise(GLFWwindow* w) {
 	ui_renderer->initialise(window);
 }
 
+//--------------------------------------------------------------------------------
 void Renderer::render_frame(State_Render_Data& state_render_data) {
 	ZoneScoped;
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

@@ -24,8 +24,6 @@ class World_Renderer {
 public:
 	World_Renderer();
 
-	~World_Renderer();
-
 	void initialise(GLFWwindow* window);
 
 	void update_shader_program(glm::mat4 model, glm::mat4 view, glm::mat4 projection);
@@ -47,17 +45,16 @@ public:
 	const std::string m_fragment_shader_path = "shader.fs";
 };
 
-
+//--------------------------------------------------------------------------------
 class Renderer {
 public:
 	Renderer();
 
-	~Renderer();
-
 	void initialise(GLFWwindow* w);
 
 	void render_frame(State_Render_Data& state_render_data);
-
+	//--------------------------------------------------------------------------------
+	// data
 	GLFWwindow* window;
 	std::unique_ptr<World_Renderer> world_renderer;
 	std::unique_ptr<UI_Renderer> ui_renderer;

@@ -15,14 +15,13 @@
 #include "texture.h"
 #include "cube.h"
 
+//--------------------------------------------------------------------------------
 template <typename T>
 class Matrix {
 public:
 	Matrix(size_t r, size_t c);
 
 	Matrix(size_t r, size_t c, T default_value);
-
-	~Matrix();
 
 	size_t index(size_t r, size_t c);
 
@@ -39,6 +38,7 @@ public:
 	std::vector<T> data;
 };
 
+//--------------------------------------------------------------------------------
 struct Grid_Info {
 	int rows;
 	int columns;
@@ -54,8 +54,6 @@ struct Grid_Info {
 class Grid_Render_Data {
 public:
 	Grid_Render_Data();
-
-	~Grid_Render_Data();
 
 	Grid_Info grid_info;
 	std::vector<Cube_Render_Data> cubes_render_data;
@@ -99,8 +97,6 @@ public:
 class State_Render_Data {
 public:
 	State_Render_Data();
-
-	~State_Render_Data();
 	//--------------------------------------------------------------------------------
 	// data
 	Camera_Render_Data* camera_render_data;
@@ -113,8 +109,6 @@ class Timer {
 public:
 	Timer();
 
-	~Timer();
-
 	void update();
 	//--------------------------------------------------------------------------------
 	// data
@@ -126,8 +120,6 @@ public:
 class State {
 public:
 	State();
-
-	~State();
 
 	void initialise(GLFWwindow*);
 
@@ -142,7 +134,6 @@ public:
 	void reset_grid();
 	//--------------------------------------------------------------------------------
 	// data
-
 	std::unique_ptr<Camera> m_camera;
 	std::unique_ptr<Mouse> m_mouse;
 	GLFWwindow* m_window;
