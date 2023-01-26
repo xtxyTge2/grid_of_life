@@ -34,7 +34,6 @@
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="shader_program.cpp" />
     <ClCompile Include="state.cpp" />
-    <ClCompile Include="mouse.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="cube.cpp" />
     <ClCompile Include="renderer.cpp" />
@@ -50,7 +49,6 @@
     <ClInclude Include="3rdparty\imgui\imstb_rectpack.h" />
     <ClInclude Include="3rdparty\imgui\imstb_textedit.h" />
     <ClInclude Include="3rdparty\imgui\imstb_truetype.h" />
-    <ClInclude Include="mouse.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="read.h" />
     <ClInclude Include="shader.h" />

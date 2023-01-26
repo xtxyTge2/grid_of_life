@@ -36,9 +36,6 @@
     <ClCompile Include="state.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mouse.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -93,9 +90,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="state.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="mouse.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="opengl.h">

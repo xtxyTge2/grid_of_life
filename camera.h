@@ -49,3 +49,19 @@ public:
 	glm::mat3 orientation_vector_matrix;
 	float m_speed;
 };
+
+//--------------------------------------------------------------------------------
+class Mouse {
+public:
+	Mouse();
+	
+	~Mouse();
+
+	void initialise(float x, float y);
+
+	void update();
+ 
+	//--------------------------------------------------------------------------------
+	float m_x;
+	float m_y;
+};

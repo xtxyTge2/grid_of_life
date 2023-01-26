@@ -9,7 +9,6 @@
 #include <array>
 
 #include "opengl.h"
-#include "mouse.h"
 #include "camera.h"
 #include "shader_program.h"
 #include "read.h"
