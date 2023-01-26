@@ -132,7 +132,7 @@ State_Render_Data State::create_render_data() {
 //--------------------------------------------------------------------------------
 Grid::Grid(int r, int c, int origin_r, int origin_c) : rows(r), columns(c), origin_row(origin_r), origin_column(origin_c), iteration(0) {
 	ZoneScoped;
-	cells.resize(rows, columns); 
+	cells.resize(rows, columns);
 	cells.setConstant(false);
 	neighbour_count.resize(rows, columns);
 	neighbour_count.setConstant(0);
@@ -170,6 +170,7 @@ void Grid::next_iteration() {
 
 	update_neighbour_count();
 
+	// TODO: split this up and handle interior and border of the grid individually. If we do that we can incorporate the resize_if_needed() call into the border case computation
 	for (size_t r = 0; r < rows; r++) {
 		for (size_t c = 0; c < columns; c++) {
 			unsigned int count = neighbour_count(r, c);
@@ -193,13 +194,9 @@ void Grid::next_iteration() {
 //--------------------------------------------------------------------------------
 void Grid::update_neighbour_count() {
 	ZoneScoped;
-	// @Speed: just memset to zero ? 
-	for (int r = 0; r < rows; r++) {
-		for (int c = 0; c < columns; c++) {
-			// TODO: faster!
-			neighbour_count(r, c) = 0;
-		}
-	}
+	// @Speed: just memset to zero ?
+	neighbour_count.setConstant(0);
+
 	number_of_alive_cells = 0;
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
@@ -222,10 +219,8 @@ void Grid::update_neighbour_count() {
 }
 
 inline static void increment_if_valid_index(int r, int c, int rows, int columns, Eigen::Matrix < unsigned int, Eigen::Dynamic, Eigen::Dynamic > & m) {
-	// TODO
 	if (r < 0 || r > rows - 1 || c < 0 || c > columns - 1) return;
-	unsigned int old_value = m(r, c);
-	m(r, c) = old_value + 1;
+	m(r, c) += 1;
 }
 
 //--------------------------------------------------------------------------------
@@ -251,9 +246,10 @@ void Grid::resize_if_needed() {
 	int new_origin_row = origin_row + row_offset;
 	int new_origin_column = origin_column + column_offset;
 
-	Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> new_cells(new_rows, new_columns);
+	Eigen::Matrix < bool, Eigen::Dynamic, Eigen::Dynamic > new_cells(new_rows, new_columns);
 	new_cells.setConstant(false);
-	Eigen::Matrix<unsigned int, Eigen::Dynamic, Eigen::Dynamic> new_neighbour_count(new_rows, new_columns);
+
+	Eigen::Matrix < unsigned int, Eigen::Dynamic, Eigen::Dynamic > new_neighbour_count(new_rows, new_columns);
 	new_neighbour_count.setConstant(0);
 
 	// TODO faster
