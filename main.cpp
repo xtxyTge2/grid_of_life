@@ -12,12 +12,12 @@
 #include <iostream>
 #include <vector>
 
-#include "renderer.h"
+#include "renderer.hpp"
 
-#include "opengl.h"
-#include "state.h"
-#include "texture.h"
-#include "ui_renderer.h"
+#include "opengl.hpp"
+#include "state.hpp"
+#include "texture.hpp"
+#include "ui_renderer.hpp"
 
 //--------------------------------------------------------------------------------
 void set_input_callbacks(GLFWwindow*);

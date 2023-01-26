@@ -5,7 +5,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include "state.h"
+#include "state.hpp"
 
 //--------------------------------------------------------------------------------
 class UI_State {

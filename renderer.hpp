@@ -12,12 +12,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "cube.h"
-#include "camera.h"
-#include "shader_program.h"
-#include "ui_renderer.h"
-#include "state.h"
-#include "texture.h"
+#include "cube.hpp"
+#include "camera.hpp"
+#include "shader_program.hpp"
+#include "ui_renderer.hpp"
+#include "state.hpp"
+#include "texture.hpp"
 
 //--------------------------------------------------------------------------------
 class World_Renderer {

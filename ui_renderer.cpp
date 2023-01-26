@@ -1,7 +1,7 @@
 #pragma once
 
 //--------------------------------------------------------------------------------
-#include "ui_renderer.h"
+#include "ui_renderer.hpp"
 #include "imgui_internal.h"
 #include "Tracy.hpp"
 

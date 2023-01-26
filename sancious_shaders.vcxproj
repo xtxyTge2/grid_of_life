@@ -49,17 +49,17 @@
     <ClInclude Include="3rdparty\imgui\imstb_rectpack.h" />
     <ClInclude Include="3rdparty\imgui\imstb_textedit.h" />
     <ClInclude Include="3rdparty\imgui\imstb_truetype.h" />
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="read.h" />
-    <ClInclude Include="shader.h" />
-    <ClInclude Include="shader_program.h" />
+    <ClInclude Include="camera.hpp" />
+    <ClInclude Include="read.hpp" />
+    <ClInclude Include="shader.hpp" />
+    <ClInclude Include="shader_program.hpp" />
     <ClInclude Include="stb_image.h" />
-    <ClInclude Include="state.h" />
-    <ClInclude Include="texture.h" />
-    <ClInclude Include="opengl.h" />
-    <ClInclude Include="cube.h" />
-    <ClInclude Include="renderer.h" />
-    <ClInclude Include="ui_renderer.h" />
+    <ClInclude Include="state.hpp" />
+    <ClInclude Include="texture.hpp" />
+    <ClInclude Include="opengl.hpp" />
+    <ClInclude Include="cube.hpp" />
+    <ClInclude Include="renderer.hpp" />
+    <ClInclude Include="ui_renderer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.fs" />

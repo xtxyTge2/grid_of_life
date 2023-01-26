@@ -5,8 +5,8 @@
 #include <vector>
 #include <unordered_map>
 
-#include "opengl.h"
-#include "read.h"
+#include "opengl.hpp"
+#include "read.hpp"
 
 struct Texture_Data {
 	int width;

@@ -74,37 +74,37 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="read.h">
+    <ClInclude Include="read.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="shader.h">
+    <ClInclude Include="shader.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="shader_program.h">
+    <ClInclude Include="shader_program.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="stb_image.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="camera.h">
+    <ClInclude Include="camera.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="state.h">
+    <ClInclude Include="state.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="opengl.h">
+    <ClInclude Include="opengl.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="texture.h">
+    <ClInclude Include="texture.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="cube.h">
+    <ClInclude Include="cube.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="renderer.h">
+    <ClInclude Include="renderer.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="ui_renderer.h">
+    <ClInclude Include="ui_renderer.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="3rdparty\imgui\imconfig.h">

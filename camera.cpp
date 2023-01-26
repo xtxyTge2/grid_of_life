@@ -1,7 +1,7 @@
 #pragma once
 //--------------------------------------------------------------------------------
 
-#include "camera.h"
+#include "camera.hpp"
 #include <iostream>
 #include "Tracy.hpp"
 

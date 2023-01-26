@@ -10,8 +10,9 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include "shader.h"
-#include "texture.h"
+
+#include "shader.hpp"
+#include "texture.hpp"
 
 //--------------------------------------------------------------------------------
 class Shader_Program {

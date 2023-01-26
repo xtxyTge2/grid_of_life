@@ -8,12 +8,12 @@
 #include <unordered_map>
 #include <array>
 
-#include "opengl.h"
-#include "camera.h"
-#include "shader_program.h"
-#include "read.h"
-#include "texture.h"
-#include "cube.h"
+#include "opengl.hpp"
+#include "camera.hpp"
+#include "shader_program.hpp"
+#include "read.hpp"
+#include "texture.hpp"
+#include "cube.hpp"
 
 //--------------------------------------------------------------------------------
 template <typename T>
