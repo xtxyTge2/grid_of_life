@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <array>
 
+#include <Eigen/Core>
 #include "opengl.hpp"
 #include "camera.hpp"
 #include "shader_program.hpp"
@@ -15,6 +16,7 @@
 #include "texture.hpp"
 #include "cube.hpp"
 
+/*
 //--------------------------------------------------------------------------------
 template <typename T>
 class Matrix {
@@ -37,6 +39,7 @@ public:
 
 	std::vector<T> data;
 };
+*/
 
 //--------------------------------------------------------------------------------
 struct Grid_Info {
@@ -87,8 +90,10 @@ public:
 	int origin_row; 
 	int origin_column;
 	
-	Matrix<bool>* cells;
-	Matrix<unsigned int>* neighbour_count;
+	//Matrix<bool>* cells;
+	//Matrix<unsigned int>* neighbour_count;
+	Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> cells;
+	Eigen::Matrix<unsigned int, Eigen::Dynamic, Eigen::Dynamic> neighbour_count;
 
 	int number_of_alive_cells;
 	int iteration;

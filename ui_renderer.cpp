@@ -55,8 +55,8 @@ void UI_Renderer::render_frame(State_Render_Data& state_render_data) {
 
 //--------------------------------------------------------------------------------
 UI_State::UI_State() :
-	m_grid_is_running(false),
-m_grid_update_speed(50.0f),
+	m_grid_is_running(true),
+m_grid_update_speed(100.0f),
 m_update_grid(false),
 m_show_demo_window(false),
 m_grid_should_reset(false),
