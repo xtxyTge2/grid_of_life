@@ -48,6 +48,9 @@
     <ClCompile Include="ui_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="3rdparty\imgui\imgui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -105,6 +108,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ui_renderer.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+	<ClInclude Include="grid.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="3rdparty\imgui\imconfig.h">

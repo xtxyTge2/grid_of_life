@@ -38,6 +38,7 @@
     <ClCompile Include="cube.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="ui_renderer.cpp" />
+	<ClCompile Include="grid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdparty\imgui\imconfig.h" />
@@ -60,6 +61,7 @@
     <ClInclude Include="cube.hpp" />
     <ClInclude Include="renderer.hpp" />
     <ClInclude Include="ui_renderer.hpp" />
+	<ClInclude Include="grid.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.fs" />
