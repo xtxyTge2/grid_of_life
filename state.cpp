@@ -26,7 +26,7 @@ void State::initialise(GLFWwindow* window) {
 	m_mouse->initialise(0.0f, 0.0f);
 
 	m_camera = std::make_unique < Camera > ();
-	m_camera->position = glm::vec3(10.0f, 10.0f, 100.0f);
+	m_camera->position = glm::vec3(10.0f, 10.0f, 250.0f);
 
 	// left/right/x-axis direction vector
 	m_camera->orientation_vector_matrix[0] = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -83,26 +83,8 @@ void State::process_input() {
 //--------------------------------------------------------------------------------
 void State::reset_grid() {
 	ZoneScoped;
-	int rows = 20;
-	int columns = 20;
-	
-	int origin_row = 10;
-	int origin_column = 10;
 
-	grid = new Grid(rows, columns, origin_row, origin_column);
-
-	grid->cells(origin_row, origin_column) = true;
-	grid->cells(origin_row + 1, origin_column) = true;
-	grid->cells(origin_row + 1, origin_column - 1) = true;
-	grid->cells(origin_row + 1, origin_column - 2) = true;
-	grid->cells(origin_row + 2, origin_column - 1) = true;
-
-	grid->cells(origin_row, origin_column - 4) = true;
-	grid->cells(origin_row, origin_column - 5) = true;
-	grid->cells(origin_row, origin_column - 6) = true;
-	grid->cells(origin_row + 1, origin_column - 5) = true;
-
-	grid->update_neighbour_count();
+	grid = new Grid();
 }
 
 //--------------------------------------------------------------------------------
@@ -129,7 +111,7 @@ State_Render_Data State::create_render_data() {
 //--------------------------------------------------------------------------------
 Timer::Timer() :
 	m_delta_time(0.0f),
-m_last_frame_time(0.0f)
+	m_last_frame_time(0.0f)
 {
 
 }

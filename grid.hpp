@@ -3,12 +3,35 @@
 #include <Eigen/Core>
 #include "cube.hpp"
 
+struct Coordinate {
+	int i;
+	int j;
+};
+
 class Chunk {
+public:
+	Chunk();
+
+	void update_neighbour_count_inside();
+
+	void update_cells();
+
+	void add_cube(std::pair<int, int> coord, bool is_border);
+
+	void create_cubes_for_alive_grid_cells();
+
+	std::pair<int, int> transform_to_world_coordinate(std::pair<int, int> chunk_coord);
+
 	constexpr static int rows = 128;
 	constexpr static int columns = 128;
 
+	int chunk_origin_row;
+	int chunk_origin_column;
+	int number_of_alive_cells;
 	Eigen::Array < bool, rows, columns > cells;
 	Eigen::Array < unsigned int, rows, columns > neighbour_count;
+	std::vector<std::pair<int, int>> chunk_coordinates;
+	std::vector<Cube> cubes;
 };
 
 //--------------------------------------------------------------------------------
@@ -35,9 +58,11 @@ public:
 //--------------------------------------------------------------------------------
 class Grid {
 public:
-	Grid(int r, int c, int origin_r, int origin_c);
+	Grid();
 
 	~Grid();
+
+	void create_new_chunk(int i, int j);
 
 	void create_cubes_for_alive_grid_cells();
 
@@ -45,7 +70,7 @@ public:
 
 	void update();
 
-	void add_cube(int r, int c);
+	void add_cube(int x, int y, bool is_border);
 
 	Grid_Render_Data* create_render_data();
 
@@ -64,20 +89,9 @@ public:
 	void update_neighbour_count_corners();
 	//--------------------------------------------------------------------------------
 	// data
-
-	int rows;
-	int columns;
-
-	int origin_row; 
-	int origin_column;
-	
-	Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> cells;
-	Eigen::Array<unsigned int, Eigen::Dynamic, Eigen::Dynamic> neighbour_count;
-
 	int number_of_alive_cells;
 	int iteration;
 
 	std::vector<Chunk> chunks;
-	std::vector<Cube> cubes;
-	std::vector<std::pair<int, int>> coordinates;
 };
+
