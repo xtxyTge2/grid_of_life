@@ -4,9 +4,8 @@
 #include "Tracy.hpp"
 #include <iostream>
 
-
-inline static void increment_if_valid_index(int r, int c, int rows, int columns, Eigen::Matrix < unsigned int, Eigen::Dynamic, Eigen::Dynamic > & m);
-
+using Eigen::Array;
+using Eigen::Dynamic;
 
 //--------------------------------------------------------------------------------
 Grid::Grid(int r, int c, int origin_r, int origin_c) : rows(r), columns(c), origin_row(origin_r), origin_column(origin_c), iteration(0) {
@@ -15,24 +14,28 @@ Grid::Grid(int r, int c, int origin_r, int origin_c) : rows(r), columns(c), orig
 	cells.setConstant(false);
 	neighbour_count.resize(rows, columns);
 	neighbour_count.setConstant(0);
+
+	cubes.reserve(rows * columns);
+}
+
+void Grid::add_cube(int r, int c) {
+	ZoneScoped;
+	Cube* cube = new Cube();
+	cube->m_position = glm::vec3((float) (origin_column - c), (float) (origin_row - r), -3.0f);
+	cube->m_angle = 0.0f;
+	
+	cubes.push_back(*cube);
 }
 
 //--------------------------------------------------------------------------------
-std::vector<Cube> Grid::create_cubes_for_alive_grid_cells() {
+void Grid::create_cubes_for_alive_grid_cells() {
 	ZoneScoped;
-	std::vector<Cube> cubes;
-	for (int r = 0; r < rows; r++) {
-		for (int c = 0; c < columns; c++) {
-			if (cells(r, c)) {
-				Cube* cube = new Cube();
-				cube->m_position = glm::vec3((float) (origin_column - c), (float) (origin_row - r), -3.0f);
-				cube->m_angle = 0.0f;
-	
-				cubes.push_back(*cube);
-			}
-		}
+	cubes.clear();
+	for (std::pair<int, int>& coord: coordinates) {
+		int r = coord.first;
+		int c = coord.second;
+		add_cube(r, c);
 	}
-	return cubes;
 }
 
 //--------------------------------------------------------------------------------
@@ -50,6 +53,7 @@ void Grid::next_iteration() {
 	update_neighbour_count();
 
 	// TODO: split this up and handle interior and border of the grid individually. If we do that we can incorporate the resize_if_needed() call into the border case computation
+	coordinates.clear();
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			unsigned int count = neighbour_count(r, c);
@@ -57,11 +61,14 @@ void Grid::next_iteration() {
 				// a cell that is alive stays alive iff it has two or three neighbouring alive cells.
 				if (count != 2 && count != 3) {
 					cells(r, c) = false;
+				} else {
+					coordinates.push_back(std::make_pair(r, c));
 				}
 			} else {
 				// a dead cell becomes alive exactly iff it has three neighbouring alive cells.
 				if (count == 3) {
 					cells(r, c) = true;
+					coordinates.push_back(std::make_pair(r, c));
 				}
 			}
 		}
@@ -75,12 +82,12 @@ void Grid::update_neighbour_count_top() {
 		if (cells(r, c)) {
 			number_of_alive_cells++;
 
-			increment_if_valid_index(r, c - 1, rows, columns, neighbour_count);
-			increment_if_valid_index(r, c + 1, rows, columns, neighbour_count);
+			neighbour_count(r, c - 1)++;
+			neighbour_count(r, c + 1)++;
 			
-			increment_if_valid_index(r + 1, c - 1, rows, columns, neighbour_count);
-			increment_if_valid_index(r + 1, c, rows, columns, neighbour_count);
-			increment_if_valid_index(r + 1, c + 1, rows, columns, neighbour_count);
+			neighbour_count(r + 1, c - 1)++;
+			neighbour_count(r + 1, c)++;
+			neighbour_count(r + 1, c + 1)++;
 		}
 	}
 }
@@ -92,12 +99,12 @@ void Grid::update_neighbour_count_bottom() {
 		if (cells(r, c)) {
 			number_of_alive_cells++;
 
-			increment_if_valid_index(r - 1, c - 1, rows, columns, neighbour_count);
-			increment_if_valid_index(r - 1, c, rows, columns, neighbour_count);
-			increment_if_valid_index(r - 1, c + 1, rows, columns, neighbour_count);
+			neighbour_count(r - 1, c - 1)++;
+			neighbour_count(r - 1, c)++;
+			neighbour_count(r - 1, c + 1)++;
 			
-			increment_if_valid_index(r, c - 1, rows, columns, neighbour_count);
-			increment_if_valid_index(r, c + 1, rows, columns, neighbour_count);
+			neighbour_count(r, c - 1)++;
+			neighbour_count(r, c + 1)++;
 		}
 	}
 }
@@ -108,10 +115,10 @@ void Grid::update_neighbour_count_left() {
 	for (int r = 1; r < rows - 1; r++) {
 		if (cells(r, c)) {
 			number_of_alive_cells++;
-			increment_if_valid_index(r - 1, c, rows, columns, neighbour_count);
-			increment_if_valid_index(r - 1, c + 1, rows, columns, neighbour_count);
-			increment_if_valid_index(r, c + 1, rows, columns, neighbour_count);
-			increment_if_valid_index(r + 1, c, rows, columns, neighbour_count);
+			neighbour_count(r - 1, c)++;
+			neighbour_count(r - 1, c + 1)++;
+			neighbour_count(r, c + 1)++;
+			neighbour_count(r + 1, c)++;
 		}
 	}
 }
@@ -123,11 +130,11 @@ void Grid::update_neighbour_count_right() {
 		if (cells(r, c)) {
 			number_of_alive_cells++;
 
-			increment_if_valid_index(r - 1, c - 1, rows, columns, neighbour_count);
-			increment_if_valid_index(r - 1, c, rows, columns, neighbour_count);
-			increment_if_valid_index(r, c - 1, rows, columns, neighbour_count);
-			increment_if_valid_index(r + 1, c - 1, rows, columns, neighbour_count);
-			increment_if_valid_index(r + 1, c, rows, columns, neighbour_count);
+			neighbour_count(r - 1, c - 1)++;
+			neighbour_count(r - 1, c)++;
+			neighbour_count(r, c - 1)++;
+			neighbour_count(r + 1, c - 1)++;
+			neighbour_count(r + 1, c)++;
 		}
 	}
 
@@ -138,27 +145,27 @@ void Grid::update_neighbour_count_corners() {
 
 	if (cells(0, 0)) {
 		number_of_alive_cells++;
-		increment_if_valid_index(1, 0, rows, columns, neighbour_count);
-		increment_if_valid_index(0, 1, rows, columns, neighbour_count);
-		increment_if_valid_index(1, 1, rows, columns, neighbour_count);
+		neighbour_count(1, 0)++;
+		neighbour_count(0, 1)++;
+		neighbour_count(1, 1)++;
 	}
 	if (cells(0, columns - 1)) {
 		number_of_alive_cells++;
-		increment_if_valid_index(0, columns - 2, rows, columns, neighbour_count);
-		increment_if_valid_index(1, columns - 1, rows, columns, neighbour_count);
-		increment_if_valid_index(1, columns - 2, rows, columns, neighbour_count);
+		neighbour_count(0, columns - 2)++;
+		neighbour_count(1, columns - 1)++;
+		neighbour_count(1, columns - 2)++;
 	}
 	if (cells(rows - 1, 0)) {
 		number_of_alive_cells++;
-		increment_if_valid_index(rows - 1, 1, rows, columns, neighbour_count);
-		increment_if_valid_index(rows - 2, 0, rows, columns, neighbour_count);
-		increment_if_valid_index(rows - 2, 1, rows, columns, neighbour_count);
+		neighbour_count(rows - 1, 1)++;
+		neighbour_count(rows - 2, 0)++;
+		neighbour_count(rows - 2, 1)++;
 	}
 	if (cells(rows - 1 , columns - 1)) {
 		number_of_alive_cells++;
-		increment_if_valid_index(rows - 1, columns - 2, rows, columns, neighbour_count);
-		increment_if_valid_index(rows - 2, columns - 1, rows, columns, neighbour_count);
-		increment_if_valid_index(rows - 2, columns - 2, rows, columns, neighbour_count);
+		neighbour_count(rows - 1, columns - 2)++;
+		neighbour_count(rows - 2, columns - 1)++;
+		neighbour_count(rows - 2, columns - 2)++;
 	}
 }
 
@@ -183,24 +190,18 @@ void Grid::update_neighbour_count() {
 			if (cells(r, c)) {
 				number_of_alive_cells++;
 
-				increment_if_valid_index(r - 1, c - 1, rows, columns, neighbour_count);
-				increment_if_valid_index(r - 1, c, rows, columns, neighbour_count);
-				increment_if_valid_index(r - 1, c + 1, rows, columns, neighbour_count);
-				increment_if_valid_index(r, c - 1, rows, columns, neighbour_count);
-				// dont increment urself.
-				//neighbour_count->increment_if_valid_index(r, c);
-				increment_if_valid_index(r, c + 1, rows, columns, neighbour_count);
-				increment_if_valid_index(r + 1, c - 1, rows, columns, neighbour_count);
-				increment_if_valid_index(r + 1, c, rows, columns, neighbour_count);
-				increment_if_valid_index(r + 1, c + 1, rows, columns, neighbour_count);
+				neighbour_count(r - 1, c - 1)++;
+				neighbour_count(r - 1, c)++;
+				neighbour_count(r - 1, c + 1)++;
+				neighbour_count(r, c - 1)++;
+				
+				neighbour_count(r, c + 1)++;
+				neighbour_count(r + 1, c - 1)++;
+				neighbour_count(r + 1, c)++;
+				neighbour_count(r + 1, c + 1)++;
 			}
 		}
 	}
-}
-
-inline static void increment_if_valid_index(int r, int c, int rows, int columns, Eigen::Matrix < unsigned int, Eigen::Dynamic, Eigen::Dynamic > & m) {
-	if (r < 0 || r > rows - 1 || c < 0 || c > columns - 1) return;
-	m(r, c) += 1;
 }
 
 //--------------------------------------------------------------------------------
@@ -226,10 +227,10 @@ void Grid::resize_if_needed() {
 	int new_origin_row = origin_row + row_offset;
 	int new_origin_column = origin_column + column_offset;
 
-	Eigen::Matrix < bool, Eigen::Dynamic, Eigen::Dynamic > new_cells(new_rows, new_columns);
+	Array < bool, Dynamic, Dynamic > new_cells(new_rows, new_columns);
 	new_cells.setConstant(false);
 
-	Eigen::Matrix < unsigned int, Eigen::Dynamic, Eigen::Dynamic > new_neighbour_count(new_rows, new_columns);
+	Array < unsigned int, Dynamic, Dynamic > new_neighbour_count(new_rows, new_columns);
 	new_neighbour_count.setConstant(0);
 
 	// TODO faster
@@ -250,7 +251,8 @@ void Grid::resize_if_needed() {
 
 	cells = new_cells;
 	neighbour_count = new_neighbour_count;
-	std::cout << "resized grid. new rows: " << rows << ", new columns: " << columns << "\n";
+
+	cubes.reserve(rows * columns);
 	update_neighbour_count();
 }
 
@@ -269,7 +271,7 @@ Grid_Render_Data* Grid::create_render_data() {
 	grid_render_data->grid_info.number_of_alive_cells = number_of_alive_cells;
 
 	// cubes render data for each alive cell of the grid.
-	std::vector<Cube> cubes = create_cubes_for_alive_grid_cells();
+	create_cubes_for_alive_grid_cells();
 	for (Cube& cube: cubes) {
 		Cube_Render_Data* cube_render_data = cube.create_render_data();
 		grid_render_data->cubes_render_data.push_back(*cube_render_data);
@@ -281,53 +283,3 @@ Grid_Render_Data* Grid::create_render_data() {
 Grid_Render_Data::Grid_Render_Data() {
 	
 }
-
-/*
-//--------------------------------------------------------------------------------
-template<typename T>
-Matrix<T>::Matrix(size_t r, size_t c) : rows(r), columns(c), data({}) {
-	data.reserve(rows * columns);
-}
-
-//--------------------------------------------------------------------------------
-template<typename T>
-Matrix<T>::Matrix(size_t r, size_t c, T default_value): rows(r), columns(c), data({}) {
-	ZoneScoped;
-	data.reserve(rows * columns);
-	for (size_t r = 0; r < rows; r++) {
-		for (size_t c = 0; c < columns; c++) {
-			data.push_back(default_value);
-		}
-	}
-}
-
-//--------------------------------------------------------------------------------
-template<typename T>
-inline size_t Matrix<T>::index(size_t r, size_t c) {
-	ZoneScoped;
-	return r * columns + c;
-}
-
-//--------------------------------------------------------------------------------
-template<typename T>
-inline T Matrix<T>::get(size_t r, size_t c) {
-	ZoneScoped;
-	return data[index(r, c)];
-}
-
-//--------------------------------------------------------------------------------
-template<typename T>
-inline void Matrix<T>::set(size_t r, size_t c, T value) {
-	ZoneScoped;
-	data[index(r, c)] = value;
-}
-
-//--------------------------------------------------------------------------------
-template<typename T>
-void Matrix<T>::increment_if_valid_index(size_t r, size_t c) {
-	ZoneScoped;
-	if (r < 0 || r >= rows || c < 0 || c >= columns) return;
-	T prev_value = get(r, c);
-	set(r, c, prev_value + 1);
-}
-*/

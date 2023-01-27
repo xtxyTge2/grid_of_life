@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Tracy.hpp"
+#define EIGEN_NO_DEBUG
 
 // I have TRACY_ENABLE defined in the preprocessor settings of visual studio, hence do not define it here again.
 //#define TRACY_ENABLE

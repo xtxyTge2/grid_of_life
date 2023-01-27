@@ -3,32 +3,13 @@
 #include <Eigen/Core>
 #include "cube.hpp"
 
+class Chunk {
+	constexpr static int rows = 128;
+	constexpr static int columns = 128;
 
-
-/*
-//--------------------------------------------------------------------------------
-template <typename T>
-class Matrix {
-public:
-	Matrix(size_t r, size_t c);
-
-	Matrix(size_t r, size_t c, T default_value);
-
-	size_t index(size_t r, size_t c);
-
-	T get(size_t r, size_t c);
-
-	void set(size_t, size_t c, T value); 
-	
-	void increment_if_valid_index(size_t r, size_t c);
-	//--------------------------------------------------------------------------------
-	// data
-	size_t rows;
-	size_t columns;
-
-	std::vector<T> data;
+	Eigen::Array < bool, rows, columns > cells;
+	Eigen::Array < unsigned int, rows, columns > neighbour_count;
 };
-*/
 
 //--------------------------------------------------------------------------------
 struct Grid_Info {
@@ -58,11 +39,13 @@ public:
 
 	~Grid();
 
-	std::vector<Cube> create_cubes_for_alive_grid_cells();
+	void create_cubes_for_alive_grid_cells();
 
 	void update_neighbour_count();
 
 	void update();
+
+	void add_cube(int r, int c);
 
 	Grid_Render_Data* create_render_data();
 
@@ -88,11 +71,13 @@ public:
 	int origin_row; 
 	int origin_column;
 	
-	//Matrix<bool>* cells;
-	//Matrix<unsigned int>* neighbour_count;
-	Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> cells;
-	Eigen::Matrix<unsigned int, Eigen::Dynamic, Eigen::Dynamic> neighbour_count;
+	Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> cells;
+	Eigen::Array<unsigned int, Eigen::Dynamic, Eigen::Dynamic> neighbour_count;
 
 	int number_of_alive_cells;
 	int iteration;
+
+	std::vector<Chunk> chunks;
+	std::vector<Cube> cubes;
+	std::vector<std::pair<int, int>> coordinates;
 };
