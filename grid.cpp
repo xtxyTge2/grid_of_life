@@ -50,14 +50,12 @@ void Grid::next_iteration() {
 	update_neighbour_count();
 
 	// TODO: split this up and handle interior and border of the grid individually. If we do that we can incorporate the resize_if_needed() call into the border case computation
-	for (size_t r = 0; r < rows; r++) {
-		for (size_t c = 0; c < columns; c++) {
+	for (int r = 0; r < rows; r++) {
+		for (int c = 0; c < columns; c++) {
 			unsigned int count = neighbour_count(r, c);
 			if (cells(r, c)) {
 				// a cell that is alive stays alive iff it has two or three neighbouring alive cells.
-				if (count == 2 || count == 3) {
-					cells(r, c) = true;
-				} else {
+				if (count != 2 && count != 3) {
 					cells(r, c) = false;
 				}
 			} else {
@@ -70,15 +68,118 @@ void Grid::next_iteration() {
 	}
 }
 
+void Grid::update_neighbour_count_top() {
+	ZoneScoped;
+	int r = 0;
+	for (int c = 1; c < columns - 1; c++) {
+		if (cells(r, c)) {
+			number_of_alive_cells++;
+
+			increment_if_valid_index(r, c - 1, rows, columns, neighbour_count);
+			increment_if_valid_index(r, c + 1, rows, columns, neighbour_count);
+			
+			increment_if_valid_index(r + 1, c - 1, rows, columns, neighbour_count);
+			increment_if_valid_index(r + 1, c, rows, columns, neighbour_count);
+			increment_if_valid_index(r + 1, c + 1, rows, columns, neighbour_count);
+		}
+	}
+}
+
+void Grid::update_neighbour_count_bottom() {
+	ZoneScoped;
+	int r = rows - 1;
+	for (int c = 1; c < columns - 1; c++) {
+		if (cells(r, c)) {
+			number_of_alive_cells++;
+
+			increment_if_valid_index(r - 1, c - 1, rows, columns, neighbour_count);
+			increment_if_valid_index(r - 1, c, rows, columns, neighbour_count);
+			increment_if_valid_index(r - 1, c + 1, rows, columns, neighbour_count);
+			
+			increment_if_valid_index(r, c - 1, rows, columns, neighbour_count);
+			increment_if_valid_index(r, c + 1, rows, columns, neighbour_count);
+		}
+	}
+}
+
+void Grid::update_neighbour_count_left() {
+	ZoneScoped;
+	int c = 0;
+	for (int r = 1; r < rows - 1; r++) {
+		if (cells(r, c)) {
+			number_of_alive_cells++;
+			increment_if_valid_index(r - 1, c, rows, columns, neighbour_count);
+			increment_if_valid_index(r - 1, c + 1, rows, columns, neighbour_count);
+			increment_if_valid_index(r, c + 1, rows, columns, neighbour_count);
+			increment_if_valid_index(r + 1, c, rows, columns, neighbour_count);
+		}
+	}
+}
+
+void Grid::update_neighbour_count_right() {
+	ZoneScoped;
+	int c = columns - 1;
+	for (int r = 1; r < rows - 1; r++) {
+		if (cells(r, c)) {
+			number_of_alive_cells++;
+
+			increment_if_valid_index(r - 1, c - 1, rows, columns, neighbour_count);
+			increment_if_valid_index(r - 1, c, rows, columns, neighbour_count);
+			increment_if_valid_index(r, c - 1, rows, columns, neighbour_count);
+			increment_if_valid_index(r + 1, c - 1, rows, columns, neighbour_count);
+			increment_if_valid_index(r + 1, c, rows, columns, neighbour_count);
+		}
+	}
+
+}
+
+void Grid::update_neighbour_count_corners() {
+	ZoneScoped;
+
+	if (cells(0, 0)) {
+		number_of_alive_cells++;
+		increment_if_valid_index(1, 0, rows, columns, neighbour_count);
+		increment_if_valid_index(0, 1, rows, columns, neighbour_count);
+		increment_if_valid_index(1, 1, rows, columns, neighbour_count);
+	}
+	if (cells(0, columns - 1)) {
+		number_of_alive_cells++;
+		increment_if_valid_index(0, columns - 2, rows, columns, neighbour_count);
+		increment_if_valid_index(1, columns - 1, rows, columns, neighbour_count);
+		increment_if_valid_index(1, columns - 2, rows, columns, neighbour_count);
+	}
+	if (cells(rows - 1, 0)) {
+		number_of_alive_cells++;
+		increment_if_valid_index(rows - 1, 1, rows, columns, neighbour_count);
+		increment_if_valid_index(rows - 2, 0, rows, columns, neighbour_count);
+		increment_if_valid_index(rows - 2, 1, rows, columns, neighbour_count);
+	}
+	if (cells(rows - 1 , columns - 1)) {
+		number_of_alive_cells++;
+		increment_if_valid_index(rows - 1, columns - 2, rows, columns, neighbour_count);
+		increment_if_valid_index(rows - 2, columns - 1, rows, columns, neighbour_count);
+		increment_if_valid_index(rows - 2, columns - 2, rows, columns, neighbour_count);
+	}
+}
+
 //--------------------------------------------------------------------------------
 void Grid::update_neighbour_count() {
 	ZoneScoped;
 	// @Speed: just memset to zero ?
 	neighbour_count.setConstant(0);
 
+
 	number_of_alive_cells = 0;
-	for (int r = 0; r < rows; r++) {
-		for (int c = 0; c < columns; c++) {
+	update_neighbour_count_top();
+	update_neighbour_count_bottom();
+	update_neighbour_count_left();
+	update_neighbour_count_right();
+	update_neighbour_count_corners();
+	
+
+
+	for (int r = 1; r < rows - 1; r++) {
+		for (int c = 1; c < columns - 1; c++) {
 			if (cells(r, c)) {
 				number_of_alive_cells++;
 

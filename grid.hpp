@@ -69,6 +69,16 @@ public:
 	void next_iteration();
 
 	void resize_if_needed();
+
+	void update_neighbour_count_top();
+
+	void update_neighbour_count_bottom();
+
+	void update_neighbour_count_left();
+
+	void update_neighbour_count_right();
+
+	void update_neighbour_count_corners();
 	//--------------------------------------------------------------------------------
 	// data
 

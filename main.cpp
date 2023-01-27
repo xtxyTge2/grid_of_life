@@ -92,6 +92,10 @@ int main(int argc, char argv[]) {
 	double timer = 0.0f;
 	double time_since_last_iteration = 0.0f;
 	while (!glfwWindowShouldClose(g_state->m_window)) {	
+		if (g_state->grid->iteration >= 600) {
+			// this is for profilin, so we always run exactly 600 iterations
+			break;
+		}
 		glfwPollEvents();
 		UI_State* current_ui_state = g_renderer->ui_renderer->m_ui_state;
 
@@ -99,6 +103,7 @@ int main(int argc, char argv[]) {
 		if (!g_ui_captures_io) {
 			g_state->process_input();
 		}
+
 		// ------------------------------------------------------------------
 		// update state
 		g_state->update();
