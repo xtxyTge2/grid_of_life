@@ -55,13 +55,13 @@ void UI_Renderer::render_frame(State_Render_Data& state_render_data) {
 
 //--------------------------------------------------------------------------------
 UI_State::UI_State() :
-	m_grid_is_running(true),
-m_grid_update_speed(100.0f),
-m_update_grid(false),
-m_show_demo_window(false),
-m_grid_should_reset(false),
-m_show_grid_info(true),
-m_current_index(0)
+	m_grid_is_running(false),
+	m_grid_update_speed(100.0f),
+	m_update_grid(false),
+	m_show_demo_window(false),
+	m_grid_should_reset(false),
+	m_show_grid_info(true),
+	m_current_index(0)
 {}
 
 //--------------------------------------------------------------------------------
@@ -74,29 +74,31 @@ void UI_State::update_render_data(State_Render_Data& state_render_data) {
 	ImVec2 menu_bar_size;
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoBackground;
 
+	event_queue.clear();
 	{
 		// need to change name below as well if you change it here.
 		ImGui::Begin("Grid controls window", NULL, window_flags);
 		menu_bar_size = ImGui::GetWindowSize();
-
-		const char* start_stop_button_text;
-		if (m_grid_is_running) {
-			start_stop_button_text = "Start/Stop";
-		} else {
-			start_stop_button_text = "Start/Stop";
-		}
 		
-		if (ImGui::Button(start_stop_button_text)) {
+		if (ImGui::Button("Start/Stop")) {
 			m_grid_is_running = !m_grid_is_running;
+
+			if (m_grid_is_running) {
+				event_queue.push_back(GRID_START_RUNNING);
+			} else {
+				event_queue.push_back(GRID_STOP_RUNNING);
+			}
 		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Next iteration")) {
+			event_queue.push_back(GRID_MANUAL_NEXT_ITERATION);
 			m_update_grid = true;
 		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Reset")) {
+			event_queue.push_back(GRID_RESET);
 			m_grid_should_reset = true;
 		}
 

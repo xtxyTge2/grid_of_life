@@ -15,18 +15,14 @@
 #include "texture.hpp"
 #include "cube.hpp"
 #include "grid.hpp"
+#include "state_render_data.hpp"
+#include "ui_renderer.hpp"
 
-
-//--------------------------------------------------------------------------------
-class State_Render_Data {
-public:
-	State_Render_Data();
-	//--------------------------------------------------------------------------------
-	// data
-	Camera_Render_Data* camera_render_data;
-
-	Grid_Render_Data* grid_render_data;
+struct Grid_Execution_State {
+	bool is_running;
+	bool run_manual_next_iteration;
 };
+
 
 //--------------------------------------------------------------------------------
 class Timer {
@@ -40,6 +36,20 @@ public:
 	float m_last_frame_time;
 };
 
+class Grid_Manager {
+public:
+	Grid_Manager();
+
+	void initialise();
+
+	void update(std::vector<UI_Event_Type> event_queue);
+
+	void create_new_grid();
+
+	Grid* grid;
+	Grid_Execution_State grid_execution_state;
+};
+
 //--------------------------------------------------------------------------------
 class State {
 public:
@@ -47,15 +57,13 @@ public:
 
 	void initialise(GLFWwindow*);
 
-	void update();
+	void update(std::vector<UI_Event_Type> event_queue);
 
 	void process_input();
 	
 	void framebuffer_size_callback(int, int);
 
 	State_Render_Data create_render_data();
-
-	void reset_grid();
 	//--------------------------------------------------------------------------------
 	// data
 	std::unique_ptr<Camera> m_camera;
@@ -64,5 +72,5 @@ public:
 
 	std::unique_ptr<Timer> m_timer;
 	
-	Grid* grid;
+	Grid_Manager* grid_manager;
 };

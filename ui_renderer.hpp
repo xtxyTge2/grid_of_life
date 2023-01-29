@@ -5,7 +5,18 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include "state.hpp"
+#include "state_render_data.hpp"
+
+enum UI_Event_Type {
+	GRID_RESET,
+	GRID_MANUAL_NEXT_ITERATION,
+	GRID_START_RUNNING,
+	GRID_STOP_RUNNING
+};
+
+struct UI_Event {
+	UI_Event_Type type;
+};
 
 //--------------------------------------------------------------------------------
 class UI_State {
@@ -26,6 +37,8 @@ public:
 	constexpr static int m_cell_number_values_size = 100;
 	float  m_cell_number_values[m_cell_number_values_size];
 	int    m_current_index;
+
+	std::vector<UI_Event_Type> event_queue;
 };
 
 //--------------------------------------------------------------------------------
