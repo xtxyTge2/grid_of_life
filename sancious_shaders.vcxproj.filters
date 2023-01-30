@@ -27,9 +27,6 @@
     <ClCompile Include="shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shader_program.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -84,9 +81,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="shader.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="shader_program.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="stb_image.h">
