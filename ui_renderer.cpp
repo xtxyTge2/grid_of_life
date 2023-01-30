@@ -55,11 +55,8 @@ void UI_Renderer::render_frame(State_Render_Data& state_render_data) {
 
 //--------------------------------------------------------------------------------
 UI_State::UI_State() :
-	m_grid_is_running(false),
-	m_grid_update_speed(100.0f),
-	m_update_grid(false),
+	grid_ui_controls_info({}),
 	m_show_demo_window(false),
-	m_grid_should_reset(false),
 	m_show_grid_info(true),
 	m_current_index(0)
 {}
@@ -74,32 +71,25 @@ void UI_State::update_render_data(State_Render_Data& state_render_data) {
 	ImVec2 menu_bar_size;
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoBackground;
 
-	event_queue.clear();
+	// reset the ui controls structure!
+	grid_ui_controls_info.button_type = GRID_NO_BUTTON_PRESSED;
 	{
 		// need to change name below as well if you change it here.
 		ImGui::Begin("Grid controls window", NULL, window_flags);
 		menu_bar_size = ImGui::GetWindowSize();
 		
 		if (ImGui::Button("Start/Stop")) {
-			m_grid_is_running = !m_grid_is_running;
-
-			if (m_grid_is_running) {
-				event_queue.push_back(GRID_START_RUNNING);
-			} else {
-				event_queue.push_back(GRID_STOP_RUNNING);
-			}
+			grid_ui_controls_info.button_type = GRID_START_STOP_BUTTON_PRESSED;
 		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Next iteration")) {
-			event_queue.push_back(GRID_MANUAL_NEXT_ITERATION);
-			m_update_grid = true;
+			grid_ui_controls_info.button_type = GRID_NEXT_ITERATION_BUTTON_PRESSED;
 		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Reset")) {
-			event_queue.push_back(GRID_RESET);
-			m_grid_should_reset = true;
+			grid_ui_controls_info.button_type = GRID_RESET_BUTTON_PRESSED;
 		}
 
 		ImGui::SameLine();
@@ -142,8 +132,8 @@ void UI_State::update_render_data(State_Render_Data& state_render_data) {
 		ImGui::Text("Origin row: %d, Origin column: %d", grid_info.origin_row, grid_info.origin_column);
 		ImGui::Text("Number of alive cells: %d", grid_info.number_of_alive_cells);
 
-		ImGui::SliderFloat("Grid update speed", &m_grid_update_speed, 1.0f, 100.0f);   
-	
+		ImGui::SliderFloat("Grid update speed", &grid_ui_controls_info.grid_speed_slider_value, 1.0f, 100.0f);   
+		
 		ImGui::Checkbox("Demo Window", &m_show_demo_window);   
 
 		if (m_show_demo_window) {

@@ -7,10 +7,10 @@
 //--------------------------------------------------------------------------------
 State::State() :
 	m_camera(nullptr),
-	m_mouse(nullptr),
-	m_window(nullptr),
-	m_timer(nullptr),
-	grid_manager(nullptr)
+m_mouse(nullptr),
+m_window(nullptr),
+m_timer(nullptr),
+grid_manager(nullptr)
 {
 
 }
@@ -44,10 +44,13 @@ void State::initialise(GLFWwindow* window) {
 
 
 //--------------------------------------------------------------------------------
-void State::update(std::vector<UI_Event_Type> event_queue) {
+void State::update(Grid_UI_Controls_Info grid_ui_controls_info) {
 	ZoneScoped;
+
 	m_timer->update();
-	grid_manager->update(event_queue);
+	double dt = m_timer->dt;
+
+	grid_manager->update(dt, grid_ui_controls_info);
 }
 
 //--------------------------------------------------------------------------------
@@ -59,7 +62,7 @@ void State::framebuffer_size_callback(int width, int height) {
 //--------------------------------------------------------------------------------
 void State::process_input() {
 	ZoneScoped;
-	m_camera->m_speed = 50.0f * m_timer->m_delta_time;
+	m_camera->m_speed = 50.0f * m_timer->dt;
 
 	if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(m_window, true);
@@ -105,8 +108,8 @@ State_Render_Data State::create_render_data() {
 
 //--------------------------------------------------------------------------------
 Timer::Timer() :
-	m_delta_time(0.0f),
-	m_last_frame_time(0.0f)
+	dt(0.0f),
+m_last_frame_time(0.0f)
 {
 
 }
@@ -115,7 +118,7 @@ Timer::Timer() :
 void Timer::update() {
 	ZoneScoped;
 	float m_current_frame_time = (float) glfwGetTime();
-	m_delta_time = m_current_frame_time - m_last_frame_time;
+	dt = m_current_frame_time - m_last_frame_time;
 	m_last_frame_time = m_current_frame_time;
 }
 
@@ -130,45 +133,43 @@ Grid_Manager::Grid_Manager()
 //--------------------------------------------------------------------------------
 void Grid_Manager::create_new_grid() {
 	ZoneScoped;
-
-	grid_execution_state.is_running = false;
-	grid_execution_state.run_manual_next_iteration = false;
+	
+	grid_execution_state = {};
 	grid = new Grid();
 }
 
-void Grid_Manager::update(std::vector<UI_Event_Type> event_queue) {
-	// @Cleanup: This design pattern might be really bad, ie we process the whole queue in this update call. (Set a max number of events like 5 or something?). What if we somehow spam the queue and we therefore block everything with these events. Might make it really irresponsive. This is not a problem yet and it should be easy to fix later so we dont do anything yet. 
-
-	// DONT FORGET TO CLEAR THE QUEUE AFTER THIS LOOP
-	for (UI_Event_Type event: event_queue) {
-		switch (event) {
-			// reset no matter what, we always reset the grid if we get that event. This cant be overwritten by other events later in the queue.
-			case GRID_RESET:
-				create_new_grid();
-				event_queue.clear();
-				break;
-			// all other events can be overwritten by subsequent events in the queue. This doesnt happen in practice, unless we are somehow unresponsive but the ui caches all user inputs. If that happens we just take the last action. So to summarize, we only process the last event, except for grid resets, which always get executed.
-			case GRID_MANUAL_NEXT_ITERATION:
-				// only set run_manual_next_iteration if we are stopped
-				if (!grid_execution_state.is_running) {
-					grid_execution_state.run_manual_next_iteration = true;
-				}
-				break;
-			case GRID_START_RUNNING:
-				grid_execution_state.is_running = true;
-				break;
-			case GRID_STOP_RUNNING:
-				grid_execution_state.is_running = false;
-				break;
-			default:
-				break;
-		}
+void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
+	switch (ui_info.button_type) {
+		case GRID_NO_BUTTON_PRESSED:
+			break;
+		case GRID_RESET_BUTTON_PRESSED:
+			create_new_grid();
+			return;
+			// if you remove the return somehow later, dont forget a break statement here :)
+			// break;
+		case GRID_NEXT_ITERATION_BUTTON_PRESSED:
+			// only set run_manual_next_iteration if we are stopped
+			if (!grid_execution_state.is_running) {
+				grid_execution_state.run_manual_next_iteration = true;
+			}
+			break;
+		case GRID_START_STOP_BUTTON_PRESSED:
+			grid_execution_state.is_running = !grid_execution_state.is_running;
+			grid_execution_state.time_since_last_iteration = 0.0f;
+			break;
+		default:
+			break;
 	}
-	// DONT FORGET TO CLEAR THE QUEUE!
-	event_queue.clear(); 
+	grid_execution_state.grid_speed = ui_info.grid_speed_slider_value;
 
 	if (grid_execution_state.is_running) {
-		grid->next_iteration();
+		//assert(grid_execution_state.grid_speed > 0.0f);
+		grid_execution_state.time_since_last_iteration += (float) dt;
+		float threshold = 1.0f / grid_execution_state.grid_speed;
+		if (grid_execution_state.time_since_last_iteration >= threshold) {
+			grid->next_iteration();
+			grid_execution_state.time_since_last_iteration = 0.0f;
+		}
 	} else {
 		if (grid_execution_state.run_manual_next_iteration) {
 			grid_execution_state.run_manual_next_iteration = false;
@@ -176,4 +177,30 @@ void Grid_Manager::update(std::vector<UI_Event_Type> event_queue) {
 		}
 	}
 
+
+	/*
+		time_since_last_iteration += g_state->m_timer->m_delta_time;
+		bool grid_is_in_next_iteration = false;
+		if (current_ui_state->m_grid_is_running) {
+		float threshold = 1.0f / current_ui_state->m_grid_update_speed;
+		if (time_since_last_iteration >= threshold) {
+		g_state->grid->next_iteration();
+		grid_is_in_next_iteration = true;
+		time_since_last_iteration = 0.0f;
+		}
+		} else {
+		if (current_ui_state->m_update_grid) {
+		current_ui_state->m_update_grid = false;
+		g_state->grid->next_iteration();
+		grid_is_in_next_iteration = true;
+		}
+		}
+
+		if (current_ui_state->m_grid_should_reset) {
+		current_ui_state->m_grid_should_reset = false;
+		current_ui_state->m_update_grid = false;
+		current_ui_state->m_grid_is_running = false;
+		g_state->create_new_grid();
+		}
+	*/
 }

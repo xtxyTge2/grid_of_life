@@ -7,15 +7,16 @@
 
 #include "state_render_data.hpp"
 
-enum UI_Event_Type {
-	GRID_RESET,
-	GRID_MANUAL_NEXT_ITERATION,
-	GRID_START_RUNNING,
-	GRID_STOP_RUNNING
+enum Grid_UI_Control_Button_Events {
+	GRID_NO_BUTTON_PRESSED,
+	GRID_RESET_BUTTON_PRESSED,
+	GRID_NEXT_ITERATION_BUTTON_PRESSED,
+	GRID_START_STOP_BUTTON_PRESSED
 };
 
-struct UI_Event {
-	UI_Event_Type type;
+struct Grid_UI_Controls_Info {
+	Grid_UI_Control_Button_Events button_type = GRID_NO_BUTTON_PRESSED;
+	float grid_speed_slider_value = 100.0f;
 };
 
 //--------------------------------------------------------------------------------
@@ -28,17 +29,14 @@ public:
 	void add_cell_number(float value);
 	//--------------------------------------------------------------------------------
 	// data
-	bool   m_update_grid;
-	float  m_grid_update_speed;
+	Grid_UI_Controls_Info grid_ui_controls_info;
+
 	bool   m_show_demo_window;
-	bool   m_grid_is_running;
-	bool   m_grid_should_reset;
+
 	bool   m_show_grid_info;
 	constexpr static int m_cell_number_values_size = 100;
 	float  m_cell_number_values[m_cell_number_values_size];
 	int    m_current_index;
-
-	std::vector<UI_Event_Type> event_queue;
 };
 
 //--------------------------------------------------------------------------------

@@ -19,8 +19,10 @@
 #include "ui_renderer.hpp"
 
 struct Grid_Execution_State {
-	bool is_running;
-	bool run_manual_next_iteration;
+	bool is_running = false;
+	bool run_manual_next_iteration = false;
+	float time_since_last_iteration = 0.0f;
+	float grid_speed = 1.0f;
 };
 
 
@@ -32,7 +34,7 @@ public:
 	void update();
 	//--------------------------------------------------------------------------------
 	// data
-	float m_delta_time;
+	float dt;
 	float m_last_frame_time;
 };
 
@@ -42,7 +44,7 @@ public:
 
 	void initialise();
 
-	void update(std::vector<UI_Event_Type> event_queue);
+	void update(double dt, Grid_UI_Controls_Info grid_ui_controls_info);
 
 	void create_new_grid();
 
@@ -57,7 +59,7 @@ public:
 
 	void initialise(GLFWwindow*);
 
-	void update(std::vector<UI_Event_Type> event_queue);
+	void update(Grid_UI_Controls_Info grid_ui_controls_info);
 
 	void process_input();
 	

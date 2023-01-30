@@ -104,43 +104,11 @@ int main(int argc, char argv[]) {
 
 		// ------------------------------------------------------------------
 		// update state
-		
-		g_state->update(current_ui_state->event_queue);
-		//current_ui_state->event_queue.clear();
-
-		/*
-		time_since_last_iteration += g_state->m_timer->m_delta_time;
-		bool grid_is_in_next_iteration = false;
-		if (current_ui_state->m_grid_is_running) {
-			float threshold = 1.0f / current_ui_state->m_grid_update_speed;
-			if (time_since_last_iteration >= threshold) {
-				g_state->grid->next_iteration();
-				grid_is_in_next_iteration = true;
-				time_since_last_iteration = 0.0f;
-			}
-		} else {
-			if (current_ui_state->m_update_grid) {
-				current_ui_state->m_update_grid = false;
-				g_state->grid->next_iteration();
-				grid_is_in_next_iteration = true;
-			}
-		}
-
-		if (current_ui_state->m_grid_should_reset) {
-			current_ui_state->m_grid_should_reset = false;
-			current_ui_state->m_update_grid = false;
-			current_ui_state->m_grid_is_running = false;
-			g_state->create_new_grid();
-		}
-		*/
+		g_state->update(current_ui_state->grid_ui_controls_info);
+	
 		// ------------------------------------------------------------------
 		// draw everything
 		State_Render_Data state_render_data = g_state->create_render_data();
-		/*
-		if (grid_is_in_next_iteration) {
-			current_ui_state->add_cell_number((float) state_render_data.grid_render_data->grid_info.number_of_alive_cells);
-		}
-		*/
 		g_renderer->render_frame(state_render_data);
 		FrameMark;
 	}
