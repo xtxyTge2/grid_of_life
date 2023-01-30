@@ -1,13 +1,12 @@
 #pragma once
 
-#include "camera.hpp"
-#include "grid.hpp"
-
-
+#include "world.hpp"
 //--------------------------------------------------------------------------------
-class State_Render_Data {
+class World_Render_Data {
 public:
-	State_Render_Data();
+	World_Render_Data();
+
+	void update(std::shared_ptr<World> world_ptr);
 	//--------------------------------------------------------------------------------
 	// data
 	Camera_Render_Data* camera_render_data;

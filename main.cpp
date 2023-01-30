@@ -18,20 +18,17 @@
 #include "opengl.hpp"
 #include "state.hpp"
 #include "texture.hpp"
-#include "ui_renderer.hpp"
 
 //--------------------------------------------------------------------------------
 void set_input_callbacks(GLFWwindow*);
 void framebuffer_size_callback(GLFWwindow*, int, int);
 Texture* load_texture(const std::string&, unsigned int&);
-void register_and_load_textures(World_Renderer*);
+void register_and_load_textures(Renderer*);
 GLFWwindow* init_glfw_glad_and_create_window(int window_width, int window_height);
 int main(int, char[]);
 
 //--------------------------------------------------------------------------------
 State* g_state = new State();
-Renderer* g_renderer = new Renderer();
-bool g_ui_captures_io = false;
 
 //--------------------------------------------------------------------------------
 void set_input_callbacks(GLFWwindow* window) {
@@ -74,7 +71,7 @@ GLFWwindow* init_glfw_glad_and_create_window(int window_width, int window_height
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	ZoneScoped;
 
-	if (window == g_state->m_window) {
+	if (window == g_state->window) {
 		g_state->framebuffer_size_callback(width, height);
 	}
 }
@@ -86,30 +83,14 @@ int main(int argc, char argv[]) {
 		std::cout << "Failed to initialize glfw and create a window." << std::endl;
 		return -1;
 	}
-	g_renderer->initialise(window);
 	g_state->initialise(window);
 
 	// ------------------------------------------------------------------
-	double timer = 0.0f;
-	double time_since_last_iteration = 0.0f;
-	while (!glfwWindowShouldClose(g_state->m_window)) {	
-		glfwPollEvents();
-		UI_State* current_ui_state = g_renderer->ui_renderer->m_ui_state;
+	while (!g_state->should_quit()) {	
+		g_state->update();
 
-		g_ui_captures_io = g_renderer->ui_renderer->imgui_wants_to_capture_io();
-		if (!g_ui_captures_io) {
-			g_state->process_input();
-		}
+		g_state->render_frame();
 
-
-		// ------------------------------------------------------------------
-		// update state
-		g_state->update(current_ui_state->grid_ui_controls_info);
-	
-		// ------------------------------------------------------------------
-		// draw everything
-		State_Render_Data state_render_data = g_state->create_render_data();
-		g_renderer->render_frame(state_render_data);
 		FrameMark;
 	}
 	

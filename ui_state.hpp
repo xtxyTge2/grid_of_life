@@ -5,7 +5,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include "state_render_data.hpp"
+#include "grid.hpp"
 
 enum Grid_UI_Control_Button_Events {
 	GRID_NO_BUTTON_PRESSED,
@@ -24,35 +24,21 @@ class UI_State {
 public:
 	UI_State();
 
-	void update_render_data(State_Render_Data& state_render_data);
+	~UI_State();
 
-	void add_cell_number(float value);
+	void update(Grid_Info grid_info);
+
+	void setup_ui_for_current_frame(Grid_Info grid_info);
+	
+	void initialise(GLFWwindow* window);
+
+	bool wants_to_capture_io();
 	//--------------------------------------------------------------------------------
 	// data
 	Grid_UI_Controls_Info grid_ui_controls_info;
 
 	bool   m_show_demo_window;
-
 	bool   m_show_grid_info;
-	constexpr static int m_cell_number_values_size = 100;
-	float  m_cell_number_values[m_cell_number_values_size];
-	int    m_current_index;
-};
 
-//--------------------------------------------------------------------------------
-class UI_Renderer {
-public:
-	UI_Renderer();
-
-	~UI_Renderer();
-
-	void initialise(GLFWwindow* window);
-
-	void render_frame(State_Render_Data& state_render_data);
-
-	bool imgui_wants_to_capture_io();
-	//--------------------------------------------------------------------------------
-	// data
 	GLFWwindow* m_window;
-	UI_State* m_ui_state;
 };

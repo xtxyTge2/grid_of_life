@@ -28,6 +28,7 @@
     <ClCompile Include="3rdparty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="3rdparty\tracy\TracyClient.cpp" />
     <ClCompile Include="camera.cpp" />
+	<ClCompile Include="world.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="read.cpp" />
@@ -37,7 +38,7 @@
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="cube.cpp" />
     <ClCompile Include="renderer.cpp" />
-    <ClCompile Include="ui_renderer.cpp" />
+    <ClCompile Include="ui_state.cpp" />
 	<ClCompile Include="grid.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -51,6 +52,7 @@
     <ClInclude Include="3rdparty\imgui\imstb_textedit.h" />
     <ClInclude Include="3rdparty\imgui\imstb_truetype.h" />
     <ClInclude Include="camera.hpp" />
+	<ClInclude Include="world.hpp" />
     <ClInclude Include="read.hpp" />
     <ClInclude Include="shader.hpp" />
     <ClInclude Include="shader_program.hpp" />
@@ -60,7 +62,7 @@
     <ClInclude Include="opengl.hpp" />
     <ClInclude Include="cube.hpp" />
     <ClInclude Include="renderer.hpp" />
-    <ClInclude Include="ui_renderer.hpp" />
+    <ClInclude Include="ui_state.hpp" />
 	<ClInclude Include="grid.hpp" />
   </ItemGroup>
   <ItemGroup>

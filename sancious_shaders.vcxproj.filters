@@ -45,10 +45,13 @@
     <ClCompile Include="renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ui_renderer.cpp">
+    <ClCompile Include="ui_state.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
 	<ClCompile Include="grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+	<ClCompile Include="world.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="3rdparty\imgui\imgui.cpp">
@@ -107,10 +110,13 @@
     <ClInclude Include="renderer.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="ui_renderer.hpp">
+    <ClInclude Include="ui_state.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
 	<ClInclude Include="grid.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+	<ClInclude Include="world.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="3rdparty\imgui\imconfig.h">
