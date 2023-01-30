@@ -176,31 +176,4 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 			grid->next_iteration();
 		}
 	}
-
-
-	/*
-		time_since_last_iteration += g_state->m_timer->m_delta_time;
-		bool grid_is_in_next_iteration = false;
-		if (current_ui_state->m_grid_is_running) {
-		float threshold = 1.0f / current_ui_state->m_grid_update_speed;
-		if (time_since_last_iteration >= threshold) {
-		g_state->grid->next_iteration();
-		grid_is_in_next_iteration = true;
-		time_since_last_iteration = 0.0f;
-		}
-		} else {
-		if (current_ui_state->m_update_grid) {
-		current_ui_state->m_update_grid = false;
-		g_state->grid->next_iteration();
-		grid_is_in_next_iteration = true;
-		}
-		}
-
-		if (current_ui_state->m_grid_should_reset) {
-		current_ui_state->m_grid_should_reset = false;
-		current_ui_state->m_update_grid = false;
-		current_ui_state->m_grid_is_running = false;
-		g_state->create_new_grid();
-		}
-	*/
 }
