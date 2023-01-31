@@ -86,7 +86,8 @@ class Grid {
 public:
 	Grid();
 
-	~Grid();
+	~Grid(); 
+
 	void create_new_chunk_and_set_alive_cells(int i, int j, std::vector<std::pair<int, int>> coordinates);
 
 	void print_all_chunks_info();
@@ -112,7 +113,7 @@ public:
 
 //--------------------------------------------------------------------------------
 struct Grid_Execution_State {
-	bool is_running = false;
+	bool is_running = true;
 	bool run_manual_next_iteration = false;
 	float time_since_last_iteration = 0.0f;
 	float grid_speed = 1.0f;
@@ -136,7 +137,8 @@ public:
 
 	Grid_Render_Data* create_render_data();
 
-	std::vector<Cube> cubes;
+	std::vector<std::pair<int, int>> world_coordinates;
 	Grid* grid;
 	Grid_Execution_State grid_execution_state;
+	
 };

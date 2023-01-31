@@ -16,6 +16,7 @@ Grid_Manager::Grid_Manager()
 	create_new_grid();
 };
 
+
 //--------------------------------------------------------------------------------
 void Grid_Manager::create_new_grid() {
 	ZoneScoped;
@@ -48,6 +49,8 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 	}
 	grid_execution_state.show_chunk_borders = ui_info.show_chunk_borders;
 	grid_execution_state.grid_speed = ui_info.grid_speed_slider_value;
+	
+	bool grid_changed = false;
 
 	if (grid_execution_state.is_running) {
 		//assert(grid_execution_state.grid_speed > 0.0f);
@@ -55,12 +58,23 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 		float threshold = 1.0f / grid_execution_state.grid_speed;
 		if (grid_execution_state.time_since_last_iteration >= threshold) {
 			grid->next_iteration();
+			grid_changed = true;
 			grid_execution_state.time_since_last_iteration = 0.0f;
 		}
 	} else {
 		if (grid_execution_state.run_manual_next_iteration) {
 			grid_execution_state.run_manual_next_iteration = false;
 			grid->next_iteration();
+			grid_changed = true;
+		}
+	}
+	// only update coordinates of alive grid cells if we are in the first iteration or if the grid changed.
+	if (grid->iteration == 0 || grid_changed) {
+		world_coordinates.clear();
+		for (Chunk& chunk: grid->chunks) {
+			for (std::pair<int, int>& coord: chunk.chunk_coordinates) {
+				world_coordinates.push_back(chunk.transform_to_world_coordinate(coord));
+			}
 		}
 	}
 }
@@ -136,7 +150,9 @@ void Grid::create_new_chunk(int i, int j) {
 	chunks.push_back(*chunk);
 }
 
+
 void Grid_Manager::create_cube(std::pair<int, int> coord, bool is_border) {
+	/*
 	ZoneScoped;
 
 	Cube* cube = new Cube();
@@ -154,12 +170,13 @@ void Grid_Manager::create_cube(std::pair<int, int> coord, bool is_border) {
 	}
 	
 	cubes.push_back(*cube);
+	*/
 }
 
 //--------------------------------------------------------------------------------
 void Grid_Manager::create_cubes_for_alive_grid_cells() {
 	ZoneScoped;
-
+	/*
 	cubes.clear();
 	for (Chunk& chunk: grid->chunks) {
 		for (std::pair<int, int>& coord: chunk.chunk_coordinates) {
@@ -186,6 +203,7 @@ void Grid_Manager::create_cubes_for_alive_grid_cells() {
 			}
 		}
 	}
+	*/
 }
 
 void Chunk::update_neighbour_count_and_set_info() {
@@ -721,35 +739,9 @@ void Chunk::update_chunk_coordinates() {
 }
 
 //--------------------------------------------------------------------------------
-Grid_Render_Data* Grid_Manager::create_render_data() {
-	ZoneScoped;
-
-	// @Memory leak. @TODO refactor this into something sane.
-	Grid_Render_Data* grid_render_data = new Grid_Render_Data();
-	
-	create_cubes_for_alive_grid_cells();
-	for (Cube& cube: cubes) {
-		Cube_Render_Data* cube_render_data = cube.create_render_data();
-		grid_render_data->cubes_render_data.push_back(*cube_render_data);
-	}
-
-	// fill out grid info
-	grid_render_data->grid_info = {};
-	grid_render_data->grid_info.iteration = grid->iteration;
-	grid_render_data->grid_info.rows = 0;
-	grid_render_data->grid_info.columns = 0;
-	grid_render_data->grid_info.origin_row = 0;
-	grid_render_data->grid_info.origin_column = 0;
-	grid_render_data->grid_info.number_of_alive_cells = grid->number_of_alive_cells;
-	return grid_render_data;
-};
-
-//--------------------------------------------------------------------------------
 Grid_Render_Data::Grid_Render_Data() {
 	
 }
-
-
 
 //--------------------------------------------------------------------------------
 void Grid::resize_if_needed() {

@@ -16,9 +16,7 @@
 #include "cube.hpp"
 #include "grid.hpp"
 
-
 #include "renderer.hpp"
-
 
 
 //--------------------------------------------------------------------------------
@@ -56,6 +54,7 @@ public:
 	std::unique_ptr<UI_State> ui_state;
 	std::unique_ptr<Renderer> renderer;
 	std::shared_ptr<World> world;
+	std::shared_ptr<Cube_System> cube_system;
 
 	std::shared_ptr<World_Render_Data> render_data;
 };

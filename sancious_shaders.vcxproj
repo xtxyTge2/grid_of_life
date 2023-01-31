@@ -30,6 +30,7 @@
     <ClCompile Include="camera.cpp" />
 	<ClCompile Include="world.cpp" />
     <ClCompile Include="glad.c" />
+	<ClCompile Include="state_render_data.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="read.cpp" />
     <ClCompile Include="shader.cpp" />
@@ -58,6 +59,7 @@
     <ClInclude Include="state.hpp" />
     <ClInclude Include="texture.hpp" />
     <ClInclude Include="opengl.hpp" />
+	<ClInclude Include="state_render_data.hpp" />
     <ClInclude Include="cube.hpp" />
     <ClInclude Include="renderer.hpp" />
     <ClInclude Include="ui_state.hpp" />
