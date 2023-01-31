@@ -5,7 +5,7 @@
 #include "Tracy.hpp"
 
 //--------------------------------------------------------------------------------
-World_Renderer::World_Renderer() :
+Renderer::Renderer() :
 	m_window(nullptr),
 	m_VAO(0),
 	m_VBO(0),
@@ -16,7 +16,7 @@ World_Renderer::World_Renderer() :
 }
 
 //--------------------------------------------------------------------------------
-void World_Renderer::initialise(GLFWwindow* window) {
+void Renderer::initialise(GLFWwindow* window) {
 	ZoneScoped;
 	m_window = window;
 	
@@ -46,16 +46,40 @@ void World_Renderer::initialise(GLFWwindow* window) {
 
 	
 //--------------------------------------------------------------------------------
-void World_Renderer::update_shader_program(glm::mat4 model, glm::mat4 view, glm::mat4 projection) {
+void Renderer::update_shader_program(glm::mat4 model, glm::mat4 view, glm::mat4 projection) {
 	ZoneScoped;
 	m_shader_program->set_uniform_mat4("model", model);
 	m_shader_program->set_uniform_mat4("view", view);
 	m_shader_program->set_uniform_mat4("projection", projection);
 }
 
-//--------------------------------------------------------------------------------
-void World_Renderer::render_frame(State_Render_Data& render_data) {
+void Renderer::render_frame(World_Render_Data& render_data) {
 	ZoneScoped;
+
+	// world
+	render_world(render_data);
+
+	// ui
+	render_ui();
+
+	glfwSwapBuffers(m_window);
+}
+
+void Renderer::render_ui() {
+	ZoneScoped;
+	// Render imgui frame
+	// The imgui frame gets started in the ui_state->update() call. This call HAS to happen before this!
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+
+//--------------------------------------------------------------------------------
+void Renderer::render_world(World_Render_Data& render_data) {
+	ZoneScoped;
+
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Camera_Render_Data* camera_data = render_data.camera_render_data;
 	update_shader_program(camera_data->model, camera_data->view, camera_data->projection);
 	
@@ -68,45 +92,4 @@ void World_Renderer::render_frame(State_Render_Data& render_data) {
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 	}
-}
-
-//--------------------------------------------------------------------------------
-void World_Renderer::render_cube(Cube_Render_Data& data) {
-
-}
-
-//--------------------------------------------------------------------------------
-Renderer::Renderer() :
-	window(nullptr),
-	world_renderer(nullptr),
-	ui_renderer(nullptr)
-{
-
-}
-
-//--------------------------------------------------------------------------------
-void Renderer::initialise(GLFWwindow* w) {
-	ZoneScoped;
-	window = w;
-
-	world_renderer = std::make_unique<World_Renderer>();
-	world_renderer->initialise(window);
-
-	ui_renderer = std::make_unique<UI_Renderer>();
-	ui_renderer->initialise(window);
-}
-
-//--------------------------------------------------------------------------------
-void Renderer::render_frame(State_Render_Data& state_render_data) {
-	ZoneScoped;
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// world 
-	world_renderer->render_frame(state_render_data);
-
-	// ui
-	ui_renderer->render_frame(state_render_data);
-
-	glfwSwapBuffers(window);
 }

@@ -17,16 +17,9 @@
 #include "grid.hpp"
 
 
-//--------------------------------------------------------------------------------
-class State_Render_Data {
-public:
-	State_Render_Data();
-	//--------------------------------------------------------------------------------
-	// data
-	Camera_Render_Data* camera_render_data;
+#include "renderer.hpp"
 
-	Grid_Render_Data* grid_render_data;
-};
+
 
 //--------------------------------------------------------------------------------
 class Timer {
@@ -36,33 +29,33 @@ public:
 	void update();
 	//--------------------------------------------------------------------------------
 	// data
-	float m_delta_time;
+	float dt;
 	float m_last_frame_time;
 };
 
-//--------------------------------------------------------------------------------
+
 class State {
 public:
 	State();
 
-	void initialise(GLFWwindow*);
+	~State();
+
+	void initialise(GLFWwindow* w);
 
 	void update();
 
-	void process_input();
-	
-	void framebuffer_size_callback(int, int);
+	void render_frame();
 
-	State_Render_Data create_render_data();
+	void framebuffer_size_callback(int width, int height);
 
-	void reset_grid();
+	bool should_quit();
 	//--------------------------------------------------------------------------------
 	// data
-	std::unique_ptr<Camera> m_camera;
-	std::unique_ptr<Mouse> m_mouse;
-	GLFWwindow* m_window;
+	GLFWwindow* window;
+	std::unique_ptr<Timer> timer;
+	std::unique_ptr<UI_State> ui_state;
+	std::unique_ptr<Renderer> renderer;
+	std::shared_ptr<World> world;
 
-	std::unique_ptr<Timer> m_timer;
-	
-	Grid* grid;
+	std::shared_ptr<World_Render_Data> render_data;
 };

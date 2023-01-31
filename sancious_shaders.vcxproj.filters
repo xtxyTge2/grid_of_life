@@ -27,9 +27,6 @@
     <ClCompile Include="shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shader_program.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,10 +42,13 @@
     <ClCompile Include="renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ui_renderer.cpp">
+    <ClCompile Include="ui_state.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
 	<ClCompile Include="grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+	<ClCompile Include="world.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="3rdparty\imgui\imgui.cpp">
@@ -83,9 +83,6 @@
     <ClInclude Include="shader.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="shader_program.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="stb_image.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -107,10 +104,13 @@
     <ClInclude Include="renderer.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="ui_renderer.hpp">
+    <ClInclude Include="ui_state.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
 	<ClInclude Include="grid.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+	<ClInclude Include="world.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="3rdparty\imgui\imconfig.h">

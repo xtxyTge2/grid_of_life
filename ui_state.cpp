@@ -1,19 +1,21 @@
 #pragma once
 
 //--------------------------------------------------------------------------------
-#include "ui_renderer.hpp"
+#include "ui_state.hpp"
 #include "imgui_internal.h"
 #include "Tracy.hpp"
 
-
 //--------------------------------------------------------------------------------
-UI_Renderer::UI_Renderer() :
-	m_window(nullptr),
-m_ui_state(nullptr)
+UI_State::UI_State() :
+	grid_ui_controls_info({}),
+	m_show_demo_window(false),
+	m_show_grid_info(true),
+	m_window(nullptr)
 {}
 
+
 //--------------------------------------------------------------------------------
-UI_Renderer::~UI_Renderer() {
+UI_State::~UI_State() {
 	ZoneScoped;
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
@@ -21,8 +23,9 @@ UI_Renderer::~UI_Renderer() {
 }
 
 //--------------------------------------------------------------------------------
-void UI_Renderer::initialise(GLFWwindow* window) {
+void UI_State::initialise(GLFWwindow* window) {
 	ZoneScoped;
+
 	m_window = window;
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -30,43 +33,20 @@ void UI_Renderer::initialise(GLFWwindow* window) {
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(m_window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
-	m_ui_state = new UI_State();
 }
 
 //--------------------------------------------------------------------------------
-bool UI_Renderer::imgui_wants_to_capture_io() {
+bool UI_State::wants_to_capture_io() {
 	ZoneScoped;
+
 	ImGuiIO& io = ImGui::GetIO(); (void) io;
 	return io.WantTextInput || io.WantSetMousePos || io.WantCaptureMouse || io.WantCaptureKeyboard || io.WantSaveIniSettings || io.WantCaptureMouseUnlessPopupClose;
 }
 
 //--------------------------------------------------------------------------------
-void UI_Renderer::render_frame(State_Render_Data& state_render_data) {
+void UI_State::setup_ui_for_current_frame(Grid_Info grid_info) {
 	ZoneScoped;
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
 
-	m_ui_state->update_render_data(state_render_data);
-
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-//--------------------------------------------------------------------------------
-UI_State::UI_State() :
-	m_grid_is_running(true),
-m_grid_update_speed(100.0f),
-m_update_grid(false),
-m_show_demo_window(false),
-m_grid_should_reset(false),
-m_show_grid_info(true),
-m_current_index(0)
-{}
-
-//--------------------------------------------------------------------------------
-void UI_State::update_render_data(State_Render_Data& state_render_data) {
-	ZoneScoped;
 	float sz = ImGui::GetTextLineHeight();
 	const ImGuiViewport* viewport = ImGui::GetMainViewport();
 	const ImVec2 base_pos = viewport->Pos;
@@ -74,30 +54,25 @@ void UI_State::update_render_data(State_Render_Data& state_render_data) {
 	ImVec2 menu_bar_size;
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoBackground;
 
+	// reset the ui controls structure!
+	grid_ui_controls_info.button_type = GRID_NO_BUTTON_PRESSED;
 	{
 		// need to change name below as well if you change it here.
 		ImGui::Begin("Grid controls window", NULL, window_flags);
 		menu_bar_size = ImGui::GetWindowSize();
-
-		const char* start_stop_button_text;
-		if (m_grid_is_running) {
-			start_stop_button_text = "Start/Stop";
-		} else {
-			start_stop_button_text = "Start/Stop";
-		}
 		
-		if (ImGui::Button(start_stop_button_text)) {
-			m_grid_is_running = !m_grid_is_running;
+		if (ImGui::Button("Start/Stop")) {
+			grid_ui_controls_info.button_type = GRID_START_STOP_BUTTON_PRESSED;
 		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Next iteration")) {
-			m_update_grid = true;
+			grid_ui_controls_info.button_type = GRID_NEXT_ITERATION_BUTTON_PRESSED;
 		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Reset")) {
-			m_grid_should_reset = true;
+			grid_ui_controls_info.button_type = GRID_RESET_BUTTON_PRESSED;
 		}
 
 		ImGui::SameLine();
@@ -132,31 +107,28 @@ void UI_State::update_render_data(State_Render_Data& state_render_data) {
 			return;
 		}
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		// Grid info
-		Grid_Info grid_info = state_render_data.grid_render_data->grid_info;
 
 		ImGui::Text("Grid iteration: %d", grid_info.iteration);
 		ImGui::Text("Grid rows: %d, columns: %d", grid_info.rows, grid_info.columns);
 		ImGui::Text("Origin row: %d, Origin column: %d", grid_info.origin_row, grid_info.origin_column);
 		ImGui::Text("Number of alive cells: %d", grid_info.number_of_alive_cells);
 
-		ImGui::SliderFloat("Grid update speed", &m_grid_update_speed, 1.0f, 100.0f);   
-	
+		ImGui::SliderFloat("Grid update speed", &grid_ui_controls_info.grid_speed_slider_value, 1.0f, 100.0f);   
+		
 		ImGui::Checkbox("Demo Window", &m_show_demo_window);   
 
 		if (m_show_demo_window) {
 			ImGui::ShowDemoWindow(&m_show_demo_window);
 		}
 		
-		ImGui::PlotLines("Lines", m_cell_number_values, IM_ARRAYSIZE(m_cell_number_values));
 		ImGui::End();
 	}
 }
 
-//--------------------------------------------------------------------------------
-void UI_State::add_cell_number(float value) {
-	ZoneScoped;
-	m_cell_number_values[m_current_index] = value;
-	m_current_index++;
-	m_current_index = m_current_index % m_cell_number_values_size;
+void UI_State::update(Grid_Info grid_info) {
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	setup_ui_for_current_frame(grid_info);
 }
