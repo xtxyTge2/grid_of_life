@@ -58,8 +58,6 @@ public:
 	Eigen::Array < bool, rows, columns > cells;
 	Eigen::Array < unsigned int, rows, columns > neighbour_count;
 
-	bool has_to_still_update_neighbours;
-
 	std::vector<std::pair<int, int>> chunk_coordinates;
 	std::vector<Cube> cubes;
 
