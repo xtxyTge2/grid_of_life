@@ -71,25 +71,57 @@ Grid::Grid() : number_of_alive_cells(0), iteration(0) {
 
 	int chunk_middle_row = (int) (Chunk::rows / 2);
 	int chunk_middle_column = (int) (Chunk::columns / 2);
-	create_new_chunk(0, 0);
-	Chunk& chunk = chunks.front();
+	/*
+	std::vector<std::pair<int, int>> initial_coordinates = { { 0, 1 }, { 0, 2 }, {0, 3} };
+	create_new_chunk_and_set_alive_cells(0, 0, initial_coordinates);
+	create_new_chunk_and_set_alive_cells(-1, 0, initial_coordinates);
+	*/
 	
-	// set data
-
-	chunk.cells(chunk_middle_row, chunk_middle_column) = true;
-	chunk.cells(chunk_middle_row + 1, chunk_middle_column) = true;
-	chunk.cells(chunk_middle_row + 1, chunk_middle_column - 1) = true;
-	chunk.cells(chunk_middle_row + 1, chunk_middle_column - 2) = true;
-	chunk.cells(chunk_middle_row + 2, chunk_middle_column - 1) = true;
-
-	chunk.cells(chunk_middle_row, chunk_middle_column - 4) = true;
-	chunk.cells(chunk_middle_row, chunk_middle_column - 5) = true;
-	chunk.cells(chunk_middle_row, chunk_middle_column - 6) = true;
-	chunk.cells(chunk_middle_row + 1, chunk_middle_column - 5) = true;
-
-	chunk.update_chunk_coordinates();
+	std::vector<std::pair<int, int>> initial_coordinates = {
+		{ chunk_middle_row, chunk_middle_column },
+		{ chunk_middle_row + 1, chunk_middle_column },
+		{ chunk_middle_row + 1, chunk_middle_column - 1 },
+		{ chunk_middle_row + 1, chunk_middle_column - 2 },
+		{ chunk_middle_row + 2, chunk_middle_column - 1 },
+		{ chunk_middle_row, chunk_middle_column - 4 },
+		{ chunk_middle_row, chunk_middle_column - 5 },
+		{ chunk_middle_row, chunk_middle_column - 6 },
+		{ chunk_middle_row + 1, chunk_middle_column - 5 },
+		{ chunk_middle_row, chunk_middle_column }
+	};
+	create_new_chunk_and_set_alive_cells(0, 0, initial_coordinates);
+	
+	/*
+	{
+		int chunk_origin_test_row = -2;
+		int chunk_origin_test_column = 3;
+		//bottom left
+		create_new_chunk_and_set_alive_cells(chunk_origin_test_row, chunk_origin_test_column, { { 0, Chunk::columns - 2 }, { 0, Chunk::columns - 1 } });
+		// top left
+		create_new_chunk_and_set_alive_cells(chunk_origin_test_row - 1, chunk_origin_test_column, { { Chunk::rows - 1, Chunk::columns - 1 } });
+		// top right
+		create_new_chunk_and_set_alive_cells(chunk_origin_test_row-1, chunk_origin_test_column+1, { { Chunk::rows -1, 0 } });
+		// bottom right
+		create_new_chunk_and_set_alive_cells(chunk_origin_test_row, chunk_origin_test_column +1, { { 0, 0 }});
+	}
+	*/
 }
 
+void Grid::create_new_chunk_and_set_alive_cells(int i, int j, std::vector<std::pair<int, int>> coordinates) {
+	ZoneScoped;
+
+	Chunk* chunk = new Chunk(i, j);
+	chunk->chunk_origin_row = i * Chunk::rows;
+	chunk->chunk_origin_column = j * Chunk::columns;
+	chunk->number_of_alive_cells = 0;
+
+	for (auto [r, c]: coordinates) {
+		chunk->cells(r, c) = true;
+	}
+	chunk->update_chunk_coordinates();
+
+	chunks.push_back(*chunk);
+}
 
 void Grid::create_new_chunk(int i, int j) {
 	ZoneScoped;
@@ -110,7 +142,7 @@ void Grid_Manager::create_cube(std::pair<int, int> coord, bool is_border) {
 	int x = coord.first;
 	int y = coord.second;
 	// note the switch in y and x coordinates here!
-	cube->m_position = glm::vec3((float) y, (float) x, -3.0f);
+	cube->m_position = glm::vec3((float) y, (float) -x, -3.0f);
 
 	// do this to distinguish the border from the rest of the grid.
 	if (is_border) {
@@ -182,16 +214,18 @@ void Grid::next_iteration() {
 	for (Chunk& chunk: chunks) {
 		chunk.update_neighbour_count_and_set_info();
 	}
+
 	// have updated internally each chunk and set the border information, so
 	// that neighbouring chunks can now update each other if needed.
 
 	// we iterate over every chunk once and check if it has to update its neighbours,
 	// in that case we either already have the corresponding neighbour inside chunks
 	// or it doesnt exist yet. If it doesnt exist we add it to chunks at the end and hence iterate over it later. This invalidates any iterators of std::vector, hence we manually loop over it here.
-
+	
 	for (int chunk_index = 0; chunk_index < chunks.size(); chunk_index++) {
 		Chunk current_chunk = chunks[chunk_index];
 		update_neighbours_of_chunk(current_chunk);
+		chunks[chunk_index].clear_neighbour_update_info();
 	}
 
 	for (Chunk& chunk: chunks) {
@@ -199,6 +233,60 @@ void Grid::next_iteration() {
 	}
 }
 
+
+void Chunk::print_chunk() {
+	if (false) {
+		std::cout << "\n\n";
+		std::cout << "i: " << grid_coordinate_row << ", j: " << grid_coordinate_column << "\n";
+		std::cout << "neighbour_count of chunk:\n";
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < columns; c++) {
+				std::cout << neighbour_count(r, c) << " ";
+			}
+			std::cout << "\n";
+		}
+		std::cout << "cells of chunk:\n";
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < columns; c++) {
+				std::cout << cells(r, c) << " ";
+			}
+			std::cout << "\n";
+		}
+		std::cout << "left_update: ";
+		for (int v : left_row_indices_to_update) {
+			std::cout << v << " ";
+		}
+		std::cout << "\n";
+		std::cout << "top_update: ";
+		for (int v : top_column_indices_to_update) {
+			std::cout << v << " ";
+		}
+		std::cout << "\n";
+		std::cout << "right_update: ";
+		for (int v : right_row_indices_to_update) {
+			std::cout << v << " ";
+		}
+		std::cout << "\n";
+		std::cout << "bottom_update: ";
+		for (int v : bottom_column_indices_to_update) {
+			std::cout << v << " ";
+		}
+		std::cout << "\n";
+		std::cout << "update_top_left_corner: " << has_to_update_top_left_corner << "\n";
+		std::cout << "update_top_right_corner: " << has_to_update_top_right_corner << "\n";
+		std::cout << "update_bottom_right_corner: " << has_to_update_bottom_right_corner << "\n";
+		std::cout << "update_bottom_left_corner: " << has_to_update_bottom_left_corner << "\n";
+	}
+}
+
+void Grid::print_all_chunks_info() {
+	for (Chunk& chunk: chunks) {
+		chunk.print_chunk();
+	}
+	std::cout << "##################################################\n";
+}
+
+// @TODO @Cleanup deduplicate this code, all cases are very similar. We could create for each chunk a command queue which contains a vector of indices together with an enum value, which indicates the direction.
 void Grid::update_neighbours_of_chunk(Chunk& chunk) {
 	if (!chunk.has_to_update_neighbours()) return;
 
@@ -353,13 +441,13 @@ Chunk* Grid::get_chunk_if_it_exists(int grid_row, int grid_column) {
 	return nullptr;
 }
 
-Chunk::Chunk(int coordinate_row, int coordinate_column) : 
-	grid_coordinate_row(coordinate_row), 
-	grid_coordinate_column(coordinate_column),
-	has_to_update_top_left_corner(false),
-	has_to_update_top_right_corner(false),
-	has_to_update_bottom_right_corner(false),
-	has_to_update_bottom_left_corner(false),
+Chunk::Chunk(int coordinate_row, int coordinate_column) :
+	grid_coordinate_row(coordinate_row),
+grid_coordinate_column(coordinate_column),
+has_to_update_top_left_corner(false),
+has_to_update_top_right_corner(false),
+has_to_update_bottom_right_corner(false),
+has_to_update_bottom_left_corner(false),
 has_to_still_update_neighbours(false)
 {
 	ZoneScoped;
@@ -448,6 +536,7 @@ void Chunk::update_neighbour_count_left() {
 			neighbour_count(r - 1, c + 1)++;
 			neighbour_count(r, c + 1)++;
 			neighbour_count(r + 1, c)++;
+			neighbour_count(r + 1, c + 1)++;
 		}
 	}
 }
@@ -621,6 +710,8 @@ void Chunk::update_chunk_coordinates() {
 //--------------------------------------------------------------------------------
 Grid_Render_Data* Grid_Manager::create_render_data() {
 	ZoneScoped;
+
+	// @Memory leak. @TODO refactor this into something sane.
 	Grid_Render_Data* grid_render_data = new Grid_Render_Data();
 	
 	create_cubes_for_alive_grid_cells();

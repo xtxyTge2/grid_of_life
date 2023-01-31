@@ -20,7 +20,6 @@ void Timer::update() {
 	m_last_frame_time = m_current_frame_time;
 }
 
-
 //--------------------------------------------------------------------------------
 State::State() : window(nullptr), timer(nullptr), ui_state(nullptr), renderer(nullptr),
 world(nullptr)
@@ -70,7 +69,6 @@ void State::framebuffer_size_callback(int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
-
 void State::render_frame() {
 	renderer->render_frame(*render_data);
 }
@@ -79,7 +77,6 @@ bool State::should_quit() {
 	//assert(window);
 	return glfwWindowShouldClose(window);
 }
-
 
 World_Render_Data::World_Render_Data() {
 

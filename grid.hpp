@@ -9,6 +9,8 @@ class Chunk {
 public:
 	Chunk(int coordinate_row, int coordinate_column);
 
+	void print_chunk();
+
 	void update_neighbour_count_inside();
 
 	void update_neighbour_count_top();
@@ -43,8 +45,8 @@ public:
 
 	std::pair<int, int> transform_to_world_coordinate(std::pair<int, int> chunk_coord);
 
-	constexpr static int rows = 32;
-	constexpr static int columns = 32;
+	constexpr static int rows = 16;
+	constexpr static int columns = 16;
 
 	int grid_coordinate_row;
 	int grid_coordinate_column;
@@ -87,6 +89,9 @@ public:
 	Grid();
 
 	~Grid();
+	void create_new_chunk_and_set_alive_cells(int i, int j, std::vector<std::pair<int, int>> coordinates);
+
+	void print_all_chunks_info();
 
 	Chunk* get_chunk_if_it_exists(int grid_row,
 	                                       int grid_column);

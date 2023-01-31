@@ -23,7 +23,7 @@ void World::initialise(GLFWwindow* window) {
 	m_mouse->initialise(0.0f, 0.0f);
 
 	m_camera = std::make_unique < Camera > ();
-	m_camera->position = glm::vec3(Chunk::rows / 2, Chunk::columns / 2, 125.0f);
+	m_camera->position = glm::vec3(Chunk::rows / 2, Chunk::columns / 2, 200.0f);
 
 	// left/right/x-axis direction vector
 	m_camera->orientation_vector_matrix[0] = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -43,7 +43,6 @@ void World::initialise(GLFWwindow* window) {
 //--------------------------------------------------------------------------------
 void World::update(double dt, Grid_UI_Controls_Info grid_ui_controls_info) {
 	ZoneScoped;
-
 	grid_manager->update(dt, grid_ui_controls_info);
 }
 
