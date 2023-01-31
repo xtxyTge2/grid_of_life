@@ -235,6 +235,14 @@ void Grid::next_iteration() {
 		chunk.update_cells();
 		number_of_alive_cells += chunk.number_of_alive_cells;
 	}
+	std::vector<Chunk> used_chunks;
+	used_chunks.reserve(chunks.size());
+	for (Chunk& chunk: chunks) {
+		if (chunk.number_of_alive_cells > 0) {
+			used_chunks.push_back(chunk);
+		}
+	}
+	chunks = used_chunks;
 }
 
 
