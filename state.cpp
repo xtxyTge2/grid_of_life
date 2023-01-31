@@ -95,5 +95,5 @@ void World_Render_Data::update(std::shared_ptr<World> world_ptr) {
 	camera_render_data = world_ptr->m_camera->create_render_data(window_width, window_height);
 
 	// Create grid render data
-	grid_render_data = world_ptr->grid_manager->grid->create_render_data();
+	grid_render_data = world_ptr->grid_manager->create_render_data();
 }

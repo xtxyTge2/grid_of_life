@@ -46,6 +46,7 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 		default:
 			break;
 	}
+	grid_execution_state.show_chunk_borders = ui_info.show_chunk_borders;
 	grid_execution_state.grid_speed = ui_info.grid_speed_slider_value;
 
 	if (grid_execution_state.is_running) {
@@ -64,8 +65,6 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 	}
 }
 
-
-
 //--------------------------------------------------------------------------------
 Grid::Grid() : number_of_alive_cells(0), iteration(0) {
 	ZoneScoped;
@@ -76,6 +75,7 @@ Grid::Grid() : number_of_alive_cells(0), iteration(0) {
 	Chunk& chunk = chunks.front();
 	
 	// set data
+
 	chunk.cells(chunk_middle_row, chunk_middle_column) = true;
 	chunk.cells(chunk_middle_row + 1, chunk_middle_column) = true;
 	chunk.cells(chunk_middle_row + 1, chunk_middle_column - 1) = true;
@@ -102,7 +102,7 @@ void Grid::create_new_chunk(int i, int j) {
 	chunks.push_back(*chunk);
 }
 
-void Chunk::add_cube(std::pair<int, int> coord, bool is_border) {
+void Grid_Manager::create_cube(std::pair<int, int> coord, bool is_border) {
 	ZoneScoped;
 
 	Cube* cube = new Cube();
@@ -123,30 +123,34 @@ void Chunk::add_cube(std::pair<int, int> coord, bool is_border) {
 }
 
 //--------------------------------------------------------------------------------
-void Chunk::create_cubes_for_alive_grid_cells() {
+void Grid_Manager::create_cubes_for_alive_grid_cells() {
 	ZoneScoped;
 
 	cubes.clear();
-	for (std::pair<int, int>& coord: chunk_coordinates) {
-		std::pair<int, int> world_coordinate = transform_to_world_coordinate(coord);
-		add_cube(world_coordinate, false);
-	}
-	
-	// add border cubes
-	for (int r = 0; r < rows; r++) {
-		std::pair<int, int> coord_left = std::make_pair(r, - 1);
-		std::pair<int, int> coord_right = std::make_pair(r, columns);
-
-		add_cube(transform_to_world_coordinate(coord_left), true);
-		add_cube(transform_to_world_coordinate(coord_right), true);
-	}
-	
-	for (int c = 0; c < columns; c++) {
-		std::pair<int, int> coord_top = std::make_pair(-1, c);
-		std::pair<int, int> coord_bottom = std::make_pair(rows, c);
-
-		add_cube(transform_to_world_coordinate(coord_top), true);
-		add_cube(transform_to_world_coordinate(coord_bottom), true);
+	for (Chunk& chunk: grid->chunks) {
+		for (std::pair<int, int>& coord: chunk.chunk_coordinates) {
+			std::pair<int, int> world_coordinate = chunk.transform_to_world_coordinate(coord);
+			create_cube(world_coordinate, false);
+		}
+		
+		if (grid_execution_state.show_chunk_borders) {
+			// add border cubes
+			for (int r = 0; r < Chunk::rows; r++) {
+				std::pair<int, int> coord_left = std::make_pair(r, - 1);
+				std::pair<int, int> coord_right = std::make_pair(r, Chunk::columns);
+		
+				create_cube(chunk.transform_to_world_coordinate(coord_left), true);
+				create_cube(chunk.transform_to_world_coordinate(coord_right), true);
+			}
+			
+			for (int c = 0; c < Chunk::columns; c++) {
+				std::pair<int, int> coord_top = std::make_pair(-1, c);
+				std::pair<int, int> coord_bottom = std::make_pair(Chunk::rows, c);
+		
+				create_cube(chunk.transform_to_world_coordinate(coord_top), true);
+				create_cube(chunk.transform_to_world_coordinate(coord_bottom), true);
+			}
+		}
 	}
 }
 
@@ -615,29 +619,24 @@ void Chunk::update_chunk_coordinates() {
 }
 
 //--------------------------------------------------------------------------------
-Grid_Render_Data* Grid::create_render_data() {
+Grid_Render_Data* Grid_Manager::create_render_data() {
 	ZoneScoped;
 	Grid_Render_Data* grid_render_data = new Grid_Render_Data();
 	
-
-	// cubes render data for each alive cell of the grid.
-	for (Chunk& chunk: chunks) {
-		number_of_alive_cells += chunk.number_of_alive_cells;
-		chunk.create_cubes_for_alive_grid_cells();
-		for (Cube& cube: chunk.cubes) {
-			Cube_Render_Data* cube_render_data = cube.create_render_data();
-			grid_render_data->cubes_render_data.push_back(*cube_render_data);
-		}
+	create_cubes_for_alive_grid_cells();
+	for (Cube& cube: cubes) {
+		Cube_Render_Data* cube_render_data = cube.create_render_data();
+		grid_render_data->cubes_render_data.push_back(*cube_render_data);
 	}
 
 	// fill out grid info
 	grid_render_data->grid_info = {};
-	grid_render_data->grid_info.iteration = iteration;
+	grid_render_data->grid_info.iteration = grid->iteration;
 	grid_render_data->grid_info.rows = 0;
 	grid_render_data->grid_info.columns = 0;
 	grid_render_data->grid_info.origin_row = 0;
 	grid_render_data->grid_info.origin_column = 0;
-	grid_render_data->grid_info.number_of_alive_cells = number_of_alive_cells;
+	grid_render_data->grid_info.number_of_alive_cells = grid->number_of_alive_cells;
 	return grid_render_data;
 };
 
