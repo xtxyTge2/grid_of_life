@@ -29,10 +29,6 @@ public:
 
 	void update_chunk_coordinates();
 
-	void add_cube(std::pair<int, int> coord, bool is_border);
-
-	void create_cubes_for_alive_grid_cells();
-
 	bool has_to_update_right();
 
 	bool has_to_update_left();
@@ -96,13 +92,9 @@ public:
 	                                       int grid_column);
 	void create_new_chunk(int i, int j);
 
-	void create_cubes_for_alive_grid_cells();
-
 	void update();
 
 	void update_neighbours_of_chunk(Chunk& chunk);
-
-	Grid_Render_Data* create_render_data();
 
 	void next_iteration();
 
@@ -121,6 +113,7 @@ struct Grid_Execution_State {
 	bool run_manual_next_iteration = false;
 	float time_since_last_iteration = 0.0f;
 	float grid_speed = 1.0f;
+	bool show_chunk_borders = false;
 };
 
 //--------------------------------------------------------------------------------
@@ -134,6 +127,13 @@ public:
 
 	void create_new_grid();
 
+	void create_cube(std::pair<int, int> coord, bool is_border);
+
+	void create_cubes_for_alive_grid_cells();
+
+	Grid_Render_Data* create_render_data();
+
+	std::vector<Cube> cubes;
 	Grid* grid;
 	Grid_Execution_State grid_execution_state;
 };
