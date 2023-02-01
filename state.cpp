@@ -39,6 +39,7 @@ world(nullptr)
 //--------------------------------------------------------------------------------
 void State::update() {
 	ZoneScoped;
+
 	glfwPollEvents();
 
 	timer->update();

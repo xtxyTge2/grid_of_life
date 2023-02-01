@@ -134,25 +134,27 @@ void Grid_Manager::update_coordinates_for_chunk_borders() {
 Grid::Grid() : number_of_alive_cells(0), iteration(0) {
 	ZoneScoped;
 
-	int chunk_middle_row = (int) (Chunk::rows / 2);
-	int chunk_middle_column = (int) (Chunk::columns / 2);
+	int base_row = (int) (Chunk::rows / 2);
+	int base_column = (int) (Chunk::columns / 2);
 	/*
 	std::vector<std::pair<int, int>> initial_coordinates = { { 0, 1 }, { 0, 2 }, {0, 3} };
 	create_new_chunk_and_set_alive_cells(0, 0, initial_coordinates);
 	create_new_chunk_and_set_alive_cells(-1, 0, initial_coordinates);
 	*/
-	
+
+	base_row = 1;
+	base_column = 7;
 	std::vector<std::pair<int, int>> initial_coordinates = {
-		{ chunk_middle_row, chunk_middle_column },
-		{ chunk_middle_row + 1, chunk_middle_column },
-		{ chunk_middle_row + 1, chunk_middle_column - 1 },
-		{ chunk_middle_row + 1, chunk_middle_column - 2 },
-		{ chunk_middle_row + 2, chunk_middle_column - 1 },
-		{ chunk_middle_row, chunk_middle_column - 4 },
-		{ chunk_middle_row, chunk_middle_column - 5 },
-		{ chunk_middle_row, chunk_middle_column - 6 },
-		{ chunk_middle_row + 1, chunk_middle_column - 5 },
-		{ chunk_middle_row, chunk_middle_column }
+		{ base_row, base_column },
+		{ base_row + 1, base_column },
+		{ base_row + 1, base_column - 1 },
+		{ base_row + 1, base_column - 2 },
+		{ base_row + 2, base_column - 1 },
+		{ base_row, base_column - 4 },
+		{ base_row, base_column - 5 },
+		{ base_row, base_column - 6 },
+		{ base_row + 1, base_column - 5 },
+		{ base_row, base_column }
 	};
 	create_new_chunk_and_set_alive_cells(Coordinate(0, 0), initial_coordinates);
 
@@ -179,7 +181,7 @@ Grid::Grid() : number_of_alive_cells(0), iteration(0) {
 void Grid::create_new_chunk_and_set_alive_cells(Coordinate coord, std::vector<std::pair<int, int>> coordinates) {
 	ZoneScoped;
 
-	std::shared_ptr<Chunk> chunk = std::make_shared<Chunk>(coord);
+	std::shared_ptr<Chunk> chunk = std::make_shared < Chunk > (coord);
 	chunk->chunk_origin_row = coord.x * Chunk::rows;
 	chunk->chunk_origin_column = coord.y * Chunk::columns;
 	chunk->number_of_alive_cells = 0;
@@ -432,12 +434,12 @@ void Grid::update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk) {
 
 Chunk::Chunk(Coordinate coord) :
 	grid_coordinate_row(coord.x),
-	grid_coordinate_column(coord.y),
-	number_of_alive_cells(0),
-	has_to_update_top_left_corner(false),
-	has_to_update_top_right_corner(false),
-	has_to_update_bottom_right_corner(false),
-	has_to_update_bottom_left_corner(false)
+grid_coordinate_column(coord.y),
+number_of_alive_cells(0),
+has_to_update_top_left_corner(false),
+has_to_update_top_right_corner(false),
+has_to_update_bottom_right_corner(false),
+has_to_update_bottom_left_corner(false)
 {
 	ZoneScoped;
 	cells.setConstant(false);
@@ -655,10 +657,21 @@ void Chunk::update_neighbour_count_inside() {
 	}
 }
 
-
 void Chunk::update_cells() {
 	ZoneScoped;
 
+	if (false) {
+		update_cells_first_version();
+	} else {
+		update_cells_second_version();
+	}
+}
+
+
+void Chunk::update_cells_first_version() {
+	ZoneScoped;
+
+	chunk_coordinates.clear();
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			unsigned int count = neighbour_count(r, c);
@@ -666,19 +679,75 @@ void Chunk::update_cells() {
 				// a cell that is alive stays alive iff it has two or three neighbouring alive cells.
 				if (count != 2 && count != 3) {
 					cells(r, c) = false;
-					chunk_coordinates.erase(Coordinate(r, c));
+					//chunk_coordinates.erase(Coordinate(r, c));
 				}
 			} else {
 				// a dead cell becomes alive exactly iff it has three neighbouring alive cells.
 				if (count == 3) {
 					cells(r, c) = true;
-					chunk_coordinates.insert(Coordinate(r, c));
+					//chunk_coordinates.insert(Coordinate(r, c));
 				}
+			}
+			if (cells(r, c)) {
+				chunk_coordinates.push_back(Coordinate(r, c));
 			}
 		}
 	}
 	number_of_alive_cells = (int) chunk_coordinates.size();
 }
+
+void Chunk::update_cells_second_version() {
+	ZoneScoped;
+	
+	std::array<Coordinate, rows*columns> alive_grid_cells_coordinates;
+	size_t number_current_alive_grid_cells = 0;
+	std::array<Coordinate, rows*columns> dead_grid_cells_coordinates;
+	size_t number_current_dead_grid_cells = 0;
+	for (int r = 0; r < rows; r++) {
+		for (int c = 0; c < columns; c++) {
+			if (cells(r, c)) {
+				Coordinate& coord = alive_grid_cells_coordinates.at(number_current_alive_grid_cells);
+				coord.x = r;
+				coord.y = c;
+				number_current_alive_grid_cells++;
+			} else {
+				Coordinate& coord = dead_grid_cells_coordinates.at(number_current_dead_grid_cells);
+				coord.x = r;
+				coord.y = c;
+				number_current_dead_grid_cells++;
+			}
+		}
+	}
+	
+	chunk_coordinates.clear();
+	for (int i = 0; i < number_of_alive_cells; i++) {
+		Coordinate& coord = alive_grid_cells_coordinates.at(i);
+		int r = coord.x;
+		int c = coord.y;
+		unsigned int count = neighbour_count(r, c);
+		if (count == 2 || count == 3) {
+			chunk_coordinates.push_back(Coordinate(r, c));
+		}
+	}
+
+	for (int i = 0; i < number_current_dead_grid_cells; i++) {
+		Coordinate& coord = dead_grid_cells_coordinates.at(i);
+		int r = coord.x;
+		int c = coord.y;
+		unsigned int count = neighbour_count(r, c);
+		if (count == 3) {
+			chunk_coordinates.push_back(Coordinate(r, c));
+		}
+	}
+
+	cells.setConstant(0);
+	for (auto& [r, c]: chunk_coordinates) {
+		cells(r, c) = true;
+	}
+	number_of_alive_cells = (int) chunk_coordinates.size();
+		
+}
+
 
 
 void Chunk::update_chunk_coordinates() {
@@ -688,7 +757,7 @@ void Chunk::update_chunk_coordinates() {
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			if (cells(r, c)) {
-				chunk_coordinates.insert(Coordinate(r, c));
+				chunk_coordinates.push_back(Coordinate(r, c));
 			}
 		}
 	}

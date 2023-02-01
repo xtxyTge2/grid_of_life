@@ -128,6 +128,8 @@ void UI_State::setup_ui_for_current_frame(Grid_Info grid_info) {
 }
 
 void UI_State::update(Grid_Info grid_info) {
+	ZoneScoped;
+
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
