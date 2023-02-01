@@ -7,8 +7,8 @@
 void Cube_System::update(Grid_Manager* grid_manager) {
 	ZoneScoped;
 	// make sure that grid_manager was updated before this, otherwise coordinates might be outdated.
-	std::vector<std::pair<int, int>> world_coordinates = grid_manager->world_coordinates;
-	std::vector<std::pair<int, int>> border_coordinates = grid_manager->border_coordinates;
+	std::vector<Coordinate> world_coordinates = grid_manager->world_coordinates;
+	std::vector<Coordinate> border_coordinates = grid_manager->border_coordinates;
 
 	size_t wanted_number_of_cubes = world_coordinates.size();
 	if (grid_manager->grid_execution_state.show_chunk_borders) {

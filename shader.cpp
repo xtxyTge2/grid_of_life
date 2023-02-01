@@ -72,7 +72,6 @@ void Shader_Program::use() {
 //--------------------------------------------------------------------------------
 void Shader_Program::set_uniform_int(const std::string& name, int value) {
 	ZoneScoped;
-	use();
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform1i(location, (int)value);
 }
@@ -80,7 +79,6 @@ void Shader_Program::set_uniform_int(const std::string& name, int value) {
 //--------------------------------------------------------------------------------
 void Shader_Program::set_uniform_mat4(const std::string& name, glm::mat4 value) {
 	ZoneScoped;
-	use();
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }

@@ -3,7 +3,39 @@
 #include <Eigen/Core>
 #include "cube.hpp"
 #include "ui_state.hpp"
+#include <unordered_set>
 
+class Coordinate {
+public:
+	Coordinate(int a_x, int a_y) : 
+		x(a_x), 
+		y(a_y) 
+	{}
+
+	~Coordinate() 
+	{}
+
+	bool operator == (const Coordinate& rhs) const{
+		return x == rhs.x && y == rhs.y;
+	}
+
+	bool operator != (const Coordinate& rhs) const{
+		return !(*this == rhs);
+	}
+
+	int x;
+	int y;
+};
+
+namespace std
+{
+	template<>
+	struct hash<Coordinate> {
+		std::size_t operator()(Coordinate const &coord) const noexcept {
+			return (51 + std::hash<int>()(coord.x) + 51 * std::hash<int>()(coord.y));
+		}
+	};
+}
 
 class Chunk {
 public:
@@ -43,7 +75,7 @@ public:
 	
 	bool has_to_update_neighbours();
 
-	std::pair<int, int> transform_to_world_coordinate(std::pair<int, int> chunk_coord);
+	Coordinate transform_to_world_coordinate(Coordinate chunk_coord);
 
 	constexpr static int rows = 16;
 	constexpr static int columns = 16;
@@ -58,8 +90,8 @@ public:
 	Eigen::Array < bool, rows, columns > cells;
 	Eigen::Array < unsigned int, rows, columns > neighbour_count;
 
-	std::vector<std::pair<int, int>> chunk_coordinates;
-	std::vector<std::pair<int, int>> border_coordinates;
+	std::unordered_set<Coordinate> chunk_coordinates;
+	std::vector<Coordinate> border_coordinates;
 
 	std::vector<int> left_row_indices_to_update;
 	std::vector<int> right_row_indices_to_update;
@@ -126,8 +158,8 @@ public:
 
 	Grid_Info get_grid_info();
 
-	std::vector<std::pair<int, int>> world_coordinates;
-	std::vector<std::pair<int, int>> border_coordinates;
+	std::vector<Coordinate> world_coordinates;
+	std::vector<Coordinate> border_coordinates;
 	Grid* grid;
 	Grid_Execution_State grid_execution_state;
 };

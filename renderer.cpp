@@ -42,6 +42,9 @@ void Renderer::initialise(GLFWwindow* window) {
 	texture_catalog->load_and_bind_all_textures(texture_file_paths);
 
 	m_shader_program->load_texture_catalog(*texture_catalog);
+
+
+	initialise_cube_rendering();
 }
 
 	
@@ -139,10 +142,8 @@ void Renderer::initialise_cube_rendering() {
 //--------------------------------------------------------------------------------
 void Renderer::render_cube_system(std::shared_ptr<Cube_System> cube_system) {
 	ZoneScoped;
-	initialise_cube_rendering();
-
-	initialise_cube_rendering();
 	glBindVertexArray(m_VAO);
+	m_shader_program->use();
 	for (int i = 0; i < cube_system->current_number_of_cubes; i++) {
 		Cube current_cube = cube_system->cubes_array[i];
 		

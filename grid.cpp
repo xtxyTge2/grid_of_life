@@ -85,14 +85,12 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 		world_coordinates.clear();
 		border_coordinates.clear();
 		for (Chunk& chunk: grid->chunks) {
-
 			// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
-			for (std::pair<int, int>& coord: chunk.chunk_coordinates) {
+			for (Coordinate coord: chunk.chunk_coordinates) {
 				world_coordinates.push_back(chunk.transform_to_world_coordinate(coord));
 			}
-			// transform local border coordinates (in chunk coordinate system) into world coordinates and add them to our vector of border coordinates
-
-			for (std::pair<int, int>& coord: chunk.border_coordinates) {
+			// transform local border coordinates (which are in chunk coordinates) into world coordinates and add them to our vector of border coordinates
+			for (Coordinate coord: chunk.border_coordinates) {
 				border_coordinates.push_back(chunk.transform_to_world_coordinate(coord));
 			}
 		}
@@ -492,12 +490,12 @@ has_to_update_bottom_left_corner(false)
 	// calculate border coordinates.
 	border_coordinates.reserve(2 * rows + 2 * columns + 4);
 	for (int r = 0; r < rows; r++) {
-		border_coordinates.push_back(std::make_pair(r, - 1));
-		border_coordinates.push_back(std::make_pair(r, columns));
+		border_coordinates.push_back(Coordinate(r, - 1));
+		border_coordinates.push_back(Coordinate(r, columns));
 	}
 	for (int c = 0; c < Chunk::columns; c++) {
-		border_coordinates.push_back(std::make_pair(-1, c));
-		border_coordinates.push_back(std::make_pair(rows, c));
+		border_coordinates.push_back(Coordinate(-1, c));
+		border_coordinates.push_back(Coordinate(rows, c));
 	}
 }
 
@@ -516,8 +514,10 @@ void Chunk::clear_neighbour_update_info() {
 	has_to_update_bottom_left_corner = false;
 }
 
-std::pair<int, int> Chunk::transform_to_world_coordinate(std::pair<int, int> chunk_coord) {
-	return std::make_pair(chunk_coord.first + chunk_origin_row, chunk_coord.second + chunk_origin_column);
+Coordinate Chunk::transform_to_world_coordinate(Coordinate chunk_coord) {
+	ZoneScoped;
+
+	return Coordinate(chunk_coord.x + chunk_origin_row, chunk_coord.y + chunk_origin_column);
 }
 
 void Chunk::update_neighbour_count_top() {
@@ -711,7 +711,7 @@ void Chunk::update_cells() {
 	ZoneScoped;
 	number_of_alive_cells = 0;
 	// TODO: split this up and handle interior and border of the grid individually. If we do that we can incorporate the resize_if_needed() call into the border case computation
-	chunk_coordinates.clear();
+	//chunk_coordinates.clear();
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			unsigned int count = neighbour_count(r, c);
@@ -719,16 +719,18 @@ void Chunk::update_cells() {
 				// a cell that is alive stays alive iff it has two or three neighbouring alive cells.
 				if (count != 2 && count != 3) {
 					cells(r, c) = false;
+					chunk_coordinates.erase(Coordinate(r, c));
 				}
 			} else {
 				// a dead cell becomes alive exactly iff it has three neighbouring alive cells.
 				if (count == 3) {
 					cells(r, c) = true;
+					chunk_coordinates.insert(Coordinate(r, c));
 				}
 			}
 			
 			if (cells(r, c)) {
-				chunk_coordinates.push_back(std::make_pair(r, c));
+				//chunk_coordinates.push_back(std::make_pair(r, c));
 				number_of_alive_cells += 1;
 			}
 		}
@@ -737,12 +739,12 @@ void Chunk::update_cells() {
 
 
 void Chunk::update_chunk_coordinates() {
-	chunk_coordinates.clear();
+	//chunk_coordinates.clear();
 
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			if (cells(r, c)) {
-				chunk_coordinates.push_back(std::make_pair(r, c));
+				chunk_coordinates.insert(Coordinate(r, c));
 				number_of_alive_cells += 1;
 			}
 		}

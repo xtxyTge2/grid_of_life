@@ -24,6 +24,7 @@ void Timer::update() {
 State::State() : window(nullptr), timer(nullptr), ui_state(nullptr), renderer(nullptr),
 world(nullptr)
 {
+	ZoneScoped;
 	timer = std::make_unique < Timer > ();
 
 	ui_state = std::make_unique < UI_State > ();
@@ -37,6 +38,7 @@ world(nullptr)
 
 //--------------------------------------------------------------------------------
 void State::update() {
+	ZoneScoped;
 	glfwPollEvents();
 
 	timer->update();
@@ -55,6 +57,7 @@ void State::update() {
 
 //--------------------------------------------------------------------------------
 void State::initialise(GLFWwindow* w) {
+	ZoneScoped;
 	window = w;
 
 	renderer->initialise(window);
@@ -70,6 +73,7 @@ void State::framebuffer_size_callback(int width, int height) {
 
 
 bool State::should_quit() {
+	ZoneScoped;
 	//assert(window);
 	return glfwWindowShouldClose(window) || world->grid_manager->grid->iteration > 600;
 }
