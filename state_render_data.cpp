@@ -3,7 +3,7 @@
 #include "state_render_data.hpp"
 #include "Tracy.hpp"
 
-void Cube_System::update_grid_cubes(std::unordered_set<Coordinate> coordinates) {
+void Cube_System::create_grid_cubes_from_coordinates(std::unordered_set<Coordinate> coordinates) {
 	ZoneScoped;
 
 	if (coordinates.size() > MAX_NUMBER_OF_GRID_CUBES) {
@@ -22,7 +22,7 @@ void Cube_System::update_grid_cubes(std::unordered_set<Coordinate> coordinates) 
 	}
 }
 
-void Cube_System::update_border_cubes(std::vector<Coordinate> coordinates) {
+void Cube_System::create_border_cubes_from_coordinates(std::vector<Coordinate> coordinates) {
 	ZoneScoped;
 
 
@@ -47,11 +47,8 @@ void Cube_System::update(Grid_Manager* grid_manager) {
 	ZoneScoped;
 
 	clear_border_and_grid_cubes_array();
-	update_grid_cubes(grid_manager->world_coordinates);
-
-	if (grid_manager->grid_execution_state.show_chunk_borders) {
-		update_border_cubes(grid_manager->border_coordinates);
-	}
+	create_grid_cubes_from_coordinates(grid_manager->world_coordinates);
+	create_border_cubes_from_coordinates(grid_manager->border_coordinates);
 }
 
 void Cube_System::clear_border_and_grid_cubes_array() {

@@ -9,9 +9,9 @@ public:
 
 	void update(Grid_Manager* grid_manager);
 
-	void update_border_cubes(std::vector<Coordinate> coordinates);
+	void create_border_cubes_from_coordinates(std::vector<Coordinate> coordinates);
 
-	void update_grid_cubes(std::unordered_set<Coordinate> coordinates);
+	void create_grid_cubes_from_coordinates(std::unordered_set<Coordinate> coordinates);
 
 	void clear_border_and_grid_cubes_array();
 

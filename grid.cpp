@@ -111,10 +111,12 @@ void Grid_Manager::update_coordinates_for_chunk_borders() {
 	ZoneScoped;
 
 	border_coordinates.clear();
-	for (Chunk& chunk: grid->chunks) {
-		// transform local border coordinates (which are in chunk coordinates) into world coordinates and add them to our vector of border coordinates
-		for (Coordinate coord: chunk.border_coordinates) {
-			border_coordinates.push_back(chunk.transform_to_world_coordinate(coord));
+	if (grid_execution_state.show_chunk_borders) {
+		for (Chunk& chunk: grid->chunks) {
+			// transform local border coordinates (which are in chunk coordinates) into world coordinates and add them to our vector of border coordinates
+			for (Coordinate coord: chunk.border_coordinates) {
+				border_coordinates.push_back(chunk.transform_to_world_coordinate(coord));
+			}
 		}
 	}
 }
