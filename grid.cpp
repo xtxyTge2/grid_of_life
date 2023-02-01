@@ -322,72 +322,16 @@ void Grid::update_cells_of_all_chunks() {
 }
 
 void Grid::remove_empty_chunks() {
+	number_of_alive_cells = 0;
 	for (auto it = chunk_map.begin(); it != chunk_map.end();) {
 		if (it->second->number_of_alive_cells <= 0) {
 			it = chunk_map.erase(it); // erase does not invalidate the iterator of std::unordered_map, (insert does!)
 		} else {
 			// DONT FORGET TO ADVANCE THE ITERATOR!
-			//number_of_alive_cells += it->second->number_of_alive_cells;
+			number_of_alive_cells += it->second->number_of_alive_cells;
 			it++;
 		}
 	}
-}
-
-
-void Chunk::print_chunk() {
-	ZoneScoped;
-
-	if (false) {
-		std::cout << "\n\n";
-		std::cout << "i: " << grid_coordinate_row << ", j: " << grid_coordinate_column << "\n";
-		std::cout << "neighbour_count of chunk:\n";
-		for (int r = 0; r < rows; r++) {
-			for (int c = 0; c < columns; c++) {
-				std::cout << neighbour_count(r, c) << " ";
-			}
-			std::cout << "\n";
-		}
-		std::cout << "cells of chunk:\n";
-		for (int r = 0; r < rows; r++) {
-			for (int c = 0; c < columns; c++) {
-				std::cout << cells(r, c) << " ";
-			}
-			std::cout << "\n";
-		}
-		std::cout << "left_update: ";
-		for (int v : left_row_indices_to_update) {
-			std::cout << v << " ";
-		}
-		std::cout << "\n";
-		std::cout << "top_update: ";
-		for (int v : top_column_indices_to_update) {
-			std::cout << v << " ";
-		}
-		std::cout << "\n";
-		std::cout << "right_update: ";
-		for (int v : right_row_indices_to_update) {
-			std::cout << v << " ";
-		}
-		std::cout << "\n";
-		std::cout << "bottom_update: ";
-		for (int v : bottom_column_indices_to_update) {
-			std::cout << v << " ";
-		}
-		std::cout << "\n";
-		std::cout << "update_top_left_corner: " << has_to_update_top_left_corner << "\n";
-		std::cout << "update_top_right_corner: " << has_to_update_top_right_corner << "\n";
-		std::cout << "update_bottom_right_corner: " << has_to_update_bottom_right_corner << "\n";
-		std::cout << "update_bottom_left_corner: " << has_to_update_bottom_left_corner << "\n";
-	}
-}
-
-void Grid::print_all_chunks_info() {
-	ZoneScoped;
-
-	for (auto& [chunk_coord, chunk]: chunk_map) {
-		chunk->print_chunk();
-	}
-	std::cout << "##################################################\n";
 }
 
 // @TODO @Cleanup deduplicate this code, all cases are very similar. We could create for each chunk a command queue which contains a vector of indices together with an enum value, which indicates the direction.
@@ -749,4 +693,61 @@ void Chunk::update_chunk_coordinates() {
 		}
 	}
 	number_of_alive_cells = (int) chunk_coordinates.size();
+}
+
+
+void Chunk::print_chunk() {
+	ZoneScoped;
+
+	if (false) {
+		std::cout << "\n\n";
+		std::cout << "i: " << grid_coordinate_row << ", j: " << grid_coordinate_column << "\n";
+		std::cout << "neighbour_count of chunk:\n";
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < columns; c++) {
+				std::cout << neighbour_count(r, c) << " ";
+			}
+			std::cout << "\n";
+		}
+		std::cout << "cells of chunk:\n";
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < columns; c++) {
+				std::cout << cells(r, c) << " ";
+			}
+			std::cout << "\n";
+		}
+		std::cout << "left_update: ";
+		for (int v : left_row_indices_to_update) {
+			std::cout << v << " ";
+		}
+		std::cout << "\n";
+		std::cout << "top_update: ";
+		for (int v : top_column_indices_to_update) {
+			std::cout << v << " ";
+		}
+		std::cout << "\n";
+		std::cout << "right_update: ";
+		for (int v : right_row_indices_to_update) {
+			std::cout << v << " ";
+		}
+		std::cout << "\n";
+		std::cout << "bottom_update: ";
+		for (int v : bottom_column_indices_to_update) {
+			std::cout << v << " ";
+		}
+		std::cout << "\n";
+		std::cout << "update_top_left_corner: " << has_to_update_top_left_corner << "\n";
+		std::cout << "update_top_right_corner: " << has_to_update_top_right_corner << "\n";
+		std::cout << "update_bottom_right_corner: " << has_to_update_bottom_right_corner << "\n";
+		std::cout << "update_bottom_left_corner: " << has_to_update_bottom_left_corner << "\n";
+	}
+}
+
+void Grid::print_all_chunks_info() {
+	ZoneScoped;
+
+	for (auto& [chunk_coord, chunk]: chunk_map) {
+		chunk->print_chunk();
+	}
+	std::cout << "##################################################\n";
 }

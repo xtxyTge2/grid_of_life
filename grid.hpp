@@ -87,8 +87,8 @@ public:
 	int chunk_origin_column;
 	int number_of_alive_cells;
 
-	Eigen::Array < bool, rows, columns > cells;
-	Eigen::Array < unsigned int, rows, columns > neighbour_count;
+	Eigen::Array < bool, rows, columns, Eigen::RowMajor > cells;
+	Eigen::Array < unsigned int, rows, columns, Eigen::RowMajor > neighbour_count;
 
 	std::unordered_set<Coordinate> chunk_coordinates;
 	std::vector<Coordinate> border_coordinates;
