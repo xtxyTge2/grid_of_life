@@ -89,8 +89,6 @@ int main(int argc, char argv[]) {
 	while (!g_state->should_quit()) {	
 		g_state->update();
 
-		g_state->render_frame();
-
 		FrameMark;
 	}
 	

@@ -10,7 +10,7 @@ void Cube_System::update(Grid_Manager* grid_manager) {
 	std::vector<std::pair<int, int>> world_coordinates = grid_manager->world_coordinates;
 	std::vector<std::pair<int, int>> border_coordinates = grid_manager->border_coordinates;
 
-	int wanted_number_of_cubes = world_coordinates.size();
+	size_t wanted_number_of_cubes = world_coordinates.size();
 	if (grid_manager->grid_execution_state.show_chunk_borders) {
 		wanted_number_of_cubes += border_coordinates.size();
 	}
@@ -30,7 +30,7 @@ void Cube_System::update(Grid_Manager* grid_manager) {
 	}
 
 	if (grid_manager->grid_execution_state.show_chunk_borders) {
-		for (auto& [x, y]: grid_manager->border_coordinates) {
+		for (auto& [x, y]: border_coordinates) {
 			Cube* current_cube = create_new_cube();
 			// note the switch in y and x coordinates here!
 			current_cube->m_position = glm::vec3((float) y, (float) -x, -3.0f);
@@ -38,23 +38,6 @@ void Cube_System::update(Grid_Manager* grid_manager) {
 		}
 	}
 
-
-	grid_render_data = new Grid_Render_Data();
-	
-	for (int i = 0; i < current_number_of_cubes; i++) {
-		Cube_Render_Data* cube_render_data = cubes_array[i].create_render_data();
-		grid_render_data->cubes_render_data.push_back(*cube_render_data);
-	}
-
-	// fill out grid info
-	Grid* grid = grid_manager->grid;
-	grid_render_data->grid_info = {};
-	grid_render_data->grid_info.iteration = grid->iteration;
-	grid_render_data->grid_info.rows = 0;
-	grid_render_data->grid_info.columns = 0;
-	grid_render_data->grid_info.origin_row = 0;
-	grid_render_data->grid_info.origin_column = 0;
-	grid_render_data->grid_info.number_of_alive_cells = grid->number_of_alive_cells;
 }
 
 void Cube_System::clear() {

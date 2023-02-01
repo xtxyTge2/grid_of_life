@@ -73,15 +73,6 @@ public:
 };
 
 //--------------------------------------------------------------------------------
-class Grid_Render_Data {
-public:
-	Grid_Render_Data();
-
-	Grid_Info grid_info;
-	std::vector<Cube_Render_Data> cubes_render_data;
-};
-
-//--------------------------------------------------------------------------------
 class Grid {
 public:
 	Grid();
@@ -133,11 +124,10 @@ public:
 
 	void create_cubes_for_alive_grid_cells();
 
-	Grid_Render_Data* create_render_data();
+	Grid_Info get_grid_info();
 
 	std::vector<std::pair<int, int>> world_coordinates;
 	std::vector<std::pair<int, int>> border_coordinates;
 	Grid* grid;
 	Grid_Execution_State grid_execution_state;
-	
 };

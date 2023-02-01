@@ -7,7 +7,7 @@
 //--------------------------------------------------------------------------------
 Timer::Timer() :
 	dt(0.0f),
-m_last_frame_time(0.0f)
+	m_last_frame_time(0.0f)
 {
 
 }
@@ -33,8 +33,6 @@ world(nullptr)
 	world = std::make_shared < World > ();
 
 	cube_system = std::make_shared < Cube_System > ();
-
-	render_data = std::make_unique < World_Render_Data > ();
 }
 
 //--------------------------------------------------------------------------------
@@ -45,16 +43,14 @@ void State::update() {
 
 	double dt = timer->dt;
 
-	//world_render_data->update();
-
 	world->update(dt, ui_state->grid_ui_controls_info);
 
 	cube_system->update(world->grid_manager);
 
-	render_data->update(world, cube_system);
-
 	// this sets up a new IMGUI-Frame! But we call the imgui render function only in our renderer! We always have to call ui_state->update() before the imgui render function,otherwise imgui didnt start a new frame!
-	ui_state->update(render_data->grid_render_data->grid_info);
+	ui_state->update(world->grid_manager->get_grid_info());
+
+	renderer->render_frame(world, cube_system);
 }
 
 //--------------------------------------------------------------------------------
@@ -72,28 +68,8 @@ void State::framebuffer_size_callback(int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
-void State::render_frame() {
-	renderer->render_frame(*render_data);
-}
 
 bool State::should_quit() {
 	//assert(window);
 	return glfwWindowShouldClose(window) || world->grid_manager->grid->iteration > 600;
-}
-
-World_Render_Data::World_Render_Data() {
-
-}
-
-//--------------------------------------------------------------------------------
-void World_Render_Data::update(std::shared_ptr<World> world_ptr, std::shared_ptr<Cube_System> cube_system) {
-	ZoneScoped;
-
-	// Create camera render data
-	int window_width, window_height;
-	glfwGetWindowSize(world_ptr->m_window, &window_width, &window_height);
-	camera_render_data = world_ptr->m_camera->create_render_data(window_width, window_height);
-
-	// Create grid render data
-	grid_render_data = cube_system->grid_render_data;
 }

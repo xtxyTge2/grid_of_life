@@ -25,11 +25,15 @@ public:
 
 	void initialise(GLFWwindow* window);
 
+	void initialise_cube_rendering();
+
+	void render_cube_system(std::shared_ptr<Cube_System> cube_system);
+
 	void update_shader_program(glm::mat4 model, glm::mat4 view, glm::mat4 projection);
 
-	void render_frame(World_Render_Data& render_data);
+	void render_frame(std::shared_ptr<World> world, std::shared_ptr<Cube_System> cube_system);
 
-	void render_world(World_Render_Data& render_data);
+	void render_world(std::shared_ptr<World> world, std::shared_ptr<Cube_System> cube_system);
 
 	void render_ui();
 	//--------------------------------------------------------------------------------

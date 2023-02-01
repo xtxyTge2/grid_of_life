@@ -17,6 +17,17 @@ Grid_Manager::Grid_Manager()
 };
 
 
+Grid_Info Grid_Manager::get_grid_info() {
+	Grid_Info grid_info = {};
+	grid_info.iteration = grid->iteration;
+	grid_info.rows = 0;
+	grid_info.columns = 0;
+	grid_info.origin_row = 0;
+	grid_info.origin_column = 0;
+	grid_info.number_of_alive_cells = grid->number_of_alive_cells;
+	return grid_info;
+}
+
 //--------------------------------------------------------------------------------
 void Grid_Manager::create_new_grid() {
 	ZoneScoped;
@@ -738,10 +749,6 @@ void Chunk::update_chunk_coordinates() {
 	}
 }
 
-//--------------------------------------------------------------------------------
-Grid_Render_Data::Grid_Render_Data() {
-	
-}
 
 //--------------------------------------------------------------------------------
 void Grid::resize_if_needed() {
