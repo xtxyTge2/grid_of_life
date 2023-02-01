@@ -36,7 +36,9 @@ void Grid_Manager::create_new_grid() {
 	grid = new Grid();
 }
 
-void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
+void Grid_Manager::update_grid_execution_state(Grid_UI_Controls_Info ui_info) {
+	ZoneScoped;
+
 	switch (ui_info.button_type) {
 		case GRID_NO_BUTTON_PRESSED:
 			break;
@@ -60,6 +62,12 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 	}
 	grid_execution_state.show_chunk_borders = ui_info.show_chunk_borders;
 	grid_execution_state.grid_speed = ui_info.grid_speed_slider_value;
+}
+
+void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
+	ZoneScoped;
+	
+	update_grid_execution_state(ui_info);
 	
 	bool grid_changed = false;
 
@@ -82,17 +90,31 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 
 	// only update coordinates of alive grid cells if we are in the first iteration or if the grid changed.
 	if (grid->iteration == 0 || grid_changed) {
-		world_coordinates.clear();
-		border_coordinates.clear();
-		for (Chunk& chunk: grid->chunks) {
-			// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
-			for (Coordinate coord: chunk.chunk_coordinates) {
-				world_coordinates.push_back(chunk.transform_to_world_coordinate(coord));
-			}
-			// transform local border coordinates (which are in chunk coordinates) into world coordinates and add them to our vector of border coordinates
-			for (Coordinate coord: chunk.border_coordinates) {
-				border_coordinates.push_back(chunk.transform_to_world_coordinate(coord));
-			}
+		update_coordinates_for_alive_grid_cells();
+		update_coordinates_for_chunk_borders();
+	}
+}
+
+void Grid_Manager::update_coordinates_for_alive_grid_cells() {
+	ZoneScoped;
+
+	world_coordinates.clear();
+	for (Chunk& chunk: grid->chunks) {
+		// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
+		for (Coordinate coord: chunk.chunk_coordinates) {
+			world_coordinates.insert(chunk.transform_to_world_coordinate(coord));
+		}
+	}
+}
+
+void Grid_Manager::update_coordinates_for_chunk_borders() {
+	ZoneScoped;
+
+	border_coordinates.clear();
+	for (Chunk& chunk: grid->chunks) {
+		// transform local border coordinates (which are in chunk coordinates) into world coordinates and add them to our vector of border coordinates
+		for (Coordinate coord: chunk.border_coordinates) {
+			border_coordinates.push_back(chunk.transform_to_world_coordinate(coord));
 		}
 	}
 }
@@ -159,48 +181,9 @@ void Grid::create_new_chunk_and_set_alive_cells(int i, int j, std::vector<std::p
 
 void Grid::create_new_chunk(int i, int j) {
 	ZoneScoped;
-
-	Chunk* chunk = new Chunk(i, j);
-	chunk->chunk_origin_row = i * Chunk::rows;
-	chunk->chunk_origin_column = j * Chunk::columns;
-	chunk->number_of_alive_cells = 0;
-
-	chunks.push_back(*chunk);
+	create_new_chunk_and_set_alive_cells(i, j, {});
 }
 
-
-//--------------------------------------------------------------------------------
-void Grid_Manager::create_cubes_for_alive_grid_cells() {
-	ZoneScoped;
-	/*
-	cubes.clear();
-	for (Chunk& chunk: grid->chunks) {
-		for (std::pair<int, int>& coord: chunk.chunk_coordinates) {
-			std::pair<int, int> world_coordinate = chunk.transform_to_world_coordinate(coord);
-			create_cube(world_coordinate, false);
-		}
-		
-		if (grid_execution_state.show_chunk_borders) {
-			// add border cubes
-			for (int r = 0; r < Chunk::rows; r++) {
-				std::pair<int, int> coord_left = std::make_pair(r, - 1);
-				std::pair<int, int> coord_right = std::make_pair(r, Chunk::columns);
-		
-				create_cube(chunk.transform_to_world_coordinate(coord_left), true);
-				create_cube(chunk.transform_to_world_coordinate(coord_right), true);
-			}
-			
-			for (int c = 0; c < Chunk::columns; c++) {
-				std::pair<int, int> coord_top = std::make_pair(-1, c);
-				std::pair<int, int> coord_bottom = std::make_pair(Chunk::rows, c);
-		
-				create_cube(chunk.transform_to_world_coordinate(coord_top), true);
-				create_cube(chunk.transform_to_world_coordinate(coord_bottom), true);
-			}
-		}
-	}
-	*/
-}
 
 void Chunk::update_neighbour_count_and_set_info() {
 	ZoneScoped;
@@ -750,95 +733,3 @@ void Chunk::update_chunk_coordinates() {
 		}
 	}
 }
-
-
-//--------------------------------------------------------------------------------
-void Grid::resize_if_needed() {
-	/*
-	ZoneScoped;
-	bool has_to_resize = false;
-	for (int c = 0; c < columns; c++) {
-	has_to_resize |= cells(0, c) || cells(rows - 1, c);
-	if (has_to_resize) break;
-	}
-	for (int r = 0; r < rows; r++) {
-	has_to_resize |= cells(r, 0) || cells(r, columns - 1);
-	if (has_to_resize) break;
-	}
-	if (!has_to_resize) return;
-
-	int new_rows = 3 * rows;
-	int new_columns = 3 * columns;
-
-	int row_offset = rows;
-	int column_offset = columns;
-
-	int new_origin_row = origin_row + row_offset;
-	int new_origin_column = origin_column + column_offset;
-
-	Array < bool, Dynamic, Dynamic > new_cells(new_rows, new_columns);
-	new_cells.setConstant(false);
-
-	Array < unsigned int, Dynamic, Dynamic > new_neighbour_count(new_rows, new_columns);
-	new_neighbour_count.setConstant(0);
-
-	// TODO faster
-	for (int r = 0; r < rows; r++) {
-	for (int c = 0; c < columns; c++) {
-	bool old_value = cells(r, c);
-	int new_r = r + row_offset;
-	int new_c = c + column_offset;
-	new_cells(new_r, new_c) = old_value;
-	}
-	}
-
-	rows = new_rows;
-	columns = new_columns;
-
-	origin_row = new_origin_row;
-	origin_column = new_origin_column;
-
-	cells = new_cells;
-	neighbour_count = new_neighbour_count;
-
-	cubes.reserve(rows * columns);
-	update_neighbour_count();
-	*/
-}
-
-
-
-
-/*
-	//--------------------------------------------------------------------------------
-	void Grid::next_iteration_old() {
-	ZoneScoped;
-
-	iteration++;
-	resize_if_needed();
-
-	update_neighbour_count();
-
-	// TODO: split this up and handle interior and border of the grid individually. If we do that we can incorporate the resize_if_needed() call into the border case computation
-	coordinates.clear();
-	for (int r = 0; r < rows; r++) {
-	for (int c = 0; c < columns; c++) {
-	unsigned int count = neighbour_count(r, c);
-	if (cells(r, c)) {
-	// a cell that is alive stays alive iff it has two or three neighbouring alive cells.
-	if (count != 2 && count != 3) {
-	cells(r, c) = false;
-	} else {
-	coordinates.push_back(std::make_pair(r, c));
-	}
-	} else {
-	// a dead cell becomes alive exactly iff it has three neighbouring alive cells.
-	if (count == 3) {
-	cells(r, c) = true;
-	coordinates.push_back(std::make_pair(r, c));
-	}
-	}
-	}
-	}
-	}
-	*/

@@ -64,6 +64,12 @@ void Renderer::render_frame(std::shared_ptr<World> world, std::shared_ptr<Cube_S
 	// ui
 	render_ui();
 
+	swap_backbuffer();
+}
+
+void Renderer::swap_backbuffer() {
+	ZoneScoped; 
+
 	glfwSwapBuffers(m_window);
 }
 
@@ -142,20 +148,52 @@ void Renderer::initialise_cube_rendering() {
 //--------------------------------------------------------------------------------
 void Renderer::render_cube_system(std::shared_ptr<Cube_System> cube_system) {
 	ZoneScoped;
-	glBindVertexArray(m_VAO);
-	m_shader_program->use();
-	for (int i = 0; i < cube_system->current_number_of_cubes; i++) {
-		Cube current_cube = cube_system->cubes_array[i];
-		
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, current_cube.m_position);
-		model = glm::rotate(model, glm::radians(current_cube.m_angle), glm::vec3(1.0f, 0.3f, 0.5f));
 
-		m_shader_program->set_uniform_mat4("model", model);
+	render_grid_cubes(cube_system);
+	render_border_cubes(cube_system);
+}
+
+void Renderer::render_grid_cubes(std::shared_ptr<Cube_System> cube_system) {
+	ZoneScoped;
+
+	glBindVertexArray(m_VAO);
+
+	m_shader_program->use();
+	unsigned int model_location = glGetUniformLocation(m_shader_program->id, "model");
+
+	// grid cubes, all have angle 0.0f, ie do not need to be rotated
+	for (int i = 0; i < cube_system->current_number_of_grid_cubes; i++) {
+		Cube& current_cube = cube_system->grid_cubes[i];
+	
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), current_cube.m_position);
+		glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model));
+
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 	glBindVertexArray(0);
 }
+
+void Renderer::render_border_cubes(std::shared_ptr<Cube_System> cube_system) {
+	ZoneScoped;
+
+	glBindVertexArray(m_VAO);
+	m_shader_program->use();
+	unsigned int model_location = glGetUniformLocation(m_shader_program->id, "model");
+
+	// pre compute the same fixed rotation matrix for every border cube.
+	glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(50.0f), glm::vec3(1.0f, 0.3f, 0.5f));
+	for (int i = 0; i < cube_system->current_number_of_border_cubes; i++) {
+		Cube& current_cube = cube_system->border_cubes[i];
+
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), current_cube.m_position);
+		model = model * rotation_matrix;
+		glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model));
+		
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
+	glBindVertexArray(0);
+}
+
 
 //--------------------------------------------------------------------------------
 void Renderer::render_world(std::shared_ptr<World> world, std::shared_ptr<Cube_System> cube_system) {

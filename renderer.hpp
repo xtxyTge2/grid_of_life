@@ -23,6 +23,12 @@ class Renderer {
 public:
 	Renderer();
 
+	void swap_backbuffer();
+
+	void render_grid_cubes(std::shared_ptr<Cube_System> cube_system);
+
+	void render_border_cubes(std::shared_ptr<Cube_System> cube_system);
+
 	void initialise(GLFWwindow* window);
 
 	void initialise_cube_rendering();

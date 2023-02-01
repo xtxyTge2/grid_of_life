@@ -3,57 +3,72 @@
 #include "state_render_data.hpp"
 #include "Tracy.hpp"
 
-
-void Cube_System::update(Grid_Manager* grid_manager) {
+void Cube_System::update_grid_cubes(std::unordered_set<Coordinate> coordinates) {
 	ZoneScoped;
-	// make sure that grid_manager was updated before this, otherwise coordinates might be outdated.
-	std::vector<Coordinate> world_coordinates = grid_manager->world_coordinates;
-	std::vector<Coordinate> border_coordinates = grid_manager->border_coordinates;
 
-	size_t wanted_number_of_cubes = world_coordinates.size();
-	if (grid_manager->grid_execution_state.show_chunk_borders) {
-		wanted_number_of_cubes += border_coordinates.size();
-	}
-
-	if (wanted_number_of_cubes > MAX_NUMBER_OF_CUBES) {
-		std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_CUBES << " cubes. Tried to create " << wanted_number_of_cubes << " cubes.\n";
+	if (coordinates.size() > MAX_NUMBER_OF_GRID_CUBES) {
+		std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_GRID_CUBES << " grid cubes. Tried to create " << coordinates.size() << " grid cubes.\n";
 		return;
 	}
 
-	clear();
-	for(auto& [x, y]: world_coordinates) {
-		Cube* current_cube = create_new_cube();
+	current_number_of_grid_cubes = 0;
+	for(auto& [x, y]: coordinates) {
+		Cube& current_cube = grid_cubes[current_number_of_grid_cubes];
+		current_number_of_grid_cubes++;
 		// note the switch in y and x coordinates here!
-		current_cube->m_position = glm::vec3((float) y, (float) -x, -3.0f);
-		current_cube->m_angle = 0.0f;
+		current_cube.m_position = glm::vec3((float) y, (float) -x, -3.0f);
+		current_cube.m_angle = 0.0f;
 		// TODO reset cube here.
 	}
+}
 
-	if (grid_manager->grid_execution_state.show_chunk_borders) {
-		for (auto& [x, y]: border_coordinates) {
-			Cube* current_cube = create_new_cube();
-			// note the switch in y and x coordinates here!
-			current_cube->m_position = glm::vec3((float) y, (float) -x, -3.0f);
-			current_cube->m_angle = 50.0f;	
-		}
+void Cube_System::update_border_cubes(std::vector<Coordinate> coordinates) {
+	ZoneScoped;
+
+
+	if (coordinates.size() > MAX_NUMBER_OF_BORDER_CUBES) {
+		std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_BORDER_CUBES << " border cubes. Tried to create " << coordinates.size() << " border cubes.\n";
+		return;
 	}
 
+	current_number_of_border_cubes = 0;
+	for (auto& [x, y]: coordinates) {
+		Cube& current_cube = border_cubes[current_number_of_border_cubes];
+		current_number_of_border_cubes++;
+		// note the switch in y and x coordinates here!
+		current_cube.m_position = glm::vec3((float) y, (float) -x, -3.0f);
+		current_cube.m_angle = 50.0f;
+	}
+	
 }
 
-void Cube_System::clear() {
+
+void Cube_System::update(Grid_Manager* grid_manager) {
 	ZoneScoped;
-	current_number_of_cubes = 0;
+
+	clear_border_and_grid_cubes_array();
+	update_grid_cubes(grid_manager->world_coordinates);
+
+	if (grid_manager->grid_execution_state.show_chunk_borders) {
+		update_border_cubes(grid_manager->border_coordinates);
+	}
 }
 
-Cube_System::Cube_System() : current_number_of_cubes(0) {
+void Cube_System::clear_border_and_grid_cubes_array() {
+	ZoneScoped;
+	current_number_of_grid_cubes = 0;
+	current_number_of_border_cubes = 0;
+}
+
+Cube_System::Cube_System() : current_number_of_grid_cubes(0), current_number_of_border_cubes(0) {
 	ZoneScoped;
 };
 
 Cube* Cube_System::create_new_cube() {
 	ZoneScoped;
-	if (current_number_of_cubes < MAX_NUMBER_OF_CUBES - 1) {
-		current_number_of_cubes++;
-		return &cubes_array[current_number_of_cubes];
+	if (current_number_of_grid_cubes < MAX_NUMBER_OF_GRID_CUBES - 1) {
+		current_number_of_grid_cubes++;
+		return &grid_cubes[current_number_of_grid_cubes];
 	} else {
 		return nullptr;
 	}

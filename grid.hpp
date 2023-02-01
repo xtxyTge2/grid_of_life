@@ -124,8 +124,6 @@ public:
 	void update_neighbours_of_chunk(Chunk& chunk);
 
 	void next_iteration();
-
-	void resize_if_needed();
 	//--------------------------------------------------------------------------------
 	// data
 	int number_of_alive_cells;
@@ -152,13 +150,17 @@ public:
 
 	void update(double dt, Grid_UI_Controls_Info grid_ui_controls_info);
 
+	void update_grid_execution_state(Grid_UI_Controls_Info ui_info);
+
 	void create_new_grid();
 
-	void create_cubes_for_alive_grid_cells();
+	void update_coordinates_for_alive_grid_cells();
+
+	void update_coordinates_for_chunk_borders();
 
 	Grid_Info get_grid_info();
 
-	std::vector<Coordinate> world_coordinates;
+	std::unordered_set<Coordinate> world_coordinates;
 	std::vector<Coordinate> border_coordinates;
 	Grid* grid;
 	Grid_Execution_State grid_execution_state;
