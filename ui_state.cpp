@@ -117,7 +117,7 @@ void UI_State::setup_ui_for_current_frame(Grid_Info grid_info) {
 		
 		ImGui::Checkbox("Demo Window", &m_show_demo_window);   
 
-		ImGui::Checkbox("Show chunk borders", &grid_ui_controls_info.show_chunk_borders);   
+		ImGui::Checkbox("Show chunk borders", &grid_ui_controls_info.show_chunk_borders); 
 
 		if (m_show_demo_window) {
 			ImGui::ShowDemoWindow(&m_show_demo_window);

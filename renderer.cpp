@@ -173,6 +173,7 @@ void Renderer::render_grid_cubes(std::shared_ptr<Cube_System> cube_system) {
 	glBindVertexArray(0);
 }
 
+
 void Renderer::render_border_cubes(std::shared_ptr<Cube_System> cube_system) {
 	ZoneScoped;
 

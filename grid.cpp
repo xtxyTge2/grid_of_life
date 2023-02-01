@@ -18,6 +18,8 @@ Grid_Manager::Grid_Manager()
 
 
 Grid_Info Grid_Manager::get_grid_info() {
+	ZoneScoped;
+
 	Grid_Info grid_info = {};
 	grid_info.iteration = grid->iteration;
 	grid_info.rows = 0;
@@ -33,7 +35,7 @@ void Grid_Manager::create_new_grid() {
 	ZoneScoped;
 	
 	grid_execution_state = {};
-	grid = new Grid();
+	grid = std::make_unique < Grid > ();
 }
 
 void Grid_Manager::update_grid_execution_state(Grid_UI_Controls_Info ui_info) {
@@ -60,6 +62,10 @@ void Grid_Manager::update_grid_execution_state(Grid_UI_Controls_Info ui_info) {
 		default:
 			break;
 	}
+	// check if the user changed to show/hide the grid borders.
+	grid_execution_state.have_to_update_chunk_borders = grid_execution_state.show_chunk_borders != ui_info.show_chunk_borders;
+	
+	// set it to actual new value always.
 	grid_execution_state.show_chunk_borders = ui_info.show_chunk_borders;
 	grid_execution_state.grid_speed = ui_info.grid_speed_slider_value;
 }
@@ -91,6 +97,9 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 	// only update coordinates of alive grid cells if we are in the first iteration or if the grid changed.
 	if (grid->iteration == 0 || grid_changed) {
 		update_coordinates_for_alive_grid_cells();
+	}
+
+	if (grid->iteration == 0 || grid_changed || grid_execution_state.have_to_update_chunk_borders) {
 		update_coordinates_for_chunk_borders();
 	}
 }
@@ -99,10 +108,10 @@ void Grid_Manager::update_coordinates_for_alive_grid_cells() {
 	ZoneScoped;
 
 	world_coordinates.clear();
-	for (Chunk& chunk: grid->chunks) {
+	for (auto& [chunk_coord, chunk]: grid->chunk_map) {
 		// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
-		for (Coordinate coord: chunk.chunk_coordinates) {
-			world_coordinates.insert(chunk.transform_to_world_coordinate(coord));
+		for (Coordinate coord: chunk->chunk_coordinates) {
+			world_coordinates.insert(chunk->transform_to_world_coordinate(coord));
 		}
 	}
 }
@@ -112,10 +121,10 @@ void Grid_Manager::update_coordinates_for_chunk_borders() {
 
 	border_coordinates.clear();
 	if (grid_execution_state.show_chunk_borders) {
-		for (Chunk& chunk: grid->chunks) {
+		for (auto& [chunk_coord, chunk]: grid->chunk_map) {
 			// transform local border coordinates (which are in chunk coordinates) into world coordinates and add them to our vector of border coordinates
-			for (Coordinate coord: chunk.border_coordinates) {
-				border_coordinates.push_back(chunk.transform_to_world_coordinate(coord));
+			for (Coordinate coord: chunk->border_coordinates) {
+				border_coordinates.push_back(chunk->transform_to_world_coordinate(coord));
 			}
 		}
 	}
@@ -145,9 +154,10 @@ Grid::Grid() : number_of_alive_cells(0), iteration(0) {
 		{ chunk_middle_row + 1, chunk_middle_column - 5 },
 		{ chunk_middle_row, chunk_middle_column }
 	};
-	create_new_chunk_and_set_alive_cells(0, 0, initial_coordinates);
-	for (Chunk& chunk: chunks) {
-		number_of_alive_cells += chunk.number_of_alive_cells;
+	create_new_chunk_and_set_alive_cells(Coordinate(0, 0), initial_coordinates);
+
+	for (auto& [chunk_coord, chunk]: chunk_map) {
+		number_of_alive_cells += chunk->number_of_alive_cells;
 	}
 	/*
 	{
@@ -165,12 +175,13 @@ Grid::Grid() : number_of_alive_cells(0), iteration(0) {
 	*/
 }
 
-void Grid::create_new_chunk_and_set_alive_cells(int i, int j, std::vector<std::pair<int, int>> coordinates) {
+
+void Grid::create_new_chunk_and_set_alive_cells(Coordinate coord, std::vector<std::pair<int, int>> coordinates) {
 	ZoneScoped;
 
-	Chunk* chunk = new Chunk(i, j);
-	chunk->chunk_origin_row = i * Chunk::rows;
-	chunk->chunk_origin_column = j * Chunk::columns;
+	std::shared_ptr<Chunk> chunk = std::make_shared<Chunk>(coord);
+	chunk->chunk_origin_row = coord.x * Chunk::rows;
+	chunk->chunk_origin_column = coord.y * Chunk::columns;
 	chunk->number_of_alive_cells = 0;
 
 	for (auto [r, c]: coordinates) {
@@ -178,14 +189,14 @@ void Grid::create_new_chunk_and_set_alive_cells(int i, int j, std::vector<std::p
 	}
 	chunk->update_chunk_coordinates();
 
-	chunks.push_back(*chunk);
+	chunk_map.insert(std::make_pair(coord, chunk));
 }
 
-void Grid::create_new_chunk(int i, int j) {
+void Grid::create_new_chunk(Coordinate coord) {
 	ZoneScoped;
-	create_new_chunk_and_set_alive_cells(i, j, {});
-}
 
+	create_new_chunk_and_set_alive_cells(coord, {});
+}
 
 void Chunk::update_neighbour_count_and_set_info() {
 	ZoneScoped;
@@ -205,47 +216,127 @@ void Chunk::update_neighbour_count_and_set_info() {
 //--------------------------------------------------------------------------------
 void Grid::update() {
 	ZoneScoped;
-	
+}
+
+void Grid::create_all_needed_neighbour_chunks() {
+	ZoneScoped;
+	// set of coordinates of the neighbour chunks, note that this is a set and hence we do not create neighbours multiple times
+	std::unordered_set<Coordinate> coordinates_of_chunks_to_add;
+	for (auto& [chunk_coord, chunk]: chunk_map) {
+		if (!chunk->has_to_update_neighbours()) {
+			continue;
+		}
+		int grid_row = chunk->grid_coordinate_row;
+		int grid_column = chunk->grid_coordinate_column;
+
+		if (chunk->has_to_update_top()) {
+			Coordinate top_coord = Coordinate(grid_row - 1, grid_column);
+			if (!chunk_map.contains(top_coord)) {
+				coordinates_of_chunks_to_add.insert(top_coord);
+			}
+		}
+		if (chunk->has_to_update_left()) {
+			Coordinate left_coord = Coordinate(grid_row, grid_column - 1);
+			if (!chunk_map.contains(left_coord)) {
+				coordinates_of_chunks_to_add.insert(left_coord);
+			}
+		}
+		if (chunk->has_to_update_bottom()) {
+			Coordinate bottom_coord = Coordinate(grid_row + 1, grid_column);
+			if (!chunk_map.contains(bottom_coord)) {
+				coordinates_of_chunks_to_add.insert(bottom_coord);
+			}
+		}
+		if (chunk->has_to_update_right()) {
+			Coordinate right_coord = Coordinate(grid_row, grid_column + 1);
+			if (!chunk_map.contains(right_coord)) {
+				coordinates_of_chunks_to_add.insert(right_coord);
+			}
+		}
+
+		if (chunk->has_to_update_top_left_corner) {
+			Coordinate top_left_coord = Coordinate(grid_row - 1, grid_column - 1);
+			if (!chunk_map.contains(top_left_coord)) {
+				coordinates_of_chunks_to_add.insert(top_left_coord);
+			}
+		}
+		if (chunk->has_to_update_bottom_left_corner) {
+			Coordinate bottom_left_coord = Coordinate(grid_row + 1, grid_column - 1);
+			if (!chunk_map.contains(bottom_left_coord)) {
+				coordinates_of_chunks_to_add.insert(bottom_left_coord);
+			}
+		}
+		if (chunk->has_to_update_bottom_right_corner) {
+			Coordinate bottom_right_coord = Coordinate(grid_row + 1, grid_column + 1);
+			if (!chunk_map.contains(bottom_right_coord)) {
+				coordinates_of_chunks_to_add.insert(bottom_right_coord);
+			}
+		}
+		if (chunk->has_to_update_top_right_corner) {
+			Coordinate top_right_coord = Coordinate(grid_row - 1, grid_column + 1);
+			if (!chunk_map.contains(top_right_coord)) {
+				coordinates_of_chunks_to_add.insert(top_right_coord);
+			}
+		}
+	}
+
+	// create the chunks now
+	for (Coordinate coord: coordinates_of_chunks_to_add) {
+		create_new_chunk(coord);
+	}
 }
 
 void Grid::next_iteration() {
 	ZoneScoped;
 
 	iteration++;
-	for (Chunk& chunk: chunks) {
-		chunk.update_neighbour_count_and_set_info();
+	for (auto& [chunk_coord, chunk]: chunk_map) {
+		chunk->update_neighbour_count_and_set_info();
 	}
 
-	// have updated internally each chunk and set the border information, so
-	// that neighbouring chunks can now update each other if needed.
+	create_all_needed_neighbour_chunks();
 
-	// we iterate over every chunk once and check if it has to update its neighbours,
-	// in that case we either already have the corresponding neighbour inside chunks
-	// or it doesnt exist yet. If it doesnt exist we add it to chunks at the end and hence iterate over it later. This invalidates any iterators of std::vector, hence we manually loop over it here.
+	update_all_neighbours_of_all_chunks();
+
+	update_cells_of_all_chunks();
+
 	
-	for (int chunk_index = 0; chunk_index < chunks.size(); chunk_index++) {
-		Chunk current_chunk = chunks[chunk_index];
-		update_neighbours_of_chunk(current_chunk);
-		chunks[chunk_index].clear_neighbour_update_info();
-	}
+	remove_empty_chunks();
+}
 
-	number_of_alive_cells = 0;
-	for (Chunk& chunk: chunks) {
-		chunk.update_cells();
-		number_of_alive_cells += chunk.number_of_alive_cells;
+void Grid::update_all_neighbours_of_all_chunks() {
+	ZoneScoped;
+
+	for (auto& [chunk_coord, chunk]: chunk_map) {
+		update_neighbours_of_chunk(chunk);
+		chunk->clear_neighbour_update_info();
 	}
-	std::vector<Chunk> used_chunks;
-	used_chunks.reserve(chunks.size());
-	for (Chunk& chunk: chunks) {
-		if (chunk.number_of_alive_cells > 0) {
-			used_chunks.push_back(chunk);
+}
+
+void Grid::update_cells_of_all_chunks() {
+	ZoneScoped;
+
+	for (auto& [chunk_coord, chunk]: chunk_map) {
+		chunk->update_cells();
+	}
+}
+
+void Grid::remove_empty_chunks() {
+	for (auto it = chunk_map.begin(); it != chunk_map.end();) {
+		if (it->second->number_of_alive_cells <= 0) {
+			it = chunk_map.erase(it); // erase does not invalidate the iterator of std::unordered_map, (insert does!)
+		} else {
+			// DONT FORGET TO ADVANCE THE ITERATOR!
+			//number_of_alive_cells += it->second->number_of_alive_cells;
+			it++;
 		}
 	}
-	chunks = used_chunks;
 }
 
 
 void Chunk::print_chunk() {
+	ZoneScoped;
+
 	if (false) {
 		std::cout << "\n\n";
 		std::cout << "i: " << grid_coordinate_row << ", j: " << grid_coordinate_column << "\n";
@@ -291,30 +382,28 @@ void Chunk::print_chunk() {
 }
 
 void Grid::print_all_chunks_info() {
-	for (Chunk& chunk: chunks) {
-		chunk.print_chunk();
+	ZoneScoped;
+
+	for (auto& [chunk_coord, chunk]: chunk_map) {
+		chunk->print_chunk();
 	}
 	std::cout << "##################################################\n";
 }
 
 // @TODO @Cleanup deduplicate this code, all cases are very similar. We could create for each chunk a command queue which contains a vector of indices together with an enum value, which indicates the direction.
-void Grid::update_neighbours_of_chunk(Chunk& chunk) {
-	if (!chunk.has_to_update_neighbours()) return;
+void Grid::update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk) {
+	ZoneScoped;
 
-	int grid_row = chunk.grid_coordinate_row;
-	int grid_column = chunk.grid_coordinate_column;
+	if (!chunk->has_to_update_neighbours()) return;
 
-	if (chunk.has_to_update_top()) {
-		int top_row = grid_row - 1;
-		int top_column = grid_column;
-		Chunk* top_chunk = get_chunk_if_it_exists(top_row, top_column);
-		if (top_chunk == nullptr) {
-			create_new_chunk(top_row, top_column);
-		}
-		// @Speed @Hack change our functions so we actually get the top_chunk and dont have to find it again in chunks.
-		top_chunk = get_chunk_if_it_exists(top_row, top_column);
+	int grid_row = chunk->grid_coordinate_row;
+	int grid_column = chunk->grid_coordinate_column;
 
-		for (int c: chunk.top_column_indices_to_update) {
+	if (chunk->has_to_update_top()) {
+		Coordinate top_coord = Coordinate(grid_row - 1, grid_column);
+		std::shared_ptr<Chunk> top_chunk = chunk_map.find(top_coord)->second;
+
+		for (int c: chunk->top_column_indices_to_update) {
 			top_chunk->neighbour_count(Chunk::rows - 1, c)++;
 			if (c > 0) {
 				top_chunk->neighbour_count(Chunk::rows - 1, c - 1)++;
@@ -325,17 +414,11 @@ void Grid::update_neighbours_of_chunk(Chunk& chunk) {
 		}
 	}
 
-	if (chunk.has_to_update_bottom()) {
-		int bottom_row = grid_row + 1;
-		int bottom_column = grid_column;
-		Chunk* bottom_chunk = get_chunk_if_it_exists(bottom_row, bottom_column);
-		if (bottom_chunk == nullptr) {
-			create_new_chunk(bottom_row, bottom_column);
-		}
-		// @Speed @Hack change our functions so we actually get the top_chunk and dont have to find it again in chunks.
-		bottom_chunk = get_chunk_if_it_exists(bottom_row, bottom_column);
+	if (chunk->has_to_update_bottom()) {
+		Coordinate bottom_coord = Coordinate(grid_row + 1, grid_column);
+		std::shared_ptr<Chunk> bottom_chunk = chunk_map.find(bottom_coord)->second;
 
-		for (int c: chunk.bottom_column_indices_to_update) {
+		for (int c: chunk->bottom_column_indices_to_update) {
 			bottom_chunk->neighbour_count(0, c)++;
 			if (c > 0) {
 				bottom_chunk->neighbour_count(0, c - 1)++;
@@ -346,17 +429,11 @@ void Grid::update_neighbours_of_chunk(Chunk& chunk) {
 		}
 	}
 
-	if (chunk.has_to_update_left()) {
-		int left_row = grid_row;
-		int left_column = grid_column - 1;
-		Chunk* left_chunk = get_chunk_if_it_exists(left_row, left_column);
-		if (left_chunk == nullptr) {
-			create_new_chunk(left_row, left_column);
-		}
-		// @Speed @Hack change our functions so we actually get the top_chunk and dont have to find it again in chunks.
-		left_chunk = get_chunk_if_it_exists(left_row, left_column);
+	if (chunk->has_to_update_left()) {
+		Coordinate left_coord = Coordinate(grid_row, grid_column - 1);
+		std::shared_ptr<Chunk> left_chunk = chunk_map.find(left_coord)->second;
 
-		for (int r: chunk.left_row_indices_to_update) {
+		for (int r: chunk->left_row_indices_to_update) {
 			left_chunk->neighbour_count(r, Chunk::columns - 1)++;
 			if (r > 0) {
 				left_chunk->neighbour_count(r - 1, Chunk::columns - 1)++;
@@ -367,17 +444,11 @@ void Grid::update_neighbours_of_chunk(Chunk& chunk) {
 		}
 	}
 
-	if (chunk.has_to_update_right()) {
-		int top_row = grid_row;
-		int right_column = grid_column + 1;
-		Chunk* right_chunk = get_chunk_if_it_exists(top_row, right_column);
-		if (right_chunk == nullptr) {
-			create_new_chunk(top_row, right_column);
-		}
-		// @Speed @Hack change our functions so we actually get the top_chunk and dont have to find it again in chunks.
-		right_chunk = get_chunk_if_it_exists(top_row, right_column);
+	if (chunk->has_to_update_right()) {
+		Coordinate right_coord = Coordinate(grid_row, grid_column + 1);
+		std::shared_ptr<Chunk> right_chunk = chunk_map.find(right_coord)->second;
 
-		for (int r: chunk.right_row_indices_to_update) {
+		for (int r: chunk->right_row_indices_to_update) {
 			right_chunk->neighbour_count(r, 0)++;
 			if (r > 0) {
 				right_chunk->neighbour_count(r - 1, 0)++;
@@ -388,78 +459,41 @@ void Grid::update_neighbours_of_chunk(Chunk& chunk) {
 		}
 	}
 
-	if (chunk.has_to_update_top_left_corner) {
-		int top_left_row = grid_row - 1;
-		int top_left_column = grid_column - 1;
-		Chunk* top_left_chunk = get_chunk_if_it_exists(top_left_row, top_left_column);
-		if (top_left_chunk == nullptr) {
-			create_new_chunk(top_left_row, top_left_column);
-		}
-		// @Speed @Hack change our functions so we actually get the top_chunk and dont have to find it again in chunks.
-		top_left_chunk = get_chunk_if_it_exists(top_left_row, top_left_column);
+	if (chunk->has_to_update_top_left_corner) {
+		Coordinate top_left_coord = Coordinate(grid_row - 1, grid_column - 1);
+		std::shared_ptr<Chunk> top_left_chunk = chunk_map.find(top_left_coord)->second;
 
-		top_left_chunk->neighbour_count(Chunk::rows -1 , Chunk::columns - 1)++;
+		top_left_chunk->neighbour_count(Chunk::rows - 1 , Chunk::columns - 1)++;
 	}
-	if (chunk.has_to_update_top_right_corner) {
-		int top_right_row = grid_row - 1;
-		int top_right_column = grid_column + 1;
-		Chunk* top_right_chunk = get_chunk_if_it_exists(top_right_row, top_right_column);
-		if (top_right_chunk == nullptr) {
-			create_new_chunk(top_right_row, top_right_column);
-		}
-		// @Speed @Hack change our functions so we actually get the top_chunk and dont have to find it again in chunks.
-		top_right_chunk = get_chunk_if_it_exists(top_right_row, top_right_column);
+	if (chunk->has_to_update_top_right_corner) {
+		Coordinate top_right_coord = Coordinate(grid_row - 1, grid_column + 1);
+		std::shared_ptr<Chunk> top_right_chunk = chunk_map.find(top_right_coord)->second;
 
 		top_right_chunk->neighbour_count(Chunk::rows - 1, 0)++;
 	}
-	if (chunk.has_to_update_bottom_left_corner) {
-		int bottom_left_row = grid_row + 1;
-		int bottom_left_corner = grid_column - 1;
-		Chunk* bottom_left_chunk = get_chunk_if_it_exists(bottom_left_row, bottom_left_corner);
-		if (bottom_left_chunk == nullptr) {
-			create_new_chunk(bottom_left_row, bottom_left_corner);
-		}
-		// @Speed @Hack change our functions so we actually get the top_chunk and dont have to find it again in chunks.
-		bottom_left_chunk = get_chunk_if_it_exists(bottom_left_row, bottom_left_corner);
+	if (chunk->has_to_update_bottom_left_corner) {
+		Coordinate bottom_left_coord = Coordinate(grid_row + 1, grid_column - 1);
+		std::shared_ptr<Chunk> bottom_left_chunk = chunk_map.find(bottom_left_coord)->second;
 
 		bottom_left_chunk->neighbour_count(0, Chunk::columns - 1)++;
 	}
-
-	if (chunk.has_to_update_bottom_right_corner) {
-		int bottom_right_row = grid_row + 1;
-		int bottom_right_column = grid_column + 1;
-		Chunk* bottom_right_chunk = get_chunk_if_it_exists(bottom_right_row, bottom_right_column);
-		if (bottom_right_chunk == nullptr) {
-			create_new_chunk(bottom_right_row, bottom_right_column);
-		}
-		// @Speed @Hack change our functions so we actually get the top_chunk and dont have to find it again in chunks.
-		bottom_right_chunk = get_chunk_if_it_exists(bottom_right_row, bottom_right_column);
+	if (chunk->has_to_update_bottom_right_corner) {
+		Coordinate bottom_right_coord = Coordinate(grid_row + 1, grid_column + 1);
+		std::shared_ptr<Chunk> bottom_right_chunk = chunk_map.find(bottom_right_coord)->second;
 
 		bottom_right_chunk->neighbour_count(0, 0)++;
 	}
-
-	// dont need this but we just make sure we dont get stupid bugs if we somehow manage to insert the chunk again, even though this doesnt happen and we look out 
-	// so we dont. just being super careful with respect to future potential bugs.
-	chunk.clear_neighbour_update_info();
 }
 
-Chunk* Grid::get_chunk_if_it_exists(int grid_row, int grid_column) {
-	for (Chunk& chunk: chunks) {
-		if (chunk.grid_coordinate_row == grid_row && chunk.grid_coordinate_column == grid_column) {
-			return &chunk;
-		}
-	}
-	return nullptr;
-}
 
-Chunk::Chunk(int coordinate_row, int coordinate_column) :
-	grid_coordinate_row(coordinate_row),
-grid_coordinate_column(coordinate_column),
-number_of_alive_cells(0),
-has_to_update_top_left_corner(false),
-has_to_update_top_right_corner(false),
-has_to_update_bottom_right_corner(false),
-has_to_update_bottom_left_corner(false)
+Chunk::Chunk(Coordinate coord) :
+	grid_coordinate_row(coord.x),
+	grid_coordinate_column(coord.y),
+	number_of_alive_cells(0),
+	has_to_update_top_left_corner(false),
+	has_to_update_top_right_corner(false),
+	has_to_update_bottom_right_corner(false),
+	has_to_update_bottom_left_corner(false)
 {
 	ZoneScoped;
 	cells.setConstant(false);
@@ -511,11 +545,8 @@ void Chunk::update_neighbour_count_top() {
 	int r = 0;
 	for (int c = 1; c < columns - 1; c++) {
 		if (cells(r, c)) {
-			number_of_alive_cells++;
-			// remember the column to update for the top neighbour
 			top_column_indices_to_update.push_back(c);
 			
-			// update all neighbours except the one above
 			neighbour_count(r, c - 1)++;
 			neighbour_count(r, c + 1)++;
 			
@@ -532,8 +563,6 @@ void Chunk::update_neighbour_count_bottom() {
 	int r = rows - 1;
 	for (int c = 1; c < columns - 1; c++) {
 		if (cells(r, c)) {
-			number_of_alive_cells++;
-
 			bottom_column_indices_to_update.push_back(c);
 
 			neighbour_count(r - 1, c - 1)++;
@@ -552,8 +581,6 @@ void Chunk::update_neighbour_count_left() {
 	int c = 0;
 	for (int r = 1; r < rows - 1; r++) {
 		if (cells(r, c)) {
-			number_of_alive_cells++;
-
 			left_row_indices_to_update.push_back(r);
 
 			neighbour_count(r - 1, c)++;
@@ -571,8 +598,6 @@ void Chunk::update_neighbour_count_right() {
 	int c = columns - 1;
 	for (int r = 1; r < rows - 1; r++) {
 		if (cells(r, c)) {
-			number_of_alive_cells++;
-
 			right_row_indices_to_update.push_back(r);
 
 			neighbour_count(r - 1, c - 1)++;
@@ -589,8 +614,6 @@ void Chunk::update_neighbour_count_corners() {
 
 	has_to_update_top_left_corner = false;
 	if (cells(0, 0)) {
-		number_of_alive_cells++;
-
 		has_to_update_top_left_corner = true;
 		left_row_indices_to_update.push_back(0);
 		top_column_indices_to_update.push_back(0);
@@ -602,8 +625,6 @@ void Chunk::update_neighbour_count_corners() {
 
 	has_to_update_top_right_corner = false;
 	if (cells(0, columns - 1)) {
-		number_of_alive_cells++;
-
 		has_to_update_top_right_corner = true;
 		top_column_indices_to_update.push_back(columns - 1);
 		right_row_indices_to_update.push_back(0);
@@ -615,8 +636,6 @@ void Chunk::update_neighbour_count_corners() {
 
 	has_to_update_bottom_left_corner = false;
 	if (cells(rows - 1, 0)) {
-		number_of_alive_cells++;
-
 		has_to_update_bottom_left_corner = true;
 		left_row_indices_to_update.push_back(rows - 1);
 		bottom_column_indices_to_update.push_back(0);
@@ -628,7 +647,6 @@ void Chunk::update_neighbour_count_corners() {
 
 	has_to_update_bottom_right_corner = false;
 	if (cells(rows - 1 , columns - 1)) {
-		number_of_alive_cells++;
 
 		has_to_update_bottom_right_corner = true;
 		bottom_column_indices_to_update.push_back(columns - 1);
@@ -641,26 +659,32 @@ void Chunk::update_neighbour_count_corners() {
 }
 
 bool Chunk::has_to_update_left() {
+	ZoneScoped;
 	return left_row_indices_to_update.size() > 0;
 }
 
 bool Chunk::has_to_update_right() {
+	ZoneScoped;
 	return right_row_indices_to_update.size() > 0;
 }
 
 bool Chunk::has_to_update_bottom() {
+	ZoneScoped;
 	return bottom_column_indices_to_update.size() > 0;
 }
 
 bool Chunk::has_to_update_top() {
+	ZoneScoped;
 	return top_column_indices_to_update.size() > 0;
 }
 
 bool Chunk::has_to_update_neighbours() {
+	ZoneScoped;
 	return has_to_update_top() || has_to_update_left() || has_to_update_right() || has_to_update_bottom() || has_to_update_corners();
 }
 
 bool Chunk::has_to_update_corners() {
+	ZoneScoped;
 	return has_to_update_top_left_corner || has_to_update_top_right_corner || has_to_update_bottom_left_corner || has_to_update_bottom_right_corner;
 }
 
@@ -670,13 +694,9 @@ void Chunk::update_neighbour_count_inside() {
 	neighbour_count.setConstant(0);
 
 
-	number_of_alive_cells = 0;
-	
 	for (int r = 1; r < rows - 1; r++) {
 		for (int c = 1; c < columns - 1; c++) {
 			if (cells(r, c)) {
-				number_of_alive_cells++;
-
 				neighbour_count(r - 1, c - 1)++;
 				neighbour_count(r - 1, c)++;
 				neighbour_count(r - 1, c + 1)++;
@@ -694,9 +714,7 @@ void Chunk::update_neighbour_count_inside() {
 
 void Chunk::update_cells() {
 	ZoneScoped;
-	number_of_alive_cells = 0;
-	// TODO: split this up and handle interior and border of the grid individually. If we do that we can incorporate the resize_if_needed() call into the border case computation
-	//chunk_coordinates.clear();
+
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			unsigned int count = neighbour_count(r, c);
@@ -713,25 +731,22 @@ void Chunk::update_cells() {
 					chunk_coordinates.insert(Coordinate(r, c));
 				}
 			}
-			
-			if (cells(r, c)) {
-				//chunk_coordinates.push_back(std::make_pair(r, c));
-				number_of_alive_cells += 1;
-			}
 		}
 	}
+	number_of_alive_cells = (int) chunk_coordinates.size();
 }
 
 
 void Chunk::update_chunk_coordinates() {
-	//chunk_coordinates.clear();
+	ZoneScoped;
 
+	chunk_coordinates.clear();
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			if (cells(r, c)) {
 				chunk_coordinates.insert(Coordinate(r, c));
-				number_of_alive_cells += 1;
 			}
 		}
 	}
+	number_of_alive_cells = (int) chunk_coordinates.size();
 }

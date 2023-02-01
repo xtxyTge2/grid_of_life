@@ -39,7 +39,7 @@ namespace std
 
 class Chunk {
 public:
-	Chunk(int coordinate_row, int coordinate_column);
+	Chunk(Coordinate coord);
 
 	void print_chunk();
 
@@ -109,27 +109,31 @@ class Grid {
 public:
 	Grid();
 
-	~Grid(); 
+	void create_new_chunk_and_set_alive_cells(Coordinate coord, std::vector<std::pair<int, int>> coordinates);
 
-	void create_new_chunk_and_set_alive_cells(int i, int j, std::vector<std::pair<int, int>> coordinates);
+	void update_cells_of_all_chunks();
+
+	void remove_empty_chunks();
 
 	void print_all_chunks_info();
-
-	Chunk* get_chunk_if_it_exists(int grid_row,
-	                                       int grid_column);
-	void create_new_chunk(int i, int j);
+;
+	void create_new_chunk(Coordinate coord);
 
 	void update();
 
-	void update_neighbours_of_chunk(Chunk& chunk);
+	void update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk);
 
 	void next_iteration();
+	
+	void update_all_neighbours_of_all_chunks();
+
+	void create_all_needed_neighbour_chunks();
 	//--------------------------------------------------------------------------------
 	// data
 	int number_of_alive_cells;
 	int iteration;
 
-	std::vector<Chunk> chunks;
+	std::unordered_map<Coordinate, std::shared_ptr<Chunk>> chunk_map;
 };
 
 //--------------------------------------------------------------------------------
@@ -139,14 +143,13 @@ struct Grid_Execution_State {
 	float time_since_last_iteration = 0.0f;
 	float grid_speed = 1.0f;
 	bool show_chunk_borders = false;
+	bool have_to_update_chunk_borders = false;
 };
 
 //--------------------------------------------------------------------------------
 class Grid_Manager {
 public:
 	Grid_Manager();
-
-	void initialise();
 
 	void update(double dt, Grid_UI_Controls_Info grid_ui_controls_info);
 
@@ -162,6 +165,6 @@ public:
 
 	std::unordered_set<Coordinate> world_coordinates;
 	std::vector<Coordinate> border_coordinates;
-	Grid* grid;
+	std::unique_ptr<Grid> grid;
 	Grid_Execution_State grid_execution_state;
 };
