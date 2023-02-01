@@ -68,12 +68,21 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 			grid_changed = true;
 		}
 	}
+
 	// only update coordinates of alive grid cells if we are in the first iteration or if the grid changed.
 	if (grid->iteration == 0 || grid_changed) {
 		world_coordinates.clear();
+		border_coordinates.clear();
 		for (Chunk& chunk: grid->chunks) {
+
+			// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
 			for (std::pair<int, int>& coord: chunk.chunk_coordinates) {
 				world_coordinates.push_back(chunk.transform_to_world_coordinate(coord));
+			}
+			// transform local border coordinates (in chunk coordinate system) into world coordinates and add them to our vector of border coordinates
+
+			for (std::pair<int, int>& coord: chunk.border_coordinates) {
+				border_coordinates.push_back(chunk.transform_to_world_coordinate(coord));
 			}
 		}
 	}
@@ -150,28 +159,6 @@ void Grid::create_new_chunk(int i, int j) {
 	chunks.push_back(*chunk);
 }
 
-
-void Grid_Manager::create_cube(std::pair<int, int> coord, bool is_border) {
-	/*
-	ZoneScoped;
-
-	Cube* cube = new Cube();
-
-	int x = coord.first;
-	int y = coord.second;
-	// note the switch in y and x coordinates here!
-	cube->m_position = glm::vec3((float) y, (float) -x, -3.0f);
-
-	// do this to distinguish the border from the rest of the grid.
-	if (is_border) {
-		cube->m_angle = 50.0f;
-	} else {
-		cube->m_angle = 0.0f;
-	}
-	
-	cubes.push_back(*cube);
-	*/
-}
 
 //--------------------------------------------------------------------------------
 void Grid_Manager::create_cubes_for_alive_grid_cells() {
@@ -488,6 +475,19 @@ has_to_update_bottom_left_corner(false)
 	right_row_indices_to_update.reserve(rows);
 	top_column_indices_to_update.reserve(columns);
 	bottom_column_indices_to_update.reserve(columns);
+
+
+	border_coordinates.clear();
+	// calculate border coordinates.
+	border_coordinates.reserve(2 * rows + 2 * columns + 4);
+	for (int r = 0; r < rows; r++) {
+		border_coordinates.push_back(std::make_pair(r, - 1));
+		border_coordinates.push_back(std::make_pair(r, columns));
+	}
+	for (int c = 0; c < Chunk::columns; c++) {
+		border_coordinates.push_back(std::make_pair(-1, c));
+		border_coordinates.push_back(std::make_pair(rows, c));
+	}
 }
 
 

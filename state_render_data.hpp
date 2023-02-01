@@ -14,7 +14,7 @@ public:
 	//--------------------------------------------------------------------------------
 	// data
 	int current_number_of_cubes;
-	constexpr static int MAX_NUMBER_OF_CUBES = 5000;
+	constexpr static int MAX_NUMBER_OF_CUBES = 50000;
 	std::array<Cube, MAX_NUMBER_OF_CUBES> cubes_array;
 
 	Grid_Render_Data* grid_render_data;

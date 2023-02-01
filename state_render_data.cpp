@@ -4,38 +4,42 @@
 #include "Tracy.hpp"
 
 
-
 void Cube_System::update(Grid_Manager* grid_manager) {
+	ZoneScoped;
 	// make sure that grid_manager was updated before this, otherwise coordinates might be outdated.
 	std::vector<std::pair<int, int>> world_coordinates = grid_manager->world_coordinates;
+	std::vector<std::pair<int, int>> border_coordinates = grid_manager->border_coordinates;
 
-	if (world_coordinates.size() > MAX_NUMBER_OF_CUBES) {
-		std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_CUBES << " cubes. Tried to create " << world_coordinates.size() << " cubes.\n";
+	int wanted_number_of_cubes = world_coordinates.size();
+	if (grid_manager->grid_execution_state.show_chunk_borders) {
+		wanted_number_of_cubes += border_coordinates.size();
+	}
+
+	if (wanted_number_of_cubes > MAX_NUMBER_OF_CUBES) {
+		std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_CUBES << " cubes. Tried to create " << wanted_number_of_cubes << " cubes.\n";
 		return;
 	}
 
 	clear();
-	for (int i = 0; i < world_coordinates.size(); i++) {
+	for(auto& [x, y]: world_coordinates) {
 		Cube* current_cube = create_new_cube();
-		std::pair<int, int> coord = world_coordinates[i];
-		int x = coord.first;
-		int y = coord.second;
 		// note the switch in y and x coordinates here!
 		current_cube->m_position = glm::vec3((float) y, (float) -x, -3.0f);
+		current_cube->m_angle = 0.0f;
 		// TODO reset cube here.
-
-		/*
-		// do this to distinguish the border from the rest of the grid.
-		if (is_border) {
-			cube->m_angle = 50.0f;
-		} else {
-			cube->m_angle = 0.0f;
-		}
-		*/
 	}
 
+	if (grid_manager->grid_execution_state.show_chunk_borders) {
+		for (auto& [x, y]: grid_manager->border_coordinates) {
+			Cube* current_cube = create_new_cube();
+			// note the switch in y and x coordinates here!
+			current_cube->m_position = glm::vec3((float) y, (float) -x, -3.0f);
+			current_cube->m_angle = 50.0f;	
+		}
+	}
+
+
 	grid_render_data = new Grid_Render_Data();
-	
 	
 	for (int i = 0; i < current_number_of_cubes; i++) {
 		Cube_Render_Data* cube_render_data = cubes_array[i].create_render_data();
@@ -51,21 +55,20 @@ void Cube_System::update(Grid_Manager* grid_manager) {
 	grid_render_data->grid_info.origin_row = 0;
 	grid_render_data->grid_info.origin_column = 0;
 	grid_render_data->grid_info.number_of_alive_cells = grid->number_of_alive_cells;
-
-
 }
 
 void Cube_System::clear() {
+	ZoneScoped;
 	current_number_of_cubes = 0;
 }
 
-
 Cube_System::Cube_System() : current_number_of_cubes(0) {
-	
+	ZoneScoped;
 };
 
 Cube* Cube_System::create_new_cube() {
-	if (current_number_of_cubes < MAX_NUMBER_OF_CUBES) {
+	ZoneScoped;
+	if (current_number_of_cubes < MAX_NUMBER_OF_CUBES - 1) {
 		current_number_of_cubes++;
 		return &cubes_array[current_number_of_cubes];
 	} else {

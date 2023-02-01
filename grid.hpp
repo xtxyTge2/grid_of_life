@@ -59,7 +59,7 @@ public:
 	Eigen::Array < unsigned int, rows, columns > neighbour_count;
 
 	std::vector<std::pair<int, int>> chunk_coordinates;
-	std::vector<Cube> cubes;
+	std::vector<std::pair<int, int>> border_coordinates;
 
 	std::vector<int> left_row_indices_to_update;
 	std::vector<int> right_row_indices_to_update;
@@ -131,13 +131,12 @@ public:
 
 	void create_new_grid();
 
-	void create_cube(std::pair<int, int> coord, bool is_border);
-
 	void create_cubes_for_alive_grid_cells();
 
 	Grid_Render_Data* create_render_data();
 
 	std::vector<std::pair<int, int>> world_coordinates;
+	std::vector<std::pair<int, int>> border_coordinates;
 	Grid* grid;
 	Grid_Execution_State grid_execution_state;
 	

@@ -78,7 +78,7 @@ void State::render_frame() {
 
 bool State::should_quit() {
 	//assert(window);
-	return glfwWindowShouldClose(window);// || world->grid_manager->grid->iteration > 600;
+	return glfwWindowShouldClose(window) || world->grid_manager->grid->iteration > 600;
 }
 
 World_Render_Data::World_Render_Data() {
