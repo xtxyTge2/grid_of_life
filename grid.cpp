@@ -660,10 +660,19 @@ void Chunk::update_neighbour_count_inside() {
 void Chunk::update_cells() {
 	ZoneScoped;
 
-	if (false) {
-		update_cells_first_version();
-	} else {
-		update_cells_second_version();
+	constexpr static int version_number = 3;
+	switch (version_number) {
+		case 1:
+			update_cells_first_version();
+			break;
+		case 2:
+			update_cells_second_version();
+			break;
+		case 3:
+			update_cells_third_version();
+			break;
+		default:
+			break;
 	}
 }
 
@@ -703,6 +712,7 @@ void Chunk::update_cells_second_version() {
 	size_t number_current_alive_grid_cells = 0;
 	std::array<Coordinate, rows*columns> dead_grid_cells_coordinates;
 	size_t number_current_dead_grid_cells = 0;
+
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			if (cells(r, c)) {
@@ -718,7 +728,7 @@ void Chunk::update_cells_second_version() {
 			}
 		}
 	}
-	
+
 	chunk_coordinates.clear();
 	for (int i = 0; i < number_of_alive_cells; i++) {
 		Coordinate& coord = alive_grid_cells_coordinates.at(i);
@@ -746,6 +756,44 @@ void Chunk::update_cells_second_version() {
 	}
 	number_of_alive_cells = (int) chunk_coordinates.size();
 		
+}
+
+
+void Chunk::update_cells_third_version() {
+	ZoneScoped;
+	int x = 10;
+	Eigen::Array < unsigned int, rows, columns, Eigen::RowMajor > constant_equal_to_3_matrix;
+	constant_equal_to_3_matrix.setConstant(3);
+
+	Eigen::Array < unsigned int, rows, columns, Eigen::RowMajor > constant_equal_to_2_matrix;
+	constant_equal_to_2_matrix.setConstant(2);
+
+	auto neighbour_count_equal_to_3_matrix = neighbour_count == constant_equal_to_3_matrix;
+
+	auto neighbour_count_equal_to_2_or_3_matrix = (neighbour_count == constant_equal_to_2_matrix) || neighbour_count_equal_to_3_matrix;
+
+	auto alive_and_2_or_3_neighbours = cells && neighbour_count_equal_to_2_or_3_matrix;
+	
+	auto dead_and_3_neighbours = !cells && neighbour_count_equal_to_3_matrix;
+
+	auto alive_and_2_or_3_neighbours_evaluated = alive_and_2_or_3_neighbours.eval();
+	
+	auto dead_and_3_neighbours_evaluated = dead_and_3_neighbours.eval();
+
+	auto next_cells = alive_and_2_or_3_neighbours || dead_and_3_neighbours;
+
+	cells = next_cells.eval();
+
+	chunk_coordinates.clear();
+	for (int r = 0; r < rows; r++) {
+		for (int c = 0; c < columns; c++) {
+			if (cells(r, c)) {
+				chunk_coordinates.push_back(Coordinate(r, c));
+			}
+		}
+	}
+
+	number_of_alive_cells = (int) chunk_coordinates.size();	
 }
 
 

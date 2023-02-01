@@ -52,6 +52,8 @@ public:
 
 	void update_cells_second_version();
 
+	void update_cells_third_version();
+
 	void print_chunk();
 
 	void update_neighbour_count_inside();
