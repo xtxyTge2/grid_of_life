@@ -42,7 +42,7 @@
     <ClCompile Include="renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="state_render_data.cpp">
+	<ClCompile Include="cube_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ui_state.cpp">
@@ -95,7 +95,7 @@
     <ClInclude Include="state.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-	<ClInclude Include="state_render_data.hpp">
+	<ClInclude Include="cube_system.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="opengl.hpp">

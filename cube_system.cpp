@@ -1,6 +1,6 @@
 #pragma once
 
-#include "state_render_data.hpp"
+#include "cube_system.hpp"
 #include "Tracy.hpp"
 
 void Cube_System::create_grid_cubes_from_coordinates(std::unordered_set<Coordinate> coordinates) {
@@ -39,7 +39,6 @@ void Cube_System::create_border_cubes_from_coordinates(std::vector<Coordinate> c
 		current_cube.m_position = glm::vec3((float) y, (float) -x, -3.0f);
 		current_cube.m_angle = 50.0f;
 	}
-	
 }
 
 
