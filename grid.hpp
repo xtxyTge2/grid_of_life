@@ -158,6 +158,7 @@ public:
 
 //--------------------------------------------------------------------------------
 struct Grid_Execution_State {
+	int number_of_iterations_per_single_frame = 1;
 	bool updated_grid_coordinates = false;
 	bool updated_border_coordinates = false;
 	bool is_running = true;

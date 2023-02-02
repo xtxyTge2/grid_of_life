@@ -26,9 +26,9 @@ struct Grid_UI_Controls_Info {
 	bool show_chunk_borders = false;
 	bool run_grid_at_max_possible_speed = true;
 
-	int number_of_grid_iterations_per_single_frame = 1;
 	int min_number_of_grid_iterations_per_single_frame = 1;
-	int max_number_of_grid_iterations_per_single_frame = 10;
+	int max_number_of_grid_iterations_per_single_frame = 1000;
+	int number_of_grid_iterations_per_single_frame = 500;
 };
 
 //--------------------------------------------------------------------------------

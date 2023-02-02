@@ -69,6 +69,7 @@ void Grid_Manager::update_grid_execution_state(Grid_UI_Controls_Info ui_info) {
 	grid_execution_state.show_chunk_borders = ui_info.show_chunk_borders;
 	grid_execution_state.grid_speed = ui_info.grid_speed_slider_value;
 	grid_execution_state.should_run_at_max_possible_speed = ui_info.run_grid_at_max_possible_speed;
+	grid_execution_state.number_of_iterations_per_single_frame = ui_info.number_of_grid_iterations_per_single_frame;
 }
 
 void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
@@ -81,14 +82,22 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 
 	bool grid_changed = false;
 	if (grid_execution_state.is_running) {
-		//assert(grid_execution_state.grid_speed > 0.0f);
-		
-		grid_execution_state.time_since_last_iteration += (float) dt;
-		float threshold = 1.0f / grid_execution_state.grid_speed;
-		if (grid_execution_state.should_run_at_max_possible_speed || grid_execution_state.time_since_last_iteration >= threshold) {
-			grid->next_iteration();
+		if (grid_execution_state.should_run_at_max_possible_speed) {
+			for (int i = 0; i < grid_execution_state.number_of_iterations_per_single_frame; i++) {
+				grid->next_iteration();
+			}
+			update_coordinates_for_alive_grid_cells();
+			update_coordinates_for_chunk_borders();
 			grid_changed = true;
-			grid_execution_state.time_since_last_iteration = 0.0f;
+		} else {
+			//assert(grid_execution_state.grid_speed > 0.0f);
+			grid_execution_state.time_since_last_iteration += (float) dt;
+			float threshold = 1.0f / grid_execution_state.grid_speed;
+			if (grid_execution_state.time_since_last_iteration >= threshold) {
+				grid->next_iteration();
+				grid_changed = true;
+				grid_execution_state.time_since_last_iteration = 0.0f;
+			}
 		}
 	} else {
 		if (grid_execution_state.run_manual_next_iteration) {
