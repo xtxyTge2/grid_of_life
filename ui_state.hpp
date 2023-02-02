@@ -14,8 +14,11 @@ enum Grid_UI_Control_Button_Events {
 
 struct Grid_UI_Controls_Info {
 	Grid_UI_Control_Button_Events button_type = GRID_NO_BUTTON_PRESSED;
-	float grid_speed_slider_value = 100.0f;
+	float min_grid_speed_slider_value = 1.0f;
+	float max_grid_speed_slider_value = 100.0f;
+	float grid_speed_slider_value = max_grid_speed_slider_value;
 	bool show_chunk_borders = false;
+	bool run_grid_at_max_possible_speed = true;
 };
 
 //--------------------------------------------------------------------------------

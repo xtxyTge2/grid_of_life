@@ -113,11 +113,27 @@ void UI_State::setup_ui_for_current_frame(Grid_Info grid_info) {
 		ImGui::Text("Origin row: %d, Origin column: %d", grid_info.origin_row, grid_info.origin_column);
 		ImGui::Text("Number of alive cells: %d", grid_info.number_of_alive_cells);
 
-		ImGui::SliderFloat("Grid update speed", &grid_ui_controls_info.grid_speed_slider_value, 1.0f, 100.0f);   
 		
+
+		bool grid_speed_slider_value_changed = ImGui::SliderFloat("Grid update speed", &grid_ui_controls_info.grid_speed_slider_value, grid_ui_controls_info.min_grid_speed_slider_value, grid_ui_controls_info.max_grid_speed_slider_value);   
+		
+		if (grid_speed_slider_value_changed) {
+			if (grid_ui_controls_info.grid_speed_slider_value == grid_ui_controls_info.max_grid_speed_slider_value) {
+				grid_ui_controls_info.run_grid_at_max_possible_speed = true;
+			} else {
+				grid_ui_controls_info.run_grid_at_max_possible_speed = false;
+			}
+		}
+
 		ImGui::Checkbox("Demo Window", &m_show_demo_window);   
 
 		ImGui::Checkbox("Show chunk borders", &grid_ui_controls_info.show_chunk_borders); 
+
+		ImGui::Checkbox("Run simulation at maximal speed", &grid_ui_controls_info.run_grid_at_max_possible_speed);
+
+		if (grid_ui_controls_info.run_grid_at_max_possible_speed) {
+			grid_ui_controls_info.grid_speed_slider_value = grid_ui_controls_info.max_grid_speed_slider_value;
+		}
 
 		if (m_show_demo_window) {
 			ImGui::ShowDemoWindow(&m_show_demo_window);

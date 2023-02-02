@@ -68,6 +68,7 @@ void Grid_Manager::update_grid_execution_state(Grid_UI_Controls_Info ui_info) {
 	// set it to actual new value always.
 	grid_execution_state.show_chunk_borders = ui_info.show_chunk_borders;
 	grid_execution_state.grid_speed = ui_info.grid_speed_slider_value;
+	grid_execution_state.should_run_at_max_possible_speed = ui_info.run_grid_at_max_possible_speed;
 }
 
 void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
