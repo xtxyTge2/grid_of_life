@@ -79,9 +79,10 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 
 	if (grid_execution_state.is_running) {
 		//assert(grid_execution_state.grid_speed > 0.0f);
+		
 		grid_execution_state.time_since_last_iteration += (float) dt;
 		float threshold = 1.0f / grid_execution_state.grid_speed;
-		if (grid_execution_state.time_since_last_iteration >= threshold) {
+		if (grid_execution_state.should_run_at_max_possible_speed || grid_execution_state.time_since_last_iteration >= threshold) {
 			grid->next_iteration();
 			grid_changed = true;
 			grid_execution_state.time_since_last_iteration = 0.0f;
@@ -434,12 +435,12 @@ void Grid::update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk) {
 
 Chunk::Chunk(Coordinate coord) :
 	grid_coordinate_row(coord.x),
-grid_coordinate_column(coord.y),
-number_of_alive_cells(0),
-has_to_update_top_left_corner(false),
-has_to_update_top_right_corner(false),
-has_to_update_bottom_right_corner(false),
-has_to_update_bottom_left_corner(false)
+	grid_coordinate_column(coord.y),
+	number_of_alive_cells(0),
+	has_to_update_top_left_corner(false),
+	has_to_update_top_right_corner(false),
+	has_to_update_bottom_right_corner(false),
+	has_to_update_bottom_left_corner(false)
 {
 	ZoneScoped;
 	cells.setConstant(false);

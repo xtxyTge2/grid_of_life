@@ -157,6 +157,7 @@ struct Grid_Execution_State {
 	float grid_speed = 1.0f;
 	bool show_chunk_borders = false;
 	bool have_to_update_chunk_borders = false;
+	bool should_run_at_max_possible_speed = true;
 };
 
 //--------------------------------------------------------------------------------
