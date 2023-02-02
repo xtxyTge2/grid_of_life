@@ -28,9 +28,9 @@
     <ClCompile Include="3rdparty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="3rdparty\tracy\TracyClient.cpp" />
     <ClCompile Include="camera.cpp" />
-	<ClCompile Include="world.cpp" />
+    <ClCompile Include="world.cpp" />
     <ClCompile Include="glad.c" />
-	<ClCompile Include="cube_system.cpp" />
+    <ClCompile Include="cube_system.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="read.cpp" />
     <ClCompile Include="shader.cpp" />
@@ -39,7 +39,7 @@
     <ClCompile Include="cube.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="ui_state.cpp" />
-	<ClCompile Include="grid.cpp" />
+    <ClCompile Include="grid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdparty\imgui\imconfig.h" />
@@ -52,18 +52,18 @@
     <ClInclude Include="3rdparty\imgui\imstb_textedit.h" />
     <ClInclude Include="3rdparty\imgui\imstb_truetype.h" />
     <ClInclude Include="camera.hpp" />
-	<ClInclude Include="world.hpp" />
+    <ClInclude Include="world.hpp" />
     <ClInclude Include="read.hpp" />
     <ClInclude Include="shader.hpp" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="state.hpp" />
     <ClInclude Include="texture.hpp" />
     <ClInclude Include="opengl.hpp" />
-	<ClInclude Include="cube_system.hpp" />
+    <ClInclude Include="cube_system.hpp" />
     <ClInclude Include="cube.hpp" />
     <ClInclude Include="renderer.hpp" />
     <ClInclude Include="ui_state.hpp" />
-	<ClInclude Include="grid.hpp" />
+    <ClInclude Include="grid.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.fs" />
@@ -166,6 +166,8 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -183,6 +185,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
