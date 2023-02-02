@@ -9,7 +9,7 @@ public:
 
 	void update(Grid_Manager* grid_manager);
 
-	void create_border_cubes_from_coordinates(std::vector<Coordinate> coordinates);
+	void create_border_cubes_from_coordinates(std::unordered_set<Coordinate> coordinates);
 
 	void create_grid_cubes_from_coordinates(std::unordered_set<Coordinate> coordinates);
 

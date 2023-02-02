@@ -46,7 +46,7 @@ void State::update() {
 
 	double dt = timer->dt;
 
-	world->update(dt, ui_state->grid_ui_controls_info);
+	world->update(dt, ui_state->ui_info);
 
 	cube_system->update(world->grid_manager);
 

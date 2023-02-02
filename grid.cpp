@@ -76,8 +76,10 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 	
 	update_grid_execution_state(ui_info);
 	
-	bool grid_changed = false;
+	grid_execution_state.updated_grid_coordinates = false;
+	grid_execution_state.updated_border_coordinates = false;
 
+	bool grid_changed = false;
 	if (grid_execution_state.is_running) {
 		//assert(grid_execution_state.grid_speed > 0.0f);
 		
@@ -99,35 +101,46 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 	// only update coordinates of alive grid cells if we are in the first iteration or if the grid changed.
 	if (grid->iteration == 0 || grid_changed) {
 		update_coordinates_for_alive_grid_cells();
+		grid_execution_state.updated_grid_coordinates = true;
 	}
 
-	if (grid->iteration == 0 || grid_changed || grid_execution_state.have_to_update_chunk_borders) {
+	if (grid->iteration == 0 || (grid_execution_state.show_chunk_borders && grid_changed) || grid_execution_state.have_to_update_chunk_borders) {
 		update_coordinates_for_chunk_borders();
+		grid_execution_state.updated_border_coordinates = true;
 	}
 }
 
 void Grid_Manager::update_coordinates_for_alive_grid_cells() {
 	ZoneScoped;
-
-	world_coordinates.clear();
-	for (auto& [chunk_coord, chunk]: grid->chunk_map) {
-		// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
-		for (Coordinate coord: chunk->chunk_coordinates) {
-			world_coordinates.insert(chunk->transform_to_world_coordinate(coord));
-		}
-	}
+	grid->update_coordinates_for_alive_grid_cells();
 }
 
 void Grid_Manager::update_coordinates_for_chunk_borders() {
 	ZoneScoped;
+	grid->update_coordinates_for_chunk_borders();
+}
+
+void Grid::update_coordinates_for_alive_grid_cells() {
+	ZoneScoped;
+
+	grid_coordinates.clear();
+	for (auto& [chunk_coord, chunk]: chunk_map) {
+		// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
+		for (Coordinate coord: chunk->chunk_coordinates) {
+			grid_coordinates.insert(chunk->transform_to_world_coordinate(coord));
+		}
+	}
+	
+}
+
+void Grid::update_coordinates_for_chunk_borders() {
+	ZoneScoped;
 
 	border_coordinates.clear();
-	if (grid_execution_state.show_chunk_borders) {
-		for (auto& [chunk_coord, chunk]: grid->chunk_map) {
-			// transform local border coordinates (which are in chunk coordinates) into world coordinates and add them to our vector of border coordinates
-			for (Coordinate coord: chunk->border_coordinates) {
-				border_coordinates.push_back(chunk->transform_to_world_coordinate(coord));
-			}
+	for (auto& [chunk_coord, chunk]: chunk_map) {
+		// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
+		for (Coordinate coord: chunk->border_coordinates) {
+			border_coordinates.insert(chunk->transform_to_world_coordinate(coord));
 		}
 	}
 }
@@ -163,6 +176,9 @@ Grid::Grid() : number_of_alive_cells(0), iteration(0) {
 	for (auto& [chunk_coord, chunk]: chunk_map) {
 		number_of_alive_cells += chunk->number_of_alive_cells;
 	}
+
+	update_coordinates_for_alive_grid_cells();
+
 	/*
 	{
 		int chunk_origin_test_row = -2;
@@ -304,7 +320,6 @@ void Grid::next_iteration() {
 
 	update_cells_of_all_chunks();
 
-	
 	remove_empty_chunks();
 }
 
@@ -682,7 +697,6 @@ void Chunk::update_cells() {
 void Chunk::update_cells_first_version() {
 	ZoneScoped;
 
-	chunk_coordinates.clear();
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			unsigned int count = neighbour_count(r, c);
@@ -690,17 +704,14 @@ void Chunk::update_cells_first_version() {
 				// a cell that is alive stays alive iff it has two or three neighbouring alive cells.
 				if (count != 2 && count != 3) {
 					cells(r, c) = false;
-					//chunk_coordinates.erase(Coordinate(r, c));
+					chunk_coordinates.erase(Coordinate(r, c));
 				}
 			} else {
 				// a dead cell becomes alive exactly iff it has three neighbouring alive cells.
 				if (count == 3) {
 					cells(r, c) = true;
-					//chunk_coordinates.insert(Coordinate(r, c));
+					chunk_coordinates.insert(Coordinate(r, c));
 				}
-			}
-			if (cells(r, c)) {
-				chunk_coordinates.push_back(Coordinate(r, c));
 			}
 		}
 	}
@@ -738,7 +749,7 @@ void Chunk::update_cells_second_version() {
 		int c = coord.y;
 		unsigned int count = neighbour_count(r, c);
 		if (count == 2 || count == 3) {
-			chunk_coordinates.push_back(Coordinate(r, c));
+			chunk_coordinates.insert(Coordinate(r, c));
 		}
 	}
 
@@ -748,7 +759,7 @@ void Chunk::update_cells_second_version() {
 		int c = coord.y;
 		unsigned int count = neighbour_count(r, c);
 		if (count == 3) {
-			chunk_coordinates.push_back(Coordinate(r, c));
+			chunk_coordinates.insert(Coordinate(r, c));
 		}
 	}
 
@@ -790,7 +801,7 @@ void Chunk::update_cells_third_version() {
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			if (cells(r, c)) {
-				chunk_coordinates.push_back(Coordinate(r, c));
+				chunk_coordinates.insert(Coordinate(r, c));
 			}
 		}
 	}
@@ -807,7 +818,7 @@ void Chunk::update_chunk_coordinates() {
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			if (cells(r, c)) {
-				chunk_coordinates.push_back(Coordinate(r, c));
+				chunk_coordinates.insert(Coordinate(r, c));
 			}
 		}
 	}

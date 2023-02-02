@@ -13,12 +13,22 @@ enum Grid_UI_Control_Button_Events {
 };
 
 struct Grid_UI_Controls_Info {
+	bool is_initialized = false;
+
+	bool m_show_demo_window = false;
+	bool m_show_grid_info = true;
+
 	Grid_UI_Control_Button_Events button_type = GRID_NO_BUTTON_PRESSED;
 	float min_grid_speed_slider_value = 1.0f;
 	float max_grid_speed_slider_value = 100.0f;
 	float grid_speed_slider_value = max_grid_speed_slider_value;
+
 	bool show_chunk_borders = false;
 	bool run_grid_at_max_possible_speed = true;
+
+	int number_of_grid_iterations_per_single_frame = 1;
+	int min_number_of_grid_iterations_per_single_frame = 1;
+	int max_number_of_grid_iterations_per_single_frame = 10;
 };
 
 //--------------------------------------------------------------------------------
@@ -50,10 +60,7 @@ public:
 	bool wants_to_capture_io();
 	//--------------------------------------------------------------------------------
 	// data
-	Grid_UI_Controls_Info grid_ui_controls_info;
 
-	bool   m_show_demo_window;
-	bool   m_show_grid_info;
-
+	Grid_UI_Controls_Info ui_info;
 	GLFWwindow* m_window;
 };

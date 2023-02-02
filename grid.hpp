@@ -90,8 +90,8 @@ public:
 
 	Coordinate transform_to_world_coordinate(Coordinate chunk_coord);
 
-	constexpr static int rows = 8;
-	constexpr static int columns = 8;
+	constexpr static int rows = 16;
+	constexpr static int columns = 16;
 
 	int grid_coordinate_row;
 	int grid_coordinate_column;
@@ -103,7 +103,7 @@ public:
 	Eigen::Array < bool, rows, columns, Eigen::RowMajor > cells;
 	Eigen::Array < unsigned int, rows, columns, Eigen::RowMajor > neighbour_count;
 
-	std::vector<Coordinate> chunk_coordinates;
+	std::unordered_set<Coordinate> chunk_coordinates;
 	std::vector<Coordinate> border_coordinates;
 
 	std::vector<int> left_row_indices_to_update;
@@ -123,6 +123,10 @@ public:
 	Grid();
 
 	void create_new_chunk_and_set_alive_cells(Coordinate coord, std::vector<std::pair<int, int>> coordinates);
+
+	void update_coordinates_for_alive_grid_cells();
+
+	void update_coordinates_for_chunk_borders();
 
 	void update_cells_of_all_chunks();
 
@@ -147,10 +151,15 @@ public:
 	int iteration;
 
 	std::unordered_map<Coordinate, std::shared_ptr<Chunk>> chunk_map;
+
+	std::unordered_set<Coordinate> grid_coordinates;
+	std::unordered_set<Coordinate> border_coordinates;
 };
 
 //--------------------------------------------------------------------------------
 struct Grid_Execution_State {
+	bool updated_grid_coordinates = false;
+	bool updated_border_coordinates = false;
 	bool is_running = true;
 	bool run_manual_next_iteration = false;
 	float time_since_last_iteration = 0.0f;
@@ -174,11 +183,9 @@ public:
 	void update_coordinates_for_alive_grid_cells();
 
 	void update_coordinates_for_chunk_borders();
-
+	
 	Grid_Info get_grid_info();
 
-	std::unordered_set<Coordinate> world_coordinates;
-	std::vector<Coordinate> border_coordinates;
 	std::unique_ptr<Grid> grid;
 	Grid_Execution_State grid_execution_state;
 };

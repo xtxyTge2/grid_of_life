@@ -22,9 +22,8 @@ void Cube_System::create_grid_cubes_from_coordinates(std::unordered_set<Coordina
 	}
 }
 
-void Cube_System::create_border_cubes_from_coordinates(std::vector<Coordinate> coordinates) {
+void Cube_System::create_border_cubes_from_coordinates(std::unordered_set<Coordinate> coordinates) {
 	ZoneScoped;
-
 
 	if (coordinates.size() > MAX_NUMBER_OF_BORDER_CUBES) {
 		std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_BORDER_CUBES << " border cubes. Tried to create " << coordinates.size() << " border cubes.\n";
@@ -44,10 +43,16 @@ void Cube_System::create_border_cubes_from_coordinates(std::vector<Coordinate> c
 
 void Cube_System::update(Grid_Manager* grid_manager) {
 	ZoneScoped;
-
-	clear_border_and_grid_cubes_array();
-	create_grid_cubes_from_coordinates(grid_manager->world_coordinates);
-	create_border_cubes_from_coordinates(grid_manager->border_coordinates);
+	if (grid_manager->grid_execution_state.updated_grid_coordinates) {
+		current_number_of_grid_cubes = 0;
+		create_grid_cubes_from_coordinates(grid_manager->grid->grid_coordinates);
+	} 
+	if(grid_manager->grid_execution_state.updated_border_coordinates) {
+		current_number_of_border_cubes = 0;
+		if (grid_manager->grid_execution_state.show_chunk_borders) {
+			create_border_cubes_from_coordinates(grid_manager->grid->border_coordinates);
+		}
+	}
 }
 
 void Cube_System::clear_border_and_grid_cubes_array() {
