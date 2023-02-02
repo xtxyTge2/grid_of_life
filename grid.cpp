@@ -660,7 +660,7 @@ void Chunk::update_neighbour_count_inside() {
 void Chunk::update_cells() {
 	ZoneScoped;
 
-	constexpr static int version_number = 3;
+	constexpr static int version_number = 1;
 	switch (version_number) {
 		case 1:
 			update_cells_first_version();

@@ -25,15 +25,15 @@ public:
 
 	void swap_backbuffer();
 
-	void render_grid_cubes(std::shared_ptr<Cube_System> cube_system);
+	void render_grid_cubes(std::shared_ptr<Cube_System> cube_system, glm::mat4 projection_view_matrix);
 
-	void render_border_cubes(std::shared_ptr<Cube_System> cube_system);
+	void render_border_cubes(std::shared_ptr<Cube_System> cube_system, glm::mat4 projection_view_matrix);
 
 	void initialise(GLFWwindow* window);
 
 	void initialise_cube_rendering();
 
-	void render_cube_system(std::shared_ptr<Cube_System> cube_system);
+	void render_cube_system(std::shared_ptr<Cube_System> cube_system, glm::mat4 projection_view_matrix);
 
 	void update_shader_program(glm::mat4 model, glm::mat4 view, glm::mat4 projection);
 

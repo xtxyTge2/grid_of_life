@@ -146,27 +146,28 @@ void Renderer::initialise_cube_rendering() {
 }
 
 //--------------------------------------------------------------------------------
-void Renderer::render_cube_system(std::shared_ptr<Cube_System> cube_system) {
+void Renderer::render_cube_system(std::shared_ptr<Cube_System> cube_system, glm::mat4 projection_view_matrix) {
 	ZoneScoped;
 
-	render_grid_cubes(cube_system);
-	render_border_cubes(cube_system);
+	render_grid_cubes(cube_system, projection_view_matrix);
+	render_border_cubes(cube_system, projection_view_matrix);
 }
 
-void Renderer::render_grid_cubes(std::shared_ptr<Cube_System> cube_system) {
+void Renderer::render_grid_cubes(std::shared_ptr<Cube_System> cube_system, glm::mat4 projection_view_matrix) {
 	ZoneScoped;
 
 	glBindVertexArray(m_VAO);
-
 	m_shader_program->use();
-	unsigned int model_location = glGetUniformLocation(m_shader_program->id, "model");
+	unsigned int mvp_matrix_location = glGetUniformLocation(m_shader_program->id, "mvp");
 
 	// grid cubes, all have angle 0.0f, ie do not need to be rotated
 	for (int i = 0; i < cube_system->current_number_of_grid_cubes; i++) {
 		Cube& current_cube = cube_system->grid_cubes[i];
 	
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), current_cube.m_position);
-		glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model));
+		glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), current_cube.m_position);
+
+		glm::mat4 mvp_matrix = projection_view_matrix * model_matrix;
+		glUniformMatrix4fv(mvp_matrix_location, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
 
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
@@ -174,21 +175,23 @@ void Renderer::render_grid_cubes(std::shared_ptr<Cube_System> cube_system) {
 }
 
 
-void Renderer::render_border_cubes(std::shared_ptr<Cube_System> cube_system) {
+void Renderer::render_border_cubes(std::shared_ptr<Cube_System> cube_system, glm::mat4 projection_view_matrix) {
 	ZoneScoped;
 
 	glBindVertexArray(m_VAO);
 	m_shader_program->use();
-	unsigned int model_location = glGetUniformLocation(m_shader_program->id, "model");
+	unsigned int mvp_matrix_location = glGetUniformLocation(m_shader_program->id, "mvp");
 
 	// pre compute the same fixed rotation matrix for every border cube.
 	glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(50.0f), glm::vec3(1.0f, 0.3f, 0.5f));
 	for (int i = 0; i < cube_system->current_number_of_border_cubes; i++) {
 		Cube& current_cube = cube_system->border_cubes[i];
 
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), current_cube.m_position);
-		model = model * rotation_matrix;
-		glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model));
+		glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), current_cube.m_position);
+		model_matrix = model_matrix * rotation_matrix;
+
+		glm::mat4 mvp_matrix = projection_view_matrix * model_matrix;
+		glUniformMatrix4fv(mvp_matrix_location, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
 		
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
@@ -207,7 +210,8 @@ void Renderer::render_world(std::shared_ptr<World> world, std::shared_ptr<Cube_S
 	glfwGetWindowSize(world->m_window, &window_width, &window_height);
 	Camera_Render_Data* camera_data = world->m_camera->create_render_data(window_width, window_height);
 
-	update_shader_program(camera_data->model, camera_data->view, camera_data->projection);
 
-	render_cube_system(cube_system);
+	glm::mat4 projection_view_matrix = camera_data->projection * camera_data->view;
+
+	render_cube_system(cube_system, projection_view_matrix);
 }
