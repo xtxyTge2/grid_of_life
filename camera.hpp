@@ -7,6 +7,14 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#ifdef _DEBUG
+#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+// Replace _NORMAL_BLOCK with _CLIENT_BLOCK if you want the
+// allocations to be of _CLIENT_BLOCK type
+#else
+#define DBG_NEW new
+#endif
+
 //--------------------------------------------------------------------------------
 enum Camera_Move_Direction {
 	UNDEFINED,
@@ -14,16 +22,6 @@ enum Camera_Move_Direction {
 	BACKWARD,
 	LEFT,
 	RIGHT
-};
-
-class Camera_Render_Data {
-public:
-	Camera_Render_Data();
-	//--------------------------------------------------------------------------------
-	// data
-	glm::mat4 model;
-	glm::mat4 view;
-	glm::mat4 projection;
 };
 
 //--------------------------------------------------------------------------------
@@ -38,8 +36,6 @@ public:
 	glm::mat4 get_view_matrix();
 
 	glm::mat4 get_projection_matrix(int viewport_width, int viewport_height);
-
-	Camera_Render_Data* create_render_data(int viewport_width, int viewport_height);
 	//--------------------------------------------------------------------------------
 	glm::vec3 position;
 	glm::mat3 orientation_vector_matrix;

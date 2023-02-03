@@ -19,28 +19,23 @@ struct Texture_Data {
 //--------------------------------------------------------------------------------
 class Texture {
 public:
-	Texture();
-
-	~Texture();
+	Texture(std::string texture_name, GLenum identifier, std::string texture_data_path);
 
 	void bind();
 
-	void load_data_from_file(std::string& path);
+	void load_data_from_file();
 	//--------------------------------------------------------------------------------
 	// data
 	GLuint id;
 	std::string name;
 	GLenum gl_texture_identifier;
+	std::string data_path;
 	Texture_Data texture_data;
 };
 
 //--------------------------------------------------------------------------------
 class Texture_Catalog {
 public:
-	Texture_Catalog();
-
-	~Texture_Catalog();
-
 	void load_and_bind_all_textures(std::vector<std::string>& texture_file_paths);
 	//--------------------------------------------------------------------------------
 	// data

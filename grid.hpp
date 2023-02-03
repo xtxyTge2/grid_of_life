@@ -46,7 +46,7 @@ namespace std
 
 class Chunk {
 public:
-	Chunk(Coordinate coord);
+	Chunk(const Coordinate& coord);
 
 	void update_cells_first_version();
 
@@ -122,7 +122,7 @@ class Grid {
 public:
 	Grid();
 
-	void create_new_chunk_and_set_alive_cells(Coordinate coord, std::vector<std::pair<int, int>> coordinates);
+	void create_new_chunk_and_set_alive_cells(const Coordinate& coord, const std::vector<std::pair<int, int>>& coordinates);
 
 	void update_coordinates_for_alive_grid_cells();
 
@@ -134,7 +134,7 @@ public:
 
 	void print_all_chunks_info();
 ;
-	void create_new_chunk(Coordinate coord);
+	void create_new_chunk(const Coordinate& coord);
 
 	void update();
 
@@ -161,7 +161,7 @@ struct Grid_Execution_State {
 	int number_of_iterations_per_single_frame = 1;
 	bool updated_grid_coordinates = false;
 	bool updated_border_coordinates = false;
-	bool is_running = true;
+	bool is_running = false;
 	bool run_manual_next_iteration = false;
 	float time_since_last_iteration = 0.0f;
 	float grid_speed = 1.0f;
@@ -175,9 +175,9 @@ class Grid_Manager {
 public:
 	Grid_Manager();
 
-	void update(double dt, Grid_UI_Controls_Info grid_ui_controls_info);
+	void update(double dt, const Grid_UI_Controls_Info& grid_ui_controls_info);
 
-	void update_grid_execution_state(Grid_UI_Controls_Info ui_info);
+	void update_grid_execution_state(const Grid_UI_Controls_Info& ui_info);
 
 	void create_new_grid();
 
@@ -185,8 +185,9 @@ public:
 
 	void update_coordinates_for_chunk_borders();
 	
-	Grid_Info get_grid_info();
+	void update_grid_info();
 
+	std::shared_ptr<Grid_Info> grid_info;
 	std::unique_ptr<Grid> grid;
 	Grid_Execution_State grid_execution_state;
 };

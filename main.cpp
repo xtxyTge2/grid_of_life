@@ -1,10 +1,21 @@
 #pragma once
 
 #include "Tracy.hpp"
-//#define EIGEN_NO_DEBUG
 
-// I have TRACY_ENABLE defined in the preprocessor settings of visual studio, hence do not define it here again.
-//#define TRACY_ENABLE
+// memory leak detection on windows
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
+#ifdef _DEBUG
+#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+// Replace _NORMAL_BLOCK with _CLIENT_BLOCK if you want the
+// allocations to be of _CLIENT_BLOCK type
+#else
+#define DBG_NEW new
+#endif
+
+//#define EIGEN_NO_DEBUG
 
 // General remark for tracy: Set the /Zi compiler flag in visual studio, or otherwise there will be a vs
 // studio bug/feature regarding macro expansions. Otherwise the macros of Tracy, e.g. ZoneScoped, FrameMark wont work.
@@ -22,13 +33,11 @@
 //--------------------------------------------------------------------------------
 void set_input_callbacks(GLFWwindow*);
 void framebuffer_size_callback(GLFWwindow*, int, int);
-Texture* load_texture(const std::string&, unsigned int&);
-void register_and_load_textures(Renderer*);
+
 GLFWwindow* init_glfw_glad_and_create_window(int window_width, int window_height);
-int main(int, char[]);
 
 //--------------------------------------------------------------------------------
-State* g_state = new State();
+std::unique_ptr<State> g_state = std::make_unique<State>();
 
 //--------------------------------------------------------------------------------
 void set_input_callbacks(GLFWwindow* window) {
@@ -78,20 +87,29 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 
 //--------------------------------------------------------------------------------
 int main(int argc, char argv[]) {
+	
 	GLFWwindow* window = init_glfw_glad_and_create_window(1920, 1080);
 	if (window == nullptr) {
 		std::cout << "Failed to initialize glfw and create a window." << std::endl;
 		return -1;
 	}
+	
 	g_state->initialise(window);
-
+	
+	
 	// ------------------------------------------------------------------
 	while (!g_state->should_quit()) {	
 		g_state->update();
-
+		
 		FrameMark;
 	}
 	
 	glfwTerminate();
+	g_state.reset();
+
+#ifdef _DEBUG
+	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG); 
+	_CrtDumpMemoryLeaks();
+#endif
 	return 0;
 }

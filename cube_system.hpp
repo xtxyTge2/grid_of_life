@@ -7,17 +7,17 @@ class Cube_System {
 public:
 	Cube_System();
 
-	void update(Grid_Manager* grid_manager);
+	void initialise(std::shared_ptr<Grid_Manager> manager);
 
-	void create_border_cubes_from_coordinates(std::unordered_set<Coordinate> coordinates);
+	void update();
 
-	void create_grid_cubes_from_coordinates(std::unordered_set<Coordinate> coordinates);
+	void create_border_cubes_for_grid();
 
-	void clear_border_and_grid_cubes_array();
-
-	Cube* create_new_cube();
+	void create_grid_cubes_for_grid();
 	//--------------------------------------------------------------------------------
 	// data
+	std::shared_ptr<Grid_Manager> grid_manager;
+
 	int current_number_of_grid_cubes;
 	constexpr static size_t MAX_NUMBER_OF_GRID_CUBES = 50000;
 	std::array<Cube, MAX_NUMBER_OF_GRID_CUBES> grid_cubes;

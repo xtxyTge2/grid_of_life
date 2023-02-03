@@ -77,6 +77,7 @@ void Renderer::render_ui() {
 	ZoneScoped;
 	// Render imgui frame
 	// The imgui frame gets started in the ui_state->update() call. This call HAS to happen before this!
+	
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -208,10 +209,9 @@ void Renderer::render_world(std::shared_ptr<World> world, std::shared_ptr<Cube_S
 
 	int window_width, window_height;
 	glfwGetWindowSize(world->m_window, &window_width, &window_height);
-	Camera_Render_Data* camera_data = world->m_camera->create_render_data(window_width, window_height);
-
-
-	glm::mat4 projection_view_matrix = camera_data->projection * camera_data->view;
+	glm::mat4 view_matrix = world->m_camera->get_view_matrix();
+	glm::mat4 projection_matrix = world->m_camera->get_projection_matrix(window_width, window_height);
+	glm::mat4 projection_view_matrix = projection_matrix * view_matrix;
 
 	render_cube_system(cube_system, projection_view_matrix);
 }

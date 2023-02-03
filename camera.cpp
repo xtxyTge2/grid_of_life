@@ -83,23 +83,6 @@ void Camera::move(Camera_Move_Direction direction) {
 }
 
 //--------------------------------------------------------------------------------
-Camera_Render_Data* Camera::create_render_data(int viewport_width, int viewport_height) {
-	ZoneScoped;
-	Camera_Render_Data* render_data = new Camera_Render_Data();
-
-	render_data->model = glm::mat4(1.0f);
-	render_data->view = get_view_matrix();
-	render_data->projection = get_projection_matrix(viewport_width, viewport_height);
-
-	return render_data;
-}
-
-//--------------------------------------------------------------------------------
-Camera_Render_Data::Camera_Render_Data() {
-
-}
-
-//--------------------------------------------------------------------------------
 Mouse::Mouse() :
 	m_x(0.0f),
 	m_y(0.0f)

@@ -4,6 +4,7 @@
 #include "state.hpp"
 #include "Tracy.hpp"
 
+
 //--------------------------------------------------------------------------------
 Timer::Timer() :
 	dt(0.0f),
@@ -48,10 +49,11 @@ void State::update() {
 
 	world->update(dt, ui_state->ui_info);
 
-	cube_system->update(world->grid_manager);
+	cube_system->update();
 
 	// this sets up a new IMGUI-Frame! But we call the imgui render function only in our renderer! We always have to call ui_state->update() before the imgui render function,otherwise imgui didnt start a new frame!
-	ui_state->update(world->grid_manager->get_grid_info());
+
+	ui_state->update(*world->grid_manager->grid_info);
 
 	renderer->render_frame(world, cube_system);
 }
@@ -64,6 +66,7 @@ void State::initialise(GLFWwindow* w) {
 	renderer->initialise(window);
 	world->initialise(window);
 	ui_state->initialise(window);
+	cube_system->initialise(world->grid_manager);
 }
 
 //--------------------------------------------------------------------------------
@@ -76,5 +79,5 @@ void State::framebuffer_size_callback(int width, int height) {
 bool State::should_quit() {
 	ZoneScoped;
 	//assert(window);
-	return glfwWindowShouldClose(window) || world->grid_manager->grid->iteration > 10000;
+	return glfwWindowShouldClose(window);
 }

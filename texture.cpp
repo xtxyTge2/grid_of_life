@@ -4,8 +4,23 @@
 #include "texture.hpp"
 #include "Tracy.hpp"
 
+#ifdef _DEBUG
+#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+// Replace _NORMAL_BLOCK with _CLIENT_BLOCK if you want the
+// allocations to be of _CLIENT_BLOCK type
+#else
+#define DBG_NEW new
+#endif
+
 //--------------------------------------------------------------------------------
-Texture::Texture() : id(0), name(""), gl_texture_identifier(0), texture_data({}) {
+Texture::Texture(std::string texture_name, GLenum identifier, std::string texture_data_path) : 
+	id(0), 
+	name(texture_name), 
+	gl_texture_identifier(identifier), 
+	data_path(texture_data_path), 
+	texture_data({}) 
+{
+
 }
 
 void Texture::bind() {
@@ -31,46 +46,35 @@ void Texture::bind() {
 	free_image_data(texture_data.image_data);
 }
 
-//--------------------------------------------------------------------------------
-Texture::~Texture() {
 
-}
-
-void Texture::load_data_from_file(std::string& path) {	
+void Texture::load_data_from_file() {	
 	ZoneScoped;
-	texture_data = {};
 
-	unsigned char* image_data = load_image_from_file(path, &texture_data.width, &texture_data.height, &texture_data.number_of_channels);
+	unsigned char* image_data = load_image_from_file(data_path, &texture_data.width, &texture_data.height, &texture_data.number_of_channels);
 		
 	if (image_data) {
 		texture_data.image_data = image_data;
 	} else {
-		std::cout << "Failed to load texture from full path: " << path << std::endl;
+		std::cout << "Failed to load texture from full path: " << data_path << std::endl;
 	}
-}
-
-//--------------------------------------------------------------------------------
-Texture_Catalog::Texture_Catalog() {
-
-}
-
-//--------------------------------------------------------------------------------
-Texture_Catalog::~Texture_Catalog() {
-
 }
 
 
 //--------------------------------------------------------------------------------
 void Texture_Catalog::load_and_bind_all_textures(std::vector<std::string>& texture_file_paths) {
 	ZoneScoped;
+
+	textures.clear();
+	textures.reserve(texture_file_paths.size());
 	for (int i = 0; i < texture_file_paths.size(); i++) {
-		Texture* texture = new Texture();
-		texture->name = "texture" + std::to_string(i);
-		texture->gl_texture_identifier = m_gl_texture_identifier_map[(unsigned int) textures.size()];
+		std::string texture_name = "texture" + std::to_string(i);
+		GLenum gl_texture_identifier = m_gl_texture_identifier_map[(unsigned int) i];
+		std::string data_path = texture_file_paths[i];
+		textures.emplace_back(texture_name, gl_texture_identifier, data_path);
+	}
 
-		texture->load_data_from_file(texture_file_paths[i]);
-		textures.push_back(*texture);
-
-		texture->bind();
+	for (Texture& texture: textures) {
+		texture.load_data_from_file();
+		texture.bind();
 	}
 }

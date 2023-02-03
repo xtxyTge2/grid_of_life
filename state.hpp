@@ -36,8 +36,6 @@ class State {
 public:
 	State();
 
-	~State();
-
 	void initialise(GLFWwindow* w);
 
 	void update();

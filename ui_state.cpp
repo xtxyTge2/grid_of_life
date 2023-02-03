@@ -10,13 +10,13 @@ UI_State::UI_State() :
 	ui_info({}),
 	m_window(nullptr)
 {
-	ui_info.is_initialized = true;
 }
 
 
 //--------------------------------------------------------------------------------
 UI_State::~UI_State() {
 	ZoneScoped;
+	
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -27,6 +27,7 @@ void UI_State::initialise(GLFWwindow* window) {
 	ZoneScoped;
 
 	m_window = window;
+	
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void) io;
@@ -38,13 +39,13 @@ void UI_State::initialise(GLFWwindow* window) {
 //--------------------------------------------------------------------------------
 bool UI_State::wants_to_capture_io() {
 	ZoneScoped;
-
+	
 	ImGuiIO& io = ImGui::GetIO(); (void) io;
 	return io.WantTextInput || io.WantSetMousePos || io.WantCaptureMouse || io.WantCaptureKeyboard || io.WantSaveIniSettings || io.WantCaptureMouseUnlessPopupClose;
 }
 
 //--------------------------------------------------------------------------------
-void UI_State::setup_ui_for_current_frame(Grid_Info grid_info) {
+void UI_State::setup_ui_for_current_frame(const Grid_Info& grid_info) {
 	ZoneScoped;
 
 	float sz = ImGui::GetTextLineHeight();
@@ -171,12 +172,13 @@ void UI_State::setup_ui_for_current_frame(Grid_Info grid_info) {
 		}
 
 		ImGui::End();
+		
 	}
 }
 
-void UI_State::update(Grid_Info grid_info) {
+void UI_State::update(const Grid_Info& grid_info) {
 	ZoneScoped;
-
+	
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();

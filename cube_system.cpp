@@ -3,8 +3,22 @@
 #include "cube_system.hpp"
 #include "Tracy.hpp"
 
-void Cube_System::create_grid_cubes_from_coordinates(std::unordered_set<Coordinate> coordinates) {
+Cube_System::Cube_System() : 
+	grid_manager(nullptr), 
+	current_number_of_grid_cubes(0), 
+	current_number_of_border_cubes(0) 
+{
 	ZoneScoped;
+}
+
+void Cube_System::initialise(std::shared_ptr<Grid_Manager> manager) {
+	grid_manager = manager;
+}
+
+void Cube_System::create_grid_cubes_for_grid() {
+	ZoneScoped;
+
+	std::unordered_set<Coordinate> coordinates = grid_manager->grid->grid_coordinates;
 
 	if (coordinates.size() > MAX_NUMBER_OF_GRID_CUBES) {
 		std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_GRID_CUBES << " grid cubes. Tried to create " << coordinates.size() << " grid cubes.\n";
@@ -22,9 +36,9 @@ void Cube_System::create_grid_cubes_from_coordinates(std::unordered_set<Coordina
 	}
 }
 
-void Cube_System::create_border_cubes_from_coordinates(std::unordered_set<Coordinate> coordinates) {
+void Cube_System::create_border_cubes_for_grid() {
 	ZoneScoped;
-
+	std::unordered_set<Coordinate> coordinates = grid_manager->grid->border_coordinates;
 	if (coordinates.size() > MAX_NUMBER_OF_BORDER_CUBES) {
 		std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_BORDER_CUBES << " border cubes. Tried to create " << coordinates.size() << " border cubes.\n";
 		return;
@@ -41,36 +55,16 @@ void Cube_System::create_border_cubes_from_coordinates(std::unordered_set<Coordi
 }
 
 
-void Cube_System::update(Grid_Manager* grid_manager) {
+void Cube_System::update() {
 	ZoneScoped;
 	if (grid_manager->grid_execution_state.updated_grid_coordinates) {
 		current_number_of_grid_cubes = 0;
-		create_grid_cubes_from_coordinates(grid_manager->grid->grid_coordinates);
+		create_grid_cubes_for_grid();
 	} 
 	if(grid_manager->grid_execution_state.updated_border_coordinates) {
 		current_number_of_border_cubes = 0;
 		if (grid_manager->grid_execution_state.show_chunk_borders) {
-			create_border_cubes_from_coordinates(grid_manager->grid->border_coordinates);
+			create_border_cubes_for_grid();
 		}
-	}
-}
-
-void Cube_System::clear_border_and_grid_cubes_array() {
-	ZoneScoped;
-	current_number_of_grid_cubes = 0;
-	current_number_of_border_cubes = 0;
-}
-
-Cube_System::Cube_System() : current_number_of_grid_cubes(0), current_number_of_border_cubes(0) {
-	ZoneScoped;
-};
-
-Cube* Cube_System::create_new_cube() {
-	ZoneScoped;
-	if (current_number_of_grid_cubes < MAX_NUMBER_OF_GRID_CUBES - 1) {
-		current_number_of_grid_cubes++;
-		return &grid_cubes[current_number_of_grid_cubes];
-	} else {
-		return nullptr;
 	}
 }

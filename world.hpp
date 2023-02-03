@@ -19,7 +19,7 @@ public:
 
 	void initialise(GLFWwindow*);
 
-	void update(double dt, Grid_UI_Controls_Info grid_ui_controls_info);
+	void update(double dt, const Grid_UI_Controls_Info& grid_ui_controls_info);
 
 	void process_input(double dt);
 	
@@ -30,5 +30,5 @@ public:
 	std::unique_ptr<Mouse> m_mouse;
 	GLFWwindow* m_window;
 	
-	Grid_Manager* grid_manager;
+	std::shared_ptr<Grid_Manager> grid_manager;
 };

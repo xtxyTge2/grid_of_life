@@ -12,22 +12,21 @@ Grid_Manager::Grid_Manager()
 : grid_execution_state({})
 {
 	ZoneScoped;
-
+	grid_info = std::make_shared < Grid_Info > ();
+	
 	create_new_grid();
 };
 
 
-Grid_Info Grid_Manager::get_grid_info() {
+void Grid_Manager::update_grid_info() {
 	ZoneScoped;
 
-	Grid_Info grid_info = {};
-	grid_info.iteration = grid->iteration;
-	grid_info.rows = 0;
-	grid_info.columns = 0;
-	grid_info.origin_row = 0;
-	grid_info.origin_column = 0;
-	grid_info.number_of_alive_cells = grid->number_of_alive_cells;
-	return grid_info;
+	grid_info->iteration = grid->iteration;
+	grid_info->rows = 0;
+	grid_info->columns = 0;
+	grid_info->origin_row = 0;
+	grid_info->origin_column = 0;
+	grid_info->number_of_alive_cells = grid->number_of_alive_cells;
 }
 
 //--------------------------------------------------------------------------------
@@ -38,13 +37,14 @@ void Grid_Manager::create_new_grid() {
 	grid = std::make_unique < Grid > ();
 }
 
-void Grid_Manager::update_grid_execution_state(Grid_UI_Controls_Info ui_info) {
+void Grid_Manager::update_grid_execution_state(const Grid_UI_Controls_Info& ui_info) {
 	ZoneScoped;
 
 	switch (ui_info.button_type) {
 		case GRID_NO_BUTTON_PRESSED:
 			break;
 		case GRID_RESET_BUTTON_PRESSED:
+			grid.reset();
 			create_new_grid();
 			return;
 			// if you remove the return somehow later, dont forget a break statement here :)
@@ -72,7 +72,7 @@ void Grid_Manager::update_grid_execution_state(Grid_UI_Controls_Info ui_info) {
 	grid_execution_state.number_of_iterations_per_single_frame = ui_info.number_of_grid_iterations_per_single_frame;
 }
 
-void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
+void Grid_Manager::update(double dt, const Grid_UI_Controls_Info& ui_info) {
 	ZoneScoped;
 	
 	update_grid_execution_state(ui_info);
@@ -86,8 +86,6 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 			for (int i = 0; i < grid_execution_state.number_of_iterations_per_single_frame; i++) {
 				grid->next_iteration();
 			}
-			update_coordinates_for_alive_grid_cells();
-			update_coordinates_for_chunk_borders();
 			grid_changed = true;
 		} else {
 			//assert(grid_execution_state.grid_speed > 0.0f);
@@ -117,6 +115,10 @@ void Grid_Manager::update(double dt, Grid_UI_Controls_Info ui_info) {
 		update_coordinates_for_chunk_borders();
 		grid_execution_state.updated_border_coordinates = true;
 	}
+
+
+	// @Cleanup, factor this into a grid_info->update() call?
+	update_grid_info();
 }
 
 void Grid_Manager::update_coordinates_for_alive_grid_cells() {
@@ -205,7 +207,7 @@ Grid::Grid() : number_of_alive_cells(0), iteration(0) {
 }
 
 
-void Grid::create_new_chunk_and_set_alive_cells(Coordinate coord, std::vector<std::pair<int, int>> coordinates) {
+void Grid::create_new_chunk_and_set_alive_cells(const Coordinate& coord, const std::vector<std::pair<int, int>>& coordinates) {
 	ZoneScoped;
 
 	std::shared_ptr<Chunk> chunk = std::make_shared < Chunk > (coord);
@@ -221,7 +223,7 @@ void Grid::create_new_chunk_and_set_alive_cells(Coordinate coord, std::vector<st
 	chunk_map.insert(std::make_pair(coord, chunk));
 }
 
-void Grid::create_new_chunk(Coordinate coord) {
+void Grid::create_new_chunk(const Coordinate& coord) {
 	ZoneScoped;
 
 	create_new_chunk_and_set_alive_cells(coord, {});
@@ -247,10 +249,11 @@ void Grid::update() {
 	ZoneScoped;
 }
 
+
 void Grid::create_all_needed_neighbour_chunks() {
 	ZoneScoped;
 	// set of coordinates of the neighbour chunks, note that this is a set and hence we do not create neighbours multiple times
-	std::unordered_set<Coordinate> coordinates_of_chunks_to_add;
+	std::unordered_set<Coordinate> coordinates_of_chunks_to_create;
 	for (auto& [chunk_coord, chunk]: chunk_map) {
 		if (!chunk->has_to_update_neighbours()) {
 			continue;
@@ -261,56 +264,58 @@ void Grid::create_all_needed_neighbour_chunks() {
 		if (chunk->has_to_update_top()) {
 			Coordinate top_coord = Coordinate(grid_row - 1, grid_column);
 			if (!chunk_map.contains(top_coord)) {
-				coordinates_of_chunks_to_add.insert(top_coord);
+				coordinates_of_chunks_to_create.insert(top_coord);
 			}
 		}
+
 		if (chunk->has_to_update_left()) {
 			Coordinate left_coord = Coordinate(grid_row, grid_column - 1);
 			if (!chunk_map.contains(left_coord)) {
-				coordinates_of_chunks_to_add.insert(left_coord);
+				coordinates_of_chunks_to_create.insert(left_coord);
 			}
 		}
+
 		if (chunk->has_to_update_bottom()) {
 			Coordinate bottom_coord = Coordinate(grid_row + 1, grid_column);
 			if (!chunk_map.contains(bottom_coord)) {
-				coordinates_of_chunks_to_add.insert(bottom_coord);
+				coordinates_of_chunks_to_create.insert(bottom_coord);
 			}
 		}
 		if (chunk->has_to_update_right()) {
 			Coordinate right_coord = Coordinate(grid_row, grid_column + 1);
 			if (!chunk_map.contains(right_coord)) {
-				coordinates_of_chunks_to_add.insert(right_coord);
+				coordinates_of_chunks_to_create.insert(right_coord);
 			}
 		}
 
 		if (chunk->has_to_update_top_left_corner) {
 			Coordinate top_left_coord = Coordinate(grid_row - 1, grid_column - 1);
 			if (!chunk_map.contains(top_left_coord)) {
-				coordinates_of_chunks_to_add.insert(top_left_coord);
+				coordinates_of_chunks_to_create.insert(top_left_coord);
 			}
 		}
 		if (chunk->has_to_update_bottom_left_corner) {
 			Coordinate bottom_left_coord = Coordinate(grid_row + 1, grid_column - 1);
 			if (!chunk_map.contains(bottom_left_coord)) {
-				coordinates_of_chunks_to_add.insert(bottom_left_coord);
+				coordinates_of_chunks_to_create.insert(bottom_left_coord);
 			}
 		}
 		if (chunk->has_to_update_bottom_right_corner) {
 			Coordinate bottom_right_coord = Coordinate(grid_row + 1, grid_column + 1);
 			if (!chunk_map.contains(bottom_right_coord)) {
-				coordinates_of_chunks_to_add.insert(bottom_right_coord);
+				coordinates_of_chunks_to_create.insert(bottom_right_coord);
 			}
 		}
 		if (chunk->has_to_update_top_right_corner) {
 			Coordinate top_right_coord = Coordinate(grid_row - 1, grid_column + 1);
 			if (!chunk_map.contains(top_right_coord)) {
-				coordinates_of_chunks_to_add.insert(top_right_coord);
+				coordinates_of_chunks_to_create.insert(top_right_coord);
 			}
 		}
 	}
 
 	// create the chunks now
-	for (Coordinate coord: coordinates_of_chunks_to_add) {
+	for (Coordinate coord: coordinates_of_chunks_to_create) {
 		create_new_chunk(coord);
 	}
 }
@@ -332,6 +337,7 @@ void Grid::next_iteration() {
 	remove_empty_chunks();
 }
 
+
 void Grid::update_all_neighbours_of_all_chunks() {
 	ZoneScoped;
 
@@ -341,6 +347,7 @@ void Grid::update_all_neighbours_of_all_chunks() {
 	}
 }
 
+
 void Grid::update_cells_of_all_chunks() {
 	ZoneScoped;
 
@@ -348,6 +355,7 @@ void Grid::update_cells_of_all_chunks() {
 		chunk->update_cells();
 	}
 }
+
 
 void Grid::remove_empty_chunks() {
 	number_of_alive_cells = 0;
@@ -361,6 +369,7 @@ void Grid::remove_empty_chunks() {
 		}
 	}
 }
+
 
 // @TODO @Cleanup deduplicate this code, all cases are very similar. We could create for each chunk a command queue which contains a vector of indices together with an enum value, which indicates the direction.
 void Grid::update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk) {
@@ -458,7 +467,7 @@ void Grid::update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk) {
 }
 
 
-Chunk::Chunk(Coordinate coord) :
+Chunk::Chunk(const Coordinate& coord) :
 	grid_coordinate_row(coord.x),
 	grid_coordinate_column(coord.y),
 	number_of_alive_cells(0),
@@ -505,11 +514,13 @@ void Chunk::clear_neighbour_update_info() {
 	has_to_update_bottom_left_corner = false;
 }
 
+
 Coordinate Chunk::transform_to_world_coordinate(Coordinate chunk_coord) {
 	ZoneScoped;
 
 	return Coordinate(chunk_coord.x + chunk_origin_row, chunk_coord.y + chunk_origin_column);
 }
+
 
 void Chunk::update_neighbour_count_top() {
 	ZoneScoped;
@@ -529,6 +540,7 @@ void Chunk::update_neighbour_count_top() {
 	}
 }
 
+
 void Chunk::update_neighbour_count_bottom() {
 	ZoneScoped;
 
@@ -547,6 +559,7 @@ void Chunk::update_neighbour_count_bottom() {
 	}
 }
 
+
 void Chunk::update_neighbour_count_left() {
 	ZoneScoped;
 
@@ -564,6 +577,7 @@ void Chunk::update_neighbour_count_left() {
 	}
 }
 
+
 void Chunk::update_neighbour_count_right() {
 	ZoneScoped;
 
@@ -580,6 +594,7 @@ void Chunk::update_neighbour_count_right() {
 		}
 	}
 }
+
 
 void Chunk::update_neighbour_count_corners() {
 	ZoneScoped;

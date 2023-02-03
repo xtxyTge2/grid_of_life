@@ -36,12 +36,12 @@ void World::initialise(GLFWwindow* window) {
 	
 	m_camera->m_speed = 50.0f;
 	
-	grid_manager = new Grid_Manager();
+	grid_manager = std::make_shared<Grid_Manager>();
 }
 
 
 //--------------------------------------------------------------------------------
-void World::update(double dt, Grid_UI_Controls_Info grid_ui_controls_info) {
+void World::update(double dt, const Grid_UI_Controls_Info& grid_ui_controls_info) {
 	ZoneScoped;
 	grid_manager->update(dt, grid_ui_controls_info);
 }

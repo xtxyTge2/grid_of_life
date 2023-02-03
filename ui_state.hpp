@@ -13,8 +13,6 @@ enum Grid_UI_Control_Button_Events {
 };
 
 struct Grid_UI_Controls_Info {
-	bool is_initialized = false;
-
 	bool m_show_demo_window = false;
 	bool m_show_grid_info = true;
 
@@ -27,8 +25,8 @@ struct Grid_UI_Controls_Info {
 	bool run_grid_at_max_possible_speed = true;
 
 	int min_number_of_grid_iterations_per_single_frame = 1;
-	int max_number_of_grid_iterations_per_single_frame = 1000;
-	int number_of_grid_iterations_per_single_frame = 500;
+	int max_number_of_grid_iterations_per_single_frame = 100;
+	int number_of_grid_iterations_per_single_frame = 1;
 };
 
 //--------------------------------------------------------------------------------
@@ -51,9 +49,9 @@ public:
 
 	~UI_State();
 
-	void update(Grid_Info grid_info);
+	void update(const Grid_Info& grid_info);
 
-	void setup_ui_for_current_frame(Grid_Info grid_info);
+	void setup_ui_for_current_frame(const Grid_Info& grid_info);
 	
 	void initialise(GLFWwindow* window);
 
