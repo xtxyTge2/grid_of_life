@@ -180,10 +180,6 @@ public:
 	void update_grid_execution_state(const Grid_UI_Controls_Info& ui_info);
 
 	void create_new_grid();
-
-	void update_coordinates_for_alive_grid_cells();
-
-	void update_coordinates_for_chunk_borders();
 	
 	void update_grid_info();
 

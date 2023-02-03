@@ -107,29 +107,18 @@ void Grid_Manager::update(double dt, const Grid_UI_Controls_Info& ui_info) {
 
 	// only update coordinates of alive grid cells if we are in the first iteration or if the grid changed.
 	if (grid->iteration == 0 || grid_changed) {
-		update_coordinates_for_alive_grid_cells();
+		grid->update_coordinates_for_alive_grid_cells();
 		grid_execution_state.updated_grid_coordinates = true;
 	}
 
 	if (grid->iteration == 0 || (grid_execution_state.show_chunk_borders && grid_changed) || grid_execution_state.have_to_update_chunk_borders) {
-		update_coordinates_for_chunk_borders();
+		grid->update_coordinates_for_chunk_borders();
 		grid_execution_state.updated_border_coordinates = true;
 	}
-
-
 	// @Cleanup, factor this into a grid_info->update() call?
 	update_grid_info();
 }
 
-void Grid_Manager::update_coordinates_for_alive_grid_cells() {
-	ZoneScoped;
-	grid->update_coordinates_for_alive_grid_cells();
-}
-
-void Grid_Manager::update_coordinates_for_chunk_borders() {
-	ZoneScoped;
-	grid->update_coordinates_for_chunk_borders();
-}
 
 void Grid::update_coordinates_for_alive_grid_cells() {
 	ZoneScoped;
