@@ -351,12 +351,13 @@ void Grid::update_cells_of_all_chunks() {
 	
 	if (opencl_context->is_valid_context) {
 		for (auto& [chunk_coord, chunk]: chunk_map) {
-			chunk->cells = opencl_context->get_updated_cells(chunk->neighbour_count, chunk->cells);
+			opencl_context->update_cells(chunk->neighbour_count, chunk->cells);
+			chunk->update_chunk_coordinates();
 		}
-	}
-	
-	for (auto& [chunk_coord, chunk]: chunk_map) {
-		chunk->update_cells();
+	} else {
+		for (auto& [chunk_coord, chunk]: chunk_map) {
+			chunk->update_cells();
+		}
 	}
 }
 

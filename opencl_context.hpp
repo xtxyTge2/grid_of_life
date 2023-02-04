@@ -14,7 +14,7 @@ public:
 
 	void initialise(std::string source_path);
 
-	Eigen::Array < bool, Chunk::rows, Chunk::columns, Eigen::RowMajor > get_updated_cells(Eigen::Array < unsigned int, Chunk::rows, Chunk::columns, Eigen::RowMajor > neighbour_count, Eigen::Array < bool, Chunk::rows, Chunk::columns, Eigen::RowMajor > cells);
+	void update_cells(Eigen::Array < unsigned int, Chunk::rows, Chunk::columns, Eigen::RowMajor >& neighbour_count, Eigen::Array < bool, Chunk::rows, Chunk::columns, Eigen::RowMajor >& cells);
 
 	bool success(cl_int errcode_ret);
 	

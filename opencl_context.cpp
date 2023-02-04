@@ -117,14 +117,19 @@ void OpenCLContext::run_update_cells_kernel() {
 
 
 
-Array < bool, Chunk::rows, Chunk::columns, Eigen::RowMajor > OpenCLContext::get_updated_cells(Array < unsigned int, Chunk::rows, Chunk::columns, Eigen::RowMajor > neighbour_count, Array < bool, Chunk::rows, Chunk::columns, Eigen::RowMajor > cells) {
+void  OpenCLContext::update_cells(Array < unsigned int, Chunk::rows, Chunk::columns, Eigen::RowMajor >& neighbour_count, Array < bool, Chunk::rows, Chunk::columns, Eigen::RowMajor >& cells) {
 	unsigned int* neighbour_count_data = neighbour_count.data();
+	cl_uint neighbour_count_data_converted[buffer_size];
+	for (int i = 0; i < neighbour_count.size(); i++) {
+		neighbour_count_data_converted[i] = (cl_uint) neighbour_count_data[i];
+	}
+
 	clEnqueueWriteBuffer(command_queue, 
 	                     neighbour_count_buffer,
 	                     CL_TRUE,
 	                     0,
 	                     sizeof(cl_uint) * buffer_size,
-	                     (void *) neighbour_count_data,
+	                     (void *) neighbour_count_data_converted,
 	                     0,
 	                     NULL,
 	                     NULL);
@@ -159,7 +164,7 @@ Array < bool, Chunk::rows, Chunk::columns, Eigen::RowMajor > OpenCLContext::get_
 	clFinish(command_queue);
 	
 
-	
+	/*
 	std::cout << "########################\n";
 	for (int r = 0; r < Chunk::rows; r++) {
 		for (int c = 0; c < Chunk::columns; c++) {
@@ -168,13 +173,11 @@ Array < bool, Chunk::rows, Chunk::columns, Eigen::RowMajor > OpenCLContext::get_
 		std::cout << "\n";
 	}
 	std::cout << "########################\n";
-	
+	*/
 
-	Array<bool, Chunk::rows, Chunk::columns, Eigen::RowMajor> cells_result;
 	for (int r = 0; r < Chunk::rows; r++) {
 		for (int c = 0; c < Chunk::columns; c++) {
-			cells_result(r, c) = cells_output_data[r*Chunk::columns + c];
+			cells(r, c) = cells_output_data[r*Chunk::columns + c];
 		}
 	}
-	return cells_result;
 }
