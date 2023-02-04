@@ -15,6 +15,7 @@
 #define DBG_NEW new
 #endif
 
+
 //#define EIGEN_NO_DEBUG
 
 // General remark for tracy: Set the /Zi compiler flag in visual studio, or otherwise there will be a vs
@@ -95,7 +96,6 @@ int main(int argc, char argv[]) {
 	}
 	
 	g_state->initialise(window);
-	
 	
 	// ------------------------------------------------------------------
 	while (!g_state->should_quit()) {	

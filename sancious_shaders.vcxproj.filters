@@ -21,6 +21,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="chunk.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="read.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -52,6 +55,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
 	<ClCompile Include="world.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+	<ClCompile Include="opencl_context.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="3rdparty\imgui\imgui.cpp">
@@ -116,7 +122,13 @@
 	<ClInclude Include="grid.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+	<ClInclude Include="chunk.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
 	<ClInclude Include="world.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+	<ClInclude Include="opencl_context.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="3rdparty\imgui\imconfig.h">
