@@ -20,6 +20,7 @@ bool OpenCLContext::success(cl_int errcode_ret) {
 
 
 void OpenCLContext::initialise(std::string source_path) {
+	/*
 	cl_int errcode_ret;
 	clGetPlatformIDs(1, &platform_id, NULL);
 
@@ -57,11 +58,10 @@ void OpenCLContext::initialise(std::string source_path) {
 	update_cells_kernel = clCreateKernel(program, "update_cells", NULL);
 
 
-	//initialise_memset_buffer();
-
-	initialise_cells_buffer();
+	//initialise_cells_buffer();
 
 	is_valid_context = true;
+	*/
 }
 
 
@@ -101,7 +101,40 @@ void OpenCLContext::initialise_cells_buffer() {
 		(void*) &cells_input_buffer);
 }
 
-void OpenCLContext::run_update_cells_kernel() {
+
+
+void OpenCLContext::update_cells(Array < unsigned int, Chunk::rows, Chunk::columns, Eigen::RowMajor >& neighbour_count, Array < bool, Chunk::rows, Chunk::columns, Eigen::RowMajor >& cells) {
+	ZoneScoped;
+	unsigned int* neighbour_count_data = neighbour_count.data();
+	/*
+		cl_uint neighbour_count_data_converted[buffer_size];
+	for (int i = 0; i < neighbour_count.size(); i++) {
+		neighbour_count_data_converted[i] = (cl_uint) neighbour_count_data[i];
+	}
+	*/
+	clEnqueueWriteBuffer(command_queue, 
+	                     neighbour_count_buffer,
+	                     CL_FALSE,
+	                     0,
+	                     sizeof(cl_uint) * buffer_size,
+	                     (void *) neighbour_count_data,
+	                     0,
+	                     NULL,
+	                     NULL);
+		
+
+	bool* cells_input_data = cells.data();
+	clEnqueueWriteBuffer(command_queue, 
+	                     cells_input_buffer,
+	                     CL_FALSE,
+	                     0,
+	                     sizeof(bool) * buffer_size,
+	                     (void *) cells_input_data,
+	                     0,
+	                     NULL,
+	                     NULL);
+
+
 	clEnqueueNDRangeKernel(
 		command_queue, 
 		update_cells_kernel,
@@ -113,47 +146,12 @@ void OpenCLContext::run_update_cells_kernel() {
 		NULL, 
 		NULL
 	);
-}
-
-
-
-void  OpenCLContext::update_cells(Array < unsigned int, Chunk::rows, Chunk::columns, Eigen::RowMajor >& neighbour_count, Array < bool, Chunk::rows, Chunk::columns, Eigen::RowMajor >& cells) {
-	unsigned int* neighbour_count_data = neighbour_count.data();
-	cl_uint neighbour_count_data_converted[buffer_size];
-	for (int i = 0; i < neighbour_count.size(); i++) {
-		neighbour_count_data_converted[i] = (cl_uint) neighbour_count_data[i];
-	}
-
-	clEnqueueWriteBuffer(command_queue, 
-	                     neighbour_count_buffer,
-	                     CL_TRUE,
-	                     0,
-	                     sizeof(cl_uint) * buffer_size,
-	                     (void *) neighbour_count_data_converted,
-	                     0,
-	                     NULL,
-	                     NULL);
-
-	bool* cells_input_data = cells.data();
-	clEnqueueWriteBuffer(command_queue, 
-	                     cells_input_buffer,
-	                     CL_TRUE,
-	                     0,
-	                     sizeof(bool) * buffer_size,
-	                     (void *) cells_input_data,
-	                     0,
-	                     NULL,
-	                     NULL);
-
-
-	run_update_cells_kernel();
 
 	// blocking read
 	bool cells_output_data[buffer_size];
-
 	clEnqueueReadBuffer(command_queue,
 	                    cells_result_buffer,
-	                    CL_TRUE,
+	                    CL_FALSE,
 	                    0,
 	                    sizeof(bool) * buffer_size,
 	                    (void *) cells_output_data,

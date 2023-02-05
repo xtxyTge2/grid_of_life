@@ -79,5 +79,5 @@ void State::framebuffer_size_callback(int width, int height) {
 bool State::should_quit() {
 	ZoneScoped;
 	//assert(window);
-	return glfwWindowShouldClose(window);
+	return glfwWindowShouldClose(window) || world->grid_manager->grid->iteration > 600;
 }

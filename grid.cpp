@@ -348,8 +348,8 @@ void Grid::update_all_neighbours_of_all_chunks() {
 
 void Grid::update_cells_of_all_chunks() {
 	ZoneScoped;
-	
-	if (opencl_context->is_valid_context) {
+	constexpr static bool use_opencl_context = false;
+	if (use_opencl_context && opencl_context->is_valid_context) {
 		for (auto& [chunk_coord, chunk]: chunk_map) {
 			opencl_context->update_cells(chunk->neighbour_count, chunk->cells);
 			chunk->update_chunk_coordinates();

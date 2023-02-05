@@ -19,8 +19,6 @@ public:
 	bool success(cl_int errcode_ret);
 	
 	void initialise_cells_buffer();
-
-	void run_update_cells_kernel();
 	
 	bool is_valid_context;
 
