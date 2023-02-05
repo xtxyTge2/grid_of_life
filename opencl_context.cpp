@@ -22,6 +22,7 @@ bool OpenCLContext::success(cl_int errcode_ret) {
 void OpenCLContext::initialise(std::string source_path) {
 	/*
 	cl_int errcode_ret;
+	
 	clGetPlatformIDs(1, &platform_id, NULL);
 
 	clGetDeviceIDs(platform_id,
@@ -29,16 +30,20 @@ void OpenCLContext::initialise(std::string source_path) {
 	               1,
 	               &device_id, 
 	               NULL);
-
 	context = clCreateContext(NULL,
 	                          1,
 	                          &device_id,
 	                          NULL, 
 	                          NULL,
 	                          NULL);
-
-	const cl_queue_properties queue_properties = NULL;
-	command_queue = clCreateCommandQueueWithProperties(context, device_id, &queue_properties, &errcode_ret);
+	
+#if CL_TARGET_OPENCL_VERSION >= 200 
+		const cl_queue_properties queue_properties = CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
+		command_queue = clCreateCommandQueueWithProperties(context, device_id, &queue_properties, &errcode_ret);
+#else
+		cl_command_queue_properties queue_properties = CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
+		command_queue = clCreateCommandQueue(context, device_id, queue_properties, &errcode_ret);
+#endif
 	if(!success(errcode_ret)) {
 		std::cout<< "OPENCL_CONTEXT::INITIALISE(). Error creating command queue.\n";
 		is_valid_context = false;
@@ -58,7 +63,7 @@ void OpenCLContext::initialise(std::string source_path) {
 	update_cells_kernel = clCreateKernel(program, "update_cells", NULL);
 
 
-	//initialise_cells_buffer();
+	initialise_cells_buffer();
 
 	is_valid_context = true;
 	*/
@@ -134,6 +139,7 @@ void OpenCLContext::update_cells(Array < unsigned int, Chunk::rows, Chunk::colum
 	                     NULL,
 	                     NULL);
 
+	clFinish(command_queue);
 
 	clEnqueueNDRangeKernel(
 		command_queue, 
@@ -158,8 +164,6 @@ void OpenCLContext::update_cells(Array < unsigned int, Chunk::rows, Chunk::colum
 	                    0,
 	                    NULL,
 	                    NULL);
-
-	clFinish(command_queue);
 	
 
 	/*
