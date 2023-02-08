@@ -37,7 +37,7 @@
     <ClCompile Include="3rdparty\tracy\TracyClient.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="world.cpp" />
-	<ClCompile Include="chunk.cpp" />
+    <ClCompile Include="chunk.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="cube_system.cpp" />
     <ClCompile Include="main.cpp" />
@@ -49,7 +49,7 @@
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="ui_state.cpp" />
     <ClCompile Include="grid.cpp" />
-	<ClCompile Include="opencl_context.cpp" />
+    <ClCompile Include="opencl_context.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdparty\imgui\imconfig.h" />
@@ -64,7 +64,7 @@
     <ClInclude Include="camera.hpp" />
     <ClInclude Include="world.hpp" />
     <ClInclude Include="read.hpp" />
-	<ClInclude Include="chunk.hpp" />
+    <ClInclude Include="chunk.hpp" />
     <ClInclude Include="shader.hpp" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="state.hpp" />
@@ -75,7 +75,7 @@
     <ClInclude Include="renderer.hpp" />
     <ClInclude Include="ui_state.hpp" />
     <ClInclude Include="grid.hpp" />
-	<ClInclude Include="opencl_context.hpp" />
+    <ClInclude Include="opencl_context.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.fs" />
@@ -219,6 +219,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PreprocessorDefinitions />
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -240,6 +241,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -262,6 +264,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

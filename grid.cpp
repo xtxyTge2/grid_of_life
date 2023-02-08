@@ -227,25 +227,13 @@ void Grid::create_new_chunk(const Coordinate& coord) {
 	create_new_chunk_and_set_alive_cells(coord, {});
 }
 
-void Chunk::update_neighbour_count_and_set_info() {
-	ZoneScoped;
-
-	clear_neighbour_update_info();
-
-	update_neighbour_count_inside();
-
-	for (int direction = ChunkUpdateInfoDirection::LEFT; direction < ChunkUpdateInfoDirection::DIRECTION_COUNT; direction++) {
-		update_neighbour_count_in_direction(static_cast<ChunkUpdateInfoDirection> (direction));
-	}
-}
-
 //--------------------------------------------------------------------------------
 void Grid::update() {
 	ZoneScoped;
 }
 
 
-void Grid::create_all_needed_neighbour_chunks() {
+void Grid::create_needed_neighbours_of_all_chunks() {
 	ZoneScoped;
 	// set of coordinates of the neighbour chunks, note that this is a set and hence we do not create neighbours multiple times
 	std::unordered_set<Coordinate> coordinates_of_chunks_to_create;
@@ -271,21 +259,27 @@ void Grid::next_iteration() {
 	ZoneScoped;
 
 	iteration++;
-	for (auto& [chunk_coord, chunk]: chunk_map) {
-		chunk->update_neighbour_count_and_set_info();
-	}
 
-	create_all_needed_neighbour_chunks();
+	update_neighbour_count_and_set_info_of_all_chunks();
 
-	update_all_neighbours_of_all_chunks();
+	create_needed_neighbours_of_all_chunks();
+
+	update_neighbours_of_all_chunks();
 
 	update_cells_of_all_chunks();
 	
 	remove_empty_chunks();
 }
 
+void Grid::update_neighbour_count_and_set_info_of_all_chunks() {
+	ZoneScoped;
 
-void Grid::update_all_neighbours_of_all_chunks() {
+	for (auto& [chunk_coord, chunk]: chunk_map) {
+		chunk->update_neighbour_count_and_set_info();
+	}
+}
+
+void Grid::update_neighbours_of_all_chunks() {
 	ZoneScoped;
 
 	for (auto& [chunk_coord, chunk]: chunk_map) {

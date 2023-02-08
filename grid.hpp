@@ -29,11 +29,13 @@ public:
 
 	void update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk);
 
+	void update_neighbour_count_and_set_info_of_all_chunks();
+
 	void next_iteration();
 	
-	void update_all_neighbours_of_all_chunks();
+	void update_neighbours_of_all_chunks();
 
-	void create_all_needed_neighbour_chunks();
+	void create_needed_neighbours_of_all_chunks();
 	//--------------------------------------------------------------------------------
 	// data
 	int number_of_alive_cells;

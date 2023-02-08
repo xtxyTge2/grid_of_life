@@ -269,6 +269,18 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 	}
 }
 
+void Chunk::update_neighbour_count_and_set_info() {
+	ZoneScoped;
+
+	clear_neighbour_update_info();
+
+	update_neighbour_count_inside();
+
+	for (int direction = ChunkUpdateInfoDirection::LEFT; direction < ChunkUpdateInfoDirection::DIRECTION_COUNT; direction++) {
+		update_neighbour_count_in_direction(static_cast<ChunkUpdateInfoDirection> (direction));
+	}
+}
+
 
 bool Chunk::has_to_update_in_direction(ChunkUpdateInfoDirection direction) {
 	return update_info[direction].data.size() > 0;
