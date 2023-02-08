@@ -222,14 +222,22 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 			for (int r = 1; r < rows - 1; r++) {
 				if (cells(r, current_column)) {
 					info.add_coordinate(r);
-
+					
 					neighbour_count(r - 1, current_column)++;
 					neighbour_count(r + 1, current_column)++;
-
 					neighbour_count(r - 1, current_column + column_offset)++;
 					neighbour_count(r, current_column + column_offset)++;
 					neighbour_count(r + 1, current_column + column_offset)++;
+						
 				}
+				/*
+				neighbour_count(r, current_column) += cells(r - 1, current_column);
+				neighbour_count(r, current_column) += cells(r + 1, current_column);
+
+				neighbour_count(r, current_column) += cells(r - 1, current_column + column_offset);
+				neighbour_count(r, current_column) += cells(r, current_column + column_offset);
+				neighbour_count(r, current_column) += cells(r + 1, current_column + column_offset);
+				*/
 			}
 			break;
 		case ChunkUpdateInfoDirection::TOP: // fallthrough, bottom and top together.
@@ -240,12 +248,18 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 
 					neighbour_count(current_row, c - 1)++;
 					neighbour_count(current_row, c + 1)++;
-					
-					// either r + 1 or r - 1, ie we look only one row up or down, depending on direction top or bottom.
 					neighbour_count(current_row + row_offset, c - 1)++;
 					neighbour_count(current_row + row_offset, c)++;
 					neighbour_count(current_row + row_offset, c + 1)++;
 				}
+				/*
+				neighbour_count(current_row, c) += cells(current_row, c - 1);
+				neighbour_count(current_row, c) += cells(current_row, c + 1);
+
+				neighbour_count(current_row, c) += cells(current_row + row_offset, c - 1);
+				neighbour_count(current_row, c) += cells(current_row + row_offset, c);
+				neighbour_count(current_row, c) += cells(current_row + row_offset, c + 1);
+				*/
 			}
 			break;
 		case ChunkUpdateInfoDirection::TOP_LEFT:// fallthrough
@@ -256,11 +270,15 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 				info.add_coordinate(0);
 				left_or_right_info->add_coordinate(current_row);
 				top_or_bottom_info->add_coordinate(current_column);
-
 				neighbour_count(current_row + row_offset, current_column + column_offset)++;
 				neighbour_count(current_row + row_offset, current_column)++;
 				neighbour_count(current_row, current_column + column_offset)++;
 			}
+			/*
+			neighbour_count(current_row, current_column) += cells(current_row + row_offset, current_column + column_offset);
+			neighbour_count(current_row, current_column) += cells(current_row + row_offset, current_column);
+			neighbour_count(current_row, current_column) += cells(current_row, current_column + column_offset);
+			*/
 			break;
 		case DIRECTION_COUNT:
 			break;
@@ -295,6 +313,7 @@ void Chunk::update_neighbour_count_inside() {
 	unsigned int* neighbour_count_data = neighbour_count.data();
 	bool* cells_data = cells.data();
 	for (int r = 1; r < rows - 1; r++) {
+#pragma omp simd
 		for (int c = 1; c < columns - 1; c++) {
 			int i = r * rows + c;
 			
@@ -340,8 +359,7 @@ void Chunk::update_neighbour_count_inside() {
 				//neighbour_count(r + 1, c + 1)++;
 				int index8 = rows * (r + 1) + c + 1;
 				neighbour_count_data[index8]++;
-			}
-			
+			}	
 		}
 	}
 	/*
