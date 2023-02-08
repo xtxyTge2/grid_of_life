@@ -16,7 +16,7 @@
 #endif
 
 //--------------------------------------------------------------------------------
-enum Camera_Move_Direction {
+enum class Camera_Move_Direction {
 	UNDEFINED,
 	FORWARD,
 	BACKWARD,

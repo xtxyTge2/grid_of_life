@@ -7,6 +7,7 @@
 using Eigen::Array;
 
 
+
 Grid_Manager::Grid_Manager()
 : grid_execution_state({})
 {
@@ -234,12 +235,9 @@ void Chunk::update_neighbour_count_and_set_info() {
 
 	update_neighbour_count_inside();
 
-	update_neighbour_count_top();
-	update_neighbour_count_left();
-	update_neighbour_count_right();
-	update_neighbour_count_bottom();
-
-	update_neighbour_count_corners();
+	for (int direction = ChunkUpdateInfoDirection::LEFT; direction < ChunkUpdateInfoDirection::DIRECTION_COUNT; direction++) {
+		update_neighbour_count_in_direction(static_cast<ChunkUpdateInfoDirection> (direction));
+	}
 }
 
 //--------------------------------------------------------------------------------
@@ -253,61 +251,13 @@ void Grid::create_all_needed_neighbour_chunks() {
 	// set of coordinates of the neighbour chunks, note that this is a set and hence we do not create neighbours multiple times
 	std::unordered_set<Coordinate> coordinates_of_chunks_to_create;
 	for (auto& [chunk_coord, chunk]: chunk_map) {
-		if (!chunk->has_to_update_neighbours()) {
-			continue;
-		}
-		int grid_row = chunk->grid_coordinate_row;
-		int grid_column = chunk->grid_coordinate_column;
-
-		if (chunk->has_to_update_top()) {
-			Coordinate top_coord = Coordinate(grid_row - 1, grid_column);
-			if (!chunk_map.contains(top_coord)) {
-				coordinates_of_chunks_to_create.insert(top_coord);
-			}
-		}
-
-		if (chunk->has_to_update_left()) {
-			Coordinate left_coord = Coordinate(grid_row, grid_column - 1);
-			if (!chunk_map.contains(left_coord)) {
-				coordinates_of_chunks_to_create.insert(left_coord);
-			}
-		}
-
-		if (chunk->has_to_update_bottom()) {
-			Coordinate bottom_coord = Coordinate(grid_row + 1, grid_column);
-			if (!chunk_map.contains(bottom_coord)) {
-				coordinates_of_chunks_to_create.insert(bottom_coord);
-			}
-		}
-		if (chunk->has_to_update_right()) {
-			Coordinate right_coord = Coordinate(grid_row, grid_column + 1);
-			if (!chunk_map.contains(right_coord)) {
-				coordinates_of_chunks_to_create.insert(right_coord);
-			}
-		}
-
-		if (chunk->has_to_update_top_left_corner) {
-			Coordinate top_left_coord = Coordinate(grid_row - 1, grid_column - 1);
-			if (!chunk_map.contains(top_left_coord)) {
-				coordinates_of_chunks_to_create.insert(top_left_coord);
-			}
-		}
-		if (chunk->has_to_update_bottom_left_corner) {
-			Coordinate bottom_left_coord = Coordinate(grid_row + 1, grid_column - 1);
-			if (!chunk_map.contains(bottom_left_coord)) {
-				coordinates_of_chunks_to_create.insert(bottom_left_coord);
-			}
-		}
-		if (chunk->has_to_update_bottom_right_corner) {
-			Coordinate bottom_right_coord = Coordinate(grid_row + 1, grid_column + 1);
-			if (!chunk_map.contains(bottom_right_coord)) {
-				coordinates_of_chunks_to_create.insert(bottom_right_coord);
-			}
-		}
-		if (chunk->has_to_update_top_right_corner) {
-			Coordinate top_right_coord = Coordinate(grid_row - 1, grid_column + 1);
-			if (!chunk_map.contains(top_right_coord)) {
-				coordinates_of_chunks_to_create.insert(top_right_coord);
+		for (ChunkUpdateInfo& info: chunk->update_info) {
+			ChunkUpdateInfoDirection direction = info.direction;
+			if (chunk->has_to_update_in_direction(direction)) {
+				Coordinate neighbour_grid_coordinate = info.neighbour_grid_coordinate;
+				if (!chunk_map.contains(neighbour_grid_coordinate)) {
+					coordinates_of_chunks_to_create.insert(neighbour_grid_coordinate);
+				}
 			}
 		}
 	}
@@ -376,106 +326,50 @@ void Grid::remove_empty_chunks() {
 }
 
 
-// @TODO @Cleanup deduplicate this code, all cases are very similar. We could create for each chunk a command queue which contains a vector of indices together with an enum value, which indicates the direction.
 void Grid::update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk) {
 	ZoneScoped;
 
-	if (!chunk->has_to_update_neighbours()) return;
-
 	int grid_row = chunk->grid_coordinate_row;
 	int grid_column = chunk->grid_coordinate_column;
+	
+	for (ChunkUpdateInfo& info: chunk->update_info) {
+		ChunkUpdateInfoDirection direction = info.direction;
+		if (!chunk->has_to_update_in_direction(direction)) {
+			continue;
+		}
+		Coordinate neighbour_grid_coordinate = info.neighbour_grid_coordinate;
+		std::shared_ptr<Chunk> neighbour_chunk = chunk_map.find(neighbour_grid_coordinate)->second;
+		if (direction == LEFT || direction == RIGHT) {
+			for (Coordinate coord: info.data) {
+				int r = coord.x;
+				int c = coord.y;
 
-	if (chunk->has_to_update_top()) {
-		Coordinate top_coord = Coordinate(grid_row - 1, grid_column);
-		std::shared_ptr<Chunk> top_chunk = chunk_map.find(top_coord)->second;
+				neighbour_chunk->neighbour_count(r, c)++;
+				if (r > 0) {
+					neighbour_chunk->neighbour_count(r - 1, c)++;
+				}
+				if (r <= info.data_max_value) {
+					neighbour_chunk->neighbour_count(r + 1, c)++;
+				}
+			}
+		} else if (direction == TOP || direction == BOTTOM) {
+			for (Coordinate coord: info.data) {
+				int r = coord.x;
+				int c = coord.y;
 
-		for (int c: chunk->top_column_indices_to_update) {
-			top_chunk->neighbour_count(Chunk::rows - 1, c)++;
-			if (c > 0) {
-				top_chunk->neighbour_count(Chunk::rows - 1, c - 1)++;
+				neighbour_chunk->neighbour_count(r, c)++;
+				if (c > 0) {
+					neighbour_chunk->neighbour_count(r, c - 1)++;
+				}
+				if (c <= info.data_max_value) {
+					neighbour_chunk->neighbour_count(r, c + 1)++;
+				}
 			}
-			if (c < Chunk::columns - 1) {
-				top_chunk->neighbour_count(Chunk::rows - 1, c + 1)++;
-			}
+		} else if (direction == TOP_LEFT || direction == TOP_RIGHT || direction == BOTTOM_LEFT || direction == BOTTOM_RIGHT) {
+			Coordinate coord = info.data.front();
+			int r = coord.x;
+			int c = coord.y;
+			neighbour_chunk->neighbour_count(r, c)++;
 		}
 	}
-
-	if (chunk->has_to_update_bottom()) {
-		Coordinate bottom_coord = Coordinate(grid_row + 1, grid_column);
-		std::shared_ptr<Chunk> bottom_chunk = chunk_map.find(bottom_coord)->second;
-
-		for (int c: chunk->bottom_column_indices_to_update) {
-			bottom_chunk->neighbour_count(0, c)++;
-			if (c > 0) {
-				bottom_chunk->neighbour_count(0, c - 1)++;
-			}
-			if (c < Chunk::columns - 1) {
-				bottom_chunk->neighbour_count(0, c + 1)++;
-			}
-		}
-	}
-
-	if (chunk->has_to_update_left()) {
-		Coordinate left_coord = Coordinate(grid_row, grid_column - 1);
-		std::shared_ptr<Chunk> left_chunk = chunk_map.find(left_coord)->second;
-
-		for (int r: chunk->left_row_indices_to_update) {
-			left_chunk->neighbour_count(r, Chunk::columns - 1)++;
-			if (r > 0) {
-				left_chunk->neighbour_count(r - 1, Chunk::columns - 1)++;
-			}
-			if (r < Chunk::rows - 1) {
-				left_chunk->neighbour_count(r + 1, Chunk::columns - 1)++;
-			}
-		}
-	}
-
-	if (chunk->has_to_update_right()) {
-		Coordinate right_coord = Coordinate(grid_row, grid_column + 1);
-		std::shared_ptr<Chunk> right_chunk = chunk_map.find(right_coord)->second;
-
-		for (int r: chunk->right_row_indices_to_update) {
-			right_chunk->neighbour_count(r, 0)++;
-			if (r > 0) {
-				right_chunk->neighbour_count(r - 1, 0)++;
-			}
-			if (r < Chunk::rows - 1) {
-				right_chunk->neighbour_count(r + 1, 0)++;
-			}
-		}
-	}
-
-	if (chunk->has_to_update_top_left_corner) {
-		Coordinate top_left_coord = Coordinate(grid_row - 1, grid_column - 1);
-		std::shared_ptr<Chunk> top_left_chunk = chunk_map.find(top_left_coord)->second;
-
-		top_left_chunk->neighbour_count(Chunk::rows - 1 , Chunk::columns - 1)++;
-	}
-	if (chunk->has_to_update_top_right_corner) {
-		Coordinate top_right_coord = Coordinate(grid_row - 1, grid_column + 1);
-		std::shared_ptr<Chunk> top_right_chunk = chunk_map.find(top_right_coord)->second;
-
-		top_right_chunk->neighbour_count(Chunk::rows - 1, 0)++;
-	}
-	if (chunk->has_to_update_bottom_left_corner) {
-		Coordinate bottom_left_coord = Coordinate(grid_row + 1, grid_column - 1);
-		std::shared_ptr<Chunk> bottom_left_chunk = chunk_map.find(bottom_left_coord)->second;
-
-		bottom_left_chunk->neighbour_count(0, Chunk::columns - 1)++;
-	}
-	if (chunk->has_to_update_bottom_right_corner) {
-		Coordinate bottom_right_coord = Coordinate(grid_row + 1, grid_column + 1);
-		std::shared_ptr<Chunk> bottom_right_chunk = chunk_map.find(bottom_right_coord)->second;
-
-		bottom_right_chunk->neighbour_count(0, 0)++;
-	}
-}
-
-void Grid::print_all_chunks_info() {
-	ZoneScoped;
-
-	for (auto& [chunk_coord, chunk]: chunk_map) {
-		chunk->print_chunk();
-	}
-	std::cout << "##################################################\n";
 }

@@ -35,6 +35,37 @@ public:
 	int y;
 };
 
+// DONT CHANGE THE VALUES BELOW, THEY ACT AS ARRAY INDICES FOR THE UPDATE NEIGHBBOUR INFO ON CHUNKS! THERE CANT BE HOLES IN THIS ENUM! DIRECTION_COUNT IS ALWAYS LAST AND KEEPS TRACK OF THE SIZE OF THE ENUM. 
+//SRY FOR CAPS...
+enum ChunkUpdateInfoDirection {
+	LEFT = 0,
+	TOP,
+	RIGHT,
+	BOTTOM,
+	TOP_LEFT,
+	TOP_RIGHT,
+	BOTTOM_RIGHT,
+	BOTTOM_LEFT,
+	DIRECTION_COUNT
+};
+
+
+class ChunkUpdateInfo {
+public:
+	ChunkUpdateInfo();
+
+	void initialise(ChunkUpdateInfoDirection dir, Coordinate chunk_grid_coordinate);
+
+	void add_coordinate(int value);
+
+	ChunkUpdateInfoDirection direction;
+	Coordinate chunk_offset_coordinate;
+	Coordinate neighbour_grid_coordinate;
+	int data_max_value;
+	std::vector<Coordinate> data;
+};
+
+
 namespace std
 {
 	template<>
@@ -50,45 +81,21 @@ class Chunk {
 public:
 	Chunk(const Coordinate& coord);
 
-	void update_cells_first_version();
+	void update_neighbour_count_of_all_corners();
 
-	void update_cells_second_version();
+	void update_neighbour_count_in_direction(ChunkUpdateInfoDirection direction);
 
-	void update_cells_third_version();
-
-	void print_chunk();
+	void update_cells();
 
 	void update_neighbour_count_inside();
 
-	void update_neighbour_count_top();
-
-	void update_neighbour_count_bottom();
-
-	void update_neighbour_count_left();
-
-	void update_neighbour_count_right();
-
-	void update_neighbour_count_corners();
-
 	void clear_neighbour_update_info();
-	
-	void update_cells();
 
 	void update_neighbour_count_and_set_info();
 
 	void update_chunk_coordinates();
 
-	bool has_to_update_right();
-
-	bool has_to_update_left();
-
-	bool has_to_update_top();
-
-	bool has_to_update_bottom();
-
-	bool has_to_update_corners();
-	
-	bool has_to_update_neighbours();
+	bool has_to_update_in_direction(ChunkUpdateInfoDirection direction);
 
 	Coordinate transform_to_world_coordinate(Coordinate chunk_coord);
 
@@ -105,16 +112,8 @@ public:
 	Eigen::Array < bool, rows, columns, Eigen::RowMajor > cells;
 	Eigen::Array < unsigned int, rows, columns, Eigen::RowMajor > neighbour_count;
 
+	std::array<ChunkUpdateInfo, ChunkUpdateInfoDirection::DIRECTION_COUNT> update_info;
+
 	std::unordered_set<Coordinate> chunk_coordinates;
 	std::vector<Coordinate> border_coordinates;
-
-	std::vector<int> left_row_indices_to_update;
-	std::vector<int> right_row_indices_to_update;
-	std::vector<int> top_column_indices_to_update;
-	std::vector<int> bottom_column_indices_to_update;
-
-	bool has_to_update_top_left_corner;
-	bool has_to_update_top_right_corner;
-	bool has_to_update_bottom_right_corner;
-	bool has_to_update_bottom_left_corner;
 };

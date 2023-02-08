@@ -44,6 +44,8 @@ void World::initialise(GLFWwindow* window) {
 void World::update(double dt, const Grid_UI_Controls_Info& grid_ui_controls_info) {
 	ZoneScoped;
 	grid_manager->update(dt, grid_ui_controls_info);
+
+	process_input(dt);
 }
 
 //--------------------------------------------------------------------------------
@@ -55,7 +57,7 @@ void World::process_input(double dt) {
 		glfwSetWindowShouldClose(m_window, true);
 	}
 	
-	Camera_Move_Direction direction = UNDEFINED;
+	Camera_Move_Direction direction = Camera_Move_Direction::UNDEFINED;
 	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS) {
 		direction = Camera_Move_Direction::FORWARD;
 	}

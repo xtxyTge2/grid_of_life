@@ -73,7 +73,8 @@ GLFWwindow* init_glfw_glad_and_create_window(int window_width, int window_height
 		system("pause");
 		return nullptr;
 	}
-	
+	// vsync off
+	glfwSwapInterval(0);
 	return window;
 }
 
@@ -105,6 +106,8 @@ int main(int argc, char argv[]) {
 	}
 	
 	glfwTerminate();
+
+	// delete unique ptr to state, so after this state gets freed. Do this to see memory leaks below.
 	g_state.reset();
 
 #ifdef _DEBUG

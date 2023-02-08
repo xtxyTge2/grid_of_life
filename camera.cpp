@@ -63,19 +63,19 @@ void Camera::move(Camera_Move_Direction direction) {
 	glm::vec3 left_direction = orientation_vector_matrix[0];
 	glm::vec3 front_direction = orientation_vector_matrix[2];
 	switch (direction) {
-		case FORWARD:
+		case Camera_Move_Direction::FORWARD:
 			position += m_speed * front_direction;
 			break;
-		case BACKWARD:
+		case Camera_Move_Direction::BACKWARD:
 			position -= m_speed * front_direction;
 			break;
-		case LEFT:
+		case Camera_Move_Direction::LEFT:
 			position -= m_speed * left_direction;
 			break;
-		case RIGHT:
+		case Camera_Move_Direction::RIGHT:
 			position += m_speed * left_direction;
 			break;
-		case UNDEFINED:
+		case Camera_Move_Direction::UNDEFINED:
 			break;
 		default:
 			break;

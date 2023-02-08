@@ -23,8 +23,6 @@ public:
 
 	void remove_empty_chunks();
 
-	void print_all_chunks_info();
-;
 	void create_new_chunk(const Coordinate& coord);
 
 	void update();
