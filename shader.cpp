@@ -1,8 +1,4 @@
-#pragma once
-
-//--------------------------------------------------------------------------------
 #include "shader.hpp"
-#include "Tracy.hpp"
 
 //--------------------------------------------------------------------------------
 Shader::Shader(const std::string& shader_source_code_path, GLenum shader_type) {

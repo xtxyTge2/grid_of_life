@@ -1,8 +1,4 @@
-#pragma once
-
 #include "world.hpp"
-#include "Tracy.hpp"
-
 
 //--------------------------------------------------------------------------------
 World::World() :

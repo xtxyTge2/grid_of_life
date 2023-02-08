@@ -1,6 +1,8 @@
 #pragma once
 
 //--------------------------------------------------------------------------------
+#include "Tracy.hpp"
+
 #include <string>
 #include <fstream>
 #include <sstream>

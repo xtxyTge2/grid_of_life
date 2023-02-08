@@ -1,11 +1,7 @@
-#pragma once
-
-//--------------------------------------------------------------------------------
 #include "read.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "Tracy.hpp"
 
 //--------------------------------------------------------------------------------
 std::string read_from_file_into_std_string(const std::string& full_path) {

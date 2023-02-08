@@ -1,16 +1,5 @@
-#pragma once
-
 //--------------------------------------------------------------------------------
 #include "texture.hpp"
-#include "Tracy.hpp"
-
-#ifdef _DEBUG
-#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
-// Replace _NORMAL_BLOCK with _CLIENT_BLOCK if you want the
-// allocations to be of _CLIENT_BLOCK type
-#else
-#define DBG_NEW new
-#endif
 
 //--------------------------------------------------------------------------------
 Texture::Texture(std::string texture_name, GLenum identifier, std::string texture_data_path) : 

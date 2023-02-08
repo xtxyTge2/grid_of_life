@@ -1,7 +1,4 @@
-#pragma once
-
 #include "opencl_context.hpp"
-#include <iostream>
 
 
 using Eigen::Array;

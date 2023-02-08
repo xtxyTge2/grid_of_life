@@ -1,7 +1,4 @@
-#pragma once
-
 #include "cube_system.hpp"
-#include "Tracy.hpp"
 
 Cube_System::Cube_System() : 
 	grid_manager(nullptr), 

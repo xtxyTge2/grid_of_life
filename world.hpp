@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Tracy.hpp"
+
 #include <vector>
 #include <iostream>
 #include <unordered_map>

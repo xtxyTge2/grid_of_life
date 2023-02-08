@@ -1,8 +1,4 @@
-#pragma once
-
 #include "grid.hpp"
-#include "Tracy.hpp"
-#include <iostream>
 
 using Eigen::Array;
 

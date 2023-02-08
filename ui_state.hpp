@@ -1,9 +1,12 @@
 #pragma once
 
 //--------------------------------------------------------------------------------
+#include "Tracy.hpp"
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "imgui_internal.h"
 
 enum Grid_UI_Control_Button_Events {
 	GRID_NO_BUTTON_PRESSED,

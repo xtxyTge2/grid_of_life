@@ -1,12 +1,14 @@
 #pragma once
 
+#include "Tracy.hpp"
+
 #include <Eigen/Core>
 #include "cube.hpp"
 #include "ui_state.hpp"
-#include <unordered_set>
-#include "Tracy.hpp"
 #include "opencl_context.hpp"
 #include "chunk.hpp"
+
+#include <unordered_set>
 
 //--------------------------------------------------------------------------------
 class Grid {

@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Tracy.hpp"
 
 // memory leak detection on windows
@@ -88,7 +86,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 }
 
 //--------------------------------------------------------------------------------
-int main(int argc, char argv[]) {
+int main(int argc, char** argv) {
 	
 	GLFWwindow* window = init_glfw_glad_and_create_window(1920, 1080);
 	if (window == nullptr) {

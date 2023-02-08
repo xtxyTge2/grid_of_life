@@ -1,5 +1,3 @@
-#pragma once
-
 #include "chunk.hpp"
 
 ChunkUpdateInfo::ChunkUpdateInfo() 
@@ -8,6 +6,7 @@ ChunkUpdateInfo::ChunkUpdateInfo()
 }
 
 void ChunkUpdateInfo::add_coordinate(int value) {
+	ZoneScoped;
 	switch (direction) {
 		case ChunkUpdateInfoDirection::LEFT:
 			// fallthrough, handle left and right together
@@ -37,6 +36,8 @@ void ChunkUpdateInfo::add_coordinate(int value) {
 
 void ChunkUpdateInfo::initialise(ChunkUpdateInfoDirection dir, Coordinate chunk_grid_coordinate) 
 {
+	ZoneScoped;
+
 	direction = dir;
 	int grid_row_offset = 0;
 	int grid_column_offset = 0;
@@ -98,9 +99,9 @@ void ChunkUpdateInfo::initialise(ChunkUpdateInfoDirection dir, Coordinate chunk_
 Chunk::Chunk(const Coordinate& coord, Coordinate origin_coord) :
 	grid_coordinate_row(coord.x),
 grid_coordinate_column(coord.y),
-number_of_alive_cells(0),
 chunk_origin_row(origin_coord.x),
-chunk_origin_column(origin_coord.y)
+chunk_origin_column(origin_coord.y),
+number_of_alive_cells(0)
 {
 	ZoneScoped;
 	cells.setConstant(false);
@@ -155,7 +156,6 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 
 	ChunkUpdateInfo* top_or_bottom_info = nullptr;
 	ChunkUpdateInfo* left_or_right_info = nullptr;
-	ChunkUpdateInfo* corner_info = nullptr;
 	switch (direction) {
 		case ChunkUpdateInfoDirection::LEFT:
 			current_column = 0;

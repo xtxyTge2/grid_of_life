@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Tracy.hpp"
+
 #include <Eigen/Core>
 #include <iostream>
 #include <vector>

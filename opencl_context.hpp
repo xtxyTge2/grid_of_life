@@ -1,12 +1,17 @@
 #pragma once
 #define CL_TARGET_OPENCL_VERSION 300
 
+#include "Tracy.hpp"
+
 #include <CL/cl.h>
 #include <vector>
 #include <memory>
+#include <iostream>
+
+#include <Eigen/Core>
+
 #include "read.hpp"
 #include "chunk.hpp"
-#include <Eigen/Core>
 
 class OpenCLContext {
 public:

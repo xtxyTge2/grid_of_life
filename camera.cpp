@@ -1,9 +1,5 @@
-#pragma once
-//--------------------------------------------------------------------------------
-
 #include "camera.hpp"
-#include <iostream>
-#include "Tracy.hpp"
+
 
 //--------------------------------------------------------------------------------
 float clip(float value, float lower, float higher) {
@@ -28,19 +24,10 @@ float clip(float value, float lower, float higher) {
 }
 
 //--------------------------------------------------------------------------------
-static void print_mat3(glm::mat3 matrix) {
-	ZoneScoped;
-	std::cout << "matrix: \n";
-	for (int r = 0; r < 3; r++) {
-		std::cout << matrix[r].x << " " << matrix[r].y << " " << matrix[r].z << "\n";
-	}
-}
-
-//--------------------------------------------------------------------------------
 Camera::Camera() :
 	position(glm::vec3(0.0f, 0.0f, 0.0f)),
-	m_speed(0.0f),
-	orientation_vector_matrix(glm::mat3(1.0f))
+	orientation_vector_matrix(glm::mat3(1.0f)),
+	m_speed(0.0f)
 {}
 
 //--------------------------------------------------------------------------------
