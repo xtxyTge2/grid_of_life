@@ -313,7 +313,6 @@ void Chunk::update_neighbour_count_inside() {
 				//neighbour_count(r - 1, c - 1)++;
 				int index1 = rows * (r - 1) + c - 1;
 				neighbour_count_data[index1]++;
-
 				//neighbour_count(r - 1, c)++;
 				int index2 = rows * (r - 1) + c;
 				neighbour_count_data[index2]++;
