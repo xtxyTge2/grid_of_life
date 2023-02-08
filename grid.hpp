@@ -2,6 +2,7 @@
 
 #include "Tracy.hpp"
 
+#include <omp.h>
 #include <Eigen/Core>
 #include "cube.hpp"
 #include "ui_state.hpp"

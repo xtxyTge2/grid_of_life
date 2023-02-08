@@ -150,9 +150,10 @@ void Grid::update_coordinates_for_chunk_borders() {
 
 //--------------------------------------------------------------------------------
 Grid::Grid(std::shared_ptr<OpenCLContext> context) :
-	opencl_context(context),
 number_of_alive_cells(0),
-iteration(0) {
+iteration(0),
+opencl_context(context)
+{
 	ZoneScoped;
 
 	int base_row = (int) (Chunk::rows / 2);
@@ -317,9 +318,6 @@ void Grid::remove_empty_chunks() {
 
 void Grid::update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk) {
 	ZoneScoped;
-
-	int grid_row = chunk->grid_coordinate_row;
-	int grid_column = chunk->grid_coordinate_column;
 	
 	for (ChunkUpdateInfo& info: chunk->update_info) {
 		ChunkUpdateInfoDirection direction = info.direction;

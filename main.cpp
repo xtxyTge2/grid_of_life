@@ -72,7 +72,7 @@ GLFWwindow* init_glfw_glad_and_create_window(int window_width, int window_height
 		return nullptr;
 	}
 	// vsync off
-	glfwSwapInterval(0);
+	//glfwSwapInterval(0);
 	return window;
 }
 

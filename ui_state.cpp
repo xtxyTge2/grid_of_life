@@ -1,5 +1,3 @@
-#pragma once
-
 //--------------------------------------------------------------------------------
 #include "ui_state.hpp"
 
@@ -47,7 +45,6 @@ bool UI_State::wants_to_capture_io() {
 void UI_State::setup_ui_for_current_frame(const Grid_Info& grid_info) {
 	ZoneScoped;
 
-	float sz = ImGui::GetTextLineHeight();
 	const ImGuiViewport* viewport = ImGui::GetMainViewport();
 	const ImVec2 base_pos = viewport->Pos;
 

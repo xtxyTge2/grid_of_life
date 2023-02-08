@@ -98,8 +98,8 @@ public:
 
 	Coordinate transform_to_world_coordinate(Coordinate chunk_coord);
 
-	constexpr static int rows = 16;
-	constexpr static int columns = 16;
+	constexpr static int rows = 32;
+	constexpr static int columns = 32;
 
 	int grid_coordinate_row;
 	int grid_coordinate_column;

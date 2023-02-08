@@ -290,6 +290,62 @@ bool Chunk::has_to_update_in_direction(ChunkUpdateInfoDirection direction) {
 void Chunk::update_neighbour_count_inside() {
 	ZoneScoped;
 	neighbour_count.setConstant(0);
+
+	
+	unsigned int* neighbour_count_data = neighbour_count.data();
+	bool* cells_data = cells.data();
+	for (int r = 1; r < rows - 1; r++) {
+		for (int c = 1; c < columns - 1; c++) {
+			int i = r * rows + c;
+			
+			/*
+			neighbour_count_data[i] += cells_data[rows * (r - 1) + c - 1];
+			neighbour_count_data[i] += cells_data[rows * (r - 1) + c];
+			neighbour_count_data[i] += cells_data[rows * (r - 1) + c + 1];
+			neighbour_count_data[i] += cells_data[rows * r + c - 1];
+			neighbour_count_data[i] += cells_data[rows * r + c + 1];
+			neighbour_count_data[i] += cells_data[rows * (r + 1) + c - 1];
+			neighbour_count_data[i] += cells_data[rows * (r + 1) + c];
+			neighbour_count_data[i] += cells_data[rows * (r + 1) + c + 1];
+			*/
+			
+			if (cells_data[i]) {
+				//neighbour_count(r - 1, c - 1)++;
+				int index1 = rows * (r - 1) + c - 1;
+				neighbour_count_data[index1]++;
+
+				//neighbour_count(r - 1, c)++;
+				int index2 = rows * (r - 1) + c;
+				neighbour_count_data[index2]++;
+
+				//neighbour_count(r - 1, c + 1)++;
+				int index3 = rows * (r - 1) + c + 1;
+				neighbour_count_data[index3]++;
+
+				//neighbour_count(r, c - 1)++;
+				int index4 = rows * r + c - 1;
+				neighbour_count_data[index4]++;
+
+				//neighbour_count(r, c + 1)++;
+				int index5 = rows * r + c + 1;
+				neighbour_count_data[index5]++;
+
+				//neighbour_count(r + 1, c - 1)++;
+				int index6 = rows * (r + 1) + c - 1;
+				neighbour_count_data[index6]++;
+
+				//neighbour_count(r + 1, c)++;
+				int index7 = rows * (r + 1) + c;
+				neighbour_count_data[index7]++;
+
+				//neighbour_count(r + 1, c + 1)++;
+				int index8 = rows * (r + 1) + c + 1;
+				neighbour_count_data[index8]++;
+			}
+			
+		}
+	}
+	/*
 	for (int r = 1; r < rows - 1; r++) {
 		for (int c = 1; c < columns - 1; c++) {
 			if (cells(r, c)) {
@@ -305,12 +361,37 @@ void Chunk::update_neighbour_count_inside() {
 			}
 		}
 	}
+	*/
 }
 
 void Chunk::update_cells() {
 	ZoneScoped;
 
-	chunk_coordinates.clear();
+	bool* cells_data = cells.data();
+	unsigned int* neighbour_count_data = neighbour_count.data();
+
+#pragma omp simd 
+	for (int i = 0; i < rows * columns; i++) {
+		unsigned int count = neighbour_count_data[i];
+		bool current_cell = cells_data[i];
+		if (current_cell) {
+			//int is_count_equal_to_two = count 
+			if (count == 2 || count == 3) {
+				cells_data[i] = true;
+			} else {
+				cells_data[i] = false;
+			}
+		} else {
+			// a dead cell becomes alive exactly iff it has three neighbouring alive cells.
+			if (count == 3) {
+				cells_data[i] = true;
+			} else {
+				cells_data[i] = false;
+			}
+		}
+	}
+
+	/*
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			unsigned int count = neighbour_count(r, c);
@@ -318,25 +399,37 @@ void Chunk::update_cells() {
 				// a cell that is alive stays alive iff it has two or three neighbouring alive cells.
 				if (count != 2 && count != 3) {
 					cells(r, c) = false;
-				} else {
-					chunk_coordinates.push_back(std::make_pair(r + chunk_origin_row, c + chunk_origin_column));
-				}
+				} 
 			} else {
 				// a dead cell becomes alive exactly iff it has three neighbouring alive cells.
 				if (count == 3) {
 					cells(r, c) = true;
-					chunk_coordinates.push_back(std::make_pair(r + chunk_origin_row, c + chunk_origin_column));
 				}
 			}
 		}
 	}
+	*/
+	update_chunk_coordinates();
+
 	number_of_alive_cells = (int) chunk_coordinates.size();
 }
 
 void Chunk::update_chunk_coordinates() {
 	ZoneScoped;
 
+	
 	chunk_coordinates.clear();
+	
+	bool* cells_data = cells.data();
+	for (int i = 0; i < rows * columns; i++) {
+		int r = i / rows;
+		int c = i % columns;
+		if (cells_data[i]) {
+			chunk_coordinates.push_back(std::make_pair(r + chunk_origin_row, c + chunk_origin_column));
+		}
+	}
+
+	/*
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			if (cells(r, c)) {
@@ -344,5 +437,6 @@ void Chunk::update_chunk_coordinates() {
 			}
 		}
 	}
+	*/
 	number_of_alive_cells = (int) chunk_coordinates.size();
 }
