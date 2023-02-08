@@ -41,8 +41,8 @@ public:
 
 	std::unordered_map<Coordinate, std::shared_ptr<Chunk>> chunk_map;
 
-	std::unordered_set<Coordinate> grid_coordinates;
-	std::unordered_set<Coordinate> border_coordinates;
+	std::vector<std::pair<int, int>> grid_coordinates;
+	std::vector<std::pair<int, int>> border_coordinates;
 	std::shared_ptr<OpenCLContext> opencl_context;
 };
 

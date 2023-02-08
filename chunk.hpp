@@ -31,8 +31,8 @@ public:
 		return !(*this == rhs);
 	}
 
-	int x;
-	int y;
+	short x;
+	short y;
 };
 
 // DONT CHANGE THE VALUES BELOW, THEY ACT AS ARRAY INDICES FOR THE UPDATE NEIGHBBOUR INFO ON CHUNKS! THERE CANT BE HOLES IN THIS ENUM! DIRECTION_COUNT IS ALWAYS LAST AND KEEPS TRACK OF THE SIZE OF THE ENUM. 
@@ -79,7 +79,7 @@ namespace std
 
 class Chunk {
 public:
-	Chunk(const Coordinate& coord);
+	Chunk(const Coordinate& coord, Coordinate origin_coord);
 
 	void update_neighbour_count_of_all_corners();
 
@@ -114,6 +114,6 @@ public:
 
 	std::array<ChunkUpdateInfo, ChunkUpdateInfoDirection::DIRECTION_COUNT> update_info;
 
-	std::unordered_set<Coordinate> chunk_coordinates;
-	std::vector<Coordinate> border_coordinates;
+	std::vector<std::pair<int, int>> chunk_coordinates;
+	std::vector<std::pair<int, int>> border_coordinates;
 };

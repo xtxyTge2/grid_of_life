@@ -18,7 +18,7 @@ void Cube_System::initialise(std::shared_ptr<Grid_Manager> manager) {
 void Cube_System::create_grid_cubes_for_grid() {
 	ZoneScoped;
 
-	std::unordered_set<Coordinate> coordinates = grid_manager->grid->grid_coordinates;
+	std::vector<std::pair<int, int>> coordinates = grid_manager->grid->grid_coordinates;
 
 	if (coordinates.size() > MAX_NUMBER_OF_GRID_CUBES) {
 		std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_GRID_CUBES << " grid cubes. Tried to create " << coordinates.size() << " grid cubes.\n";
@@ -38,7 +38,7 @@ void Cube_System::create_grid_cubes_for_grid() {
 
 void Cube_System::create_border_cubes_for_grid() {
 	ZoneScoped;
-	std::unordered_set<Coordinate> coordinates = grid_manager->grid->border_coordinates;
+	std::vector<std::pair<int, int>> coordinates = grid_manager->grid->border_coordinates;
 	if (coordinates.size() > MAX_NUMBER_OF_BORDER_CUBES) {
 		std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_BORDER_CUBES << " border cubes. Tried to create " << coordinates.size() << " border cubes.\n";
 		return;

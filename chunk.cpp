@@ -95,10 +95,12 @@ void ChunkUpdateInfo::initialise(ChunkUpdateInfoDirection dir, Coordinate chunk_
 	neighbour_grid_coordinate = Coordinate(chunk_grid_coordinate.x + grid_row_offset, chunk_grid_coordinate.y + grid_column_offset);
 }
 
-Chunk::Chunk(const Coordinate& coord) :
+Chunk::Chunk(const Coordinate& coord, Coordinate origin_coord) :
 	grid_coordinate_row(coord.x),
 grid_coordinate_column(coord.y),
-number_of_alive_cells(0)
+number_of_alive_cells(0),
+chunk_origin_row(origin_coord.x),
+chunk_origin_column(origin_coord.y)
 {
 	ZoneScoped;
 	cells.setConstant(false);
@@ -114,12 +116,12 @@ number_of_alive_cells(0)
 	// calculate border coordinates.
 	border_coordinates.reserve(2 * rows + 2 * columns + 4);
 	for (int r = 0; r < rows; r++) {
-		border_coordinates.push_back(Coordinate(r, - 1));
-		border_coordinates.push_back(Coordinate(r, columns));
+		border_coordinates.push_back(std::make_pair(chunk_origin_row + r,chunk_origin_column - 1));
+		border_coordinates.push_back(std::make_pair(chunk_origin_row + r, chunk_origin_column + columns));
 	}
-	for (int c = 0; c < Chunk::columns; c++) {
-		border_coordinates.push_back(Coordinate(-1, c));
-		border_coordinates.push_back(Coordinate(rows, c));
+	for (int c = 0; c < columns; c++) {
+		border_coordinates.push_back(std::make_pair(chunk_origin_row -1, chunk_origin_column + c));
+		border_coordinates.push_back(std::make_pair(chunk_origin_row + rows, chunk_origin_column+ c));
 	}
 }
 
@@ -296,6 +298,7 @@ void Chunk::update_neighbour_count_inside() {
 void Chunk::update_cells() {
 	ZoneScoped;
 
+	chunk_coordinates.clear();
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			unsigned int count = neighbour_count(r, c);
@@ -303,13 +306,14 @@ void Chunk::update_cells() {
 				// a cell that is alive stays alive iff it has two or three neighbouring alive cells.
 				if (count != 2 && count != 3) {
 					cells(r, c) = false;
-					chunk_coordinates.erase(Coordinate(r, c));
+				} else {
+					chunk_coordinates.push_back(std::make_pair(r + chunk_origin_row, c + chunk_origin_column));
 				}
 			} else {
 				// a dead cell becomes alive exactly iff it has three neighbouring alive cells.
 				if (count == 3) {
 					cells(r, c) = true;
-					chunk_coordinates.insert(Coordinate(r, c));
+					chunk_coordinates.push_back(std::make_pair(r + chunk_origin_row, c + chunk_origin_column));
 				}
 			}
 		}
@@ -324,7 +328,7 @@ void Chunk::update_chunk_coordinates() {
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < columns; c++) {
 			if (cells(r, c)) {
-				chunk_coordinates.insert(Coordinate(r, c));
+				chunk_coordinates.push_back(std::make_pair(r + chunk_origin_row, c + chunk_origin_column));
 			}
 		}
 	}

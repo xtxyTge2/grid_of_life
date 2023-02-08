@@ -133,8 +133,8 @@ void Grid::update_coordinates_for_alive_grid_cells() {
 	grid_coordinates.clear();
 	for (auto& [chunk_coord, chunk]: chunk_map) {
 		// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
-		for (Coordinate coord: chunk->chunk_coordinates) {
-			grid_coordinates.insert(chunk->transform_to_world_coordinate(coord));
+		for (std::pair<int, int> coord: chunk->chunk_coordinates) {
+			grid_coordinates.push_back(coord);
 		}
 	}
 	
@@ -146,8 +146,8 @@ void Grid::update_coordinates_for_chunk_borders() {
 	border_coordinates.clear();
 	for (auto& [chunk_coord, chunk]: chunk_map) {
 		// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
-		for (Coordinate coord: chunk->border_coordinates) {
-			border_coordinates.insert(chunk->transform_to_world_coordinate(coord));
+		for (std::pair<int, int> coord: chunk->border_coordinates) {
+			border_coordinates.push_back(coord);
 		}
 	}
 }
@@ -209,10 +209,9 @@ iteration(0) {
 void Grid::create_new_chunk_and_set_alive_cells(const Coordinate& coord, const std::vector<std::pair<int, int>>& coordinates) {
 	ZoneScoped;
 
-	std::shared_ptr<Chunk> chunk = std::make_shared < Chunk > (coord);
-	chunk->chunk_origin_row = coord.x * Chunk::rows;
-	chunk->chunk_origin_column = coord.y * Chunk::columns;
-	chunk->number_of_alive_cells = 0;
+	Coordinate origin_coordinate = Coordinate(coord.x * Chunk::rows, coord.y * Chunk::columns);
+
+	std::shared_ptr<Chunk> chunk = std::make_shared < Chunk > (coord, origin_coordinate); 
 
 	for (auto [r, c]: coordinates) {
 		chunk->cells(r, c) = true;
