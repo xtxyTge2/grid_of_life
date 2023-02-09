@@ -310,8 +310,8 @@ void Chunk::update_neighbour_count_inside() {
 	neighbour_count.setConstant(0);
 
 	
-	unsigned int* neighbour_count_data = neighbour_count.data();
-	bool* cells_data = cells.data();
+	unsigned char* neighbour_count_data = neighbour_count.data();
+	unsigned char* cells_data = cells.data();
 	for (int r = 1; r < rows - 1; r++) {
 #pragma omp simd
 		for (int c = 1; c < columns - 1; c++) {
@@ -383,18 +383,57 @@ void Chunk::update_neighbour_count_inside() {
 
 void Chunk::update_cells() {
 	ZoneScoped;
+	/*
+	unsigned char* neighbour_count_data = neighbour_count.data();
+	unsigned char* cells_data = cells.data();
 
-	bool* cells_data = cells.data();
-	unsigned int* neighbour_count_data = neighbour_count.data();
+	unsigned char is_count_2[rows * columns];
+#pragma omp simd 
+	for (int i = 0; i < rows * columns; i++) {
+		unsigned char last_byte_of_count = neighbour_count_data[i];// &0xF;
+		is_count_2[i] = static_cast<unsigned char>(!(last_byte_of_count ^ 0x2));
+	}
+
+	unsigned char is_count_3[rows * columns];
+#pragma omp simd 
+	for (int i = 0; i < rows * columns; i++) {
+		unsigned char last_byte_of_count = neighbour_count_data[i] & 0xF;
+		is_count_3[i] = static_cast<unsigned char>(!(last_byte_of_count ^ 0x3));
+	}
+	
+	unsigned char is_count_2_or_3[rows * columns];
+#pragma omp simd 
+	for (int i = 0; i < rows * columns; i++) {
+		is_count_2_or_3[i] = is_count_2[i] | is_count_3[i];
+	}
+	
+	unsigned char alive_cells_data[rows * columns];
+#pragma omp simd 
+	for (int i = 0; i < rows * columns; i++) {
+		alive_cells_data[i] = cells_data[i] & is_count_2_or_3[i];
+	}
+
+	unsigned char dead_cells_data[rows * columns];
+#pragma omp simd 
+	for (int i = 0; i < rows * columns; i++) {
+		dead_cells_data[i] = static_cast<unsigned char>(!cells_data[i]) & is_count_3[i];
+	}
 
 #pragma omp simd 
 	for (int i = 0; i < rows * columns; i++) {
-		unsigned int count = neighbour_count_data[i];
-		bool current_cell = cells_data[i];
-		if (current_cell) {
-			//int is_count_equal_to_two = count 
+		cells_data[i] = alive_cells_data[i] | dead_cells_data[i];
+	}
+	*/
+	number_of_alive_cells = 0;
+	unsigned char* neighbour_count_data = neighbour_count.data();
+	unsigned char* cells_data = cells.data();
+	for (int i = 0; i < rows * columns; i++) {
+		unsigned char count = neighbour_count_data[i];
+		if (cells_data[i]) {
+			// a cell that is alive stays alive iff it has two or three neighbouring alive cells.
 			if (count == 2 || count == 3) {
 				cells_data[i] = true;
+				number_of_alive_cells++;
 			} else {
 				cells_data[i] = false;
 			}
@@ -402,58 +441,10 @@ void Chunk::update_cells() {
 			// a dead cell becomes alive exactly iff it has three neighbouring alive cells.
 			if (count == 3) {
 				cells_data[i] = true;
+				number_of_alive_cells++;
 			} else {
 				cells_data[i] = false;
 			}
 		}
 	}
-
-	/*
-	for (int r = 0; r < rows; r++) {
-		for (int c = 0; c < columns; c++) {
-			unsigned int count = neighbour_count(r, c);
-			if (cells(r, c)) {
-				// a cell that is alive stays alive iff it has two or three neighbouring alive cells.
-				if (count != 2 && count != 3) {
-					cells(r, c) = false;
-				} 
-			} else {
-				// a dead cell becomes alive exactly iff it has three neighbouring alive cells.
-				if (count == 3) {
-					cells(r, c) = true;
-				}
-			}
-		}
-	}
-	*/
-	update_chunk_coordinates();
-
-	number_of_alive_cells = (int) chunk_coordinates.size();
-}
-
-void Chunk::update_chunk_coordinates() {
-	ZoneScoped;
-
-	
-	chunk_coordinates.clear();
-	
-	bool* cells_data = cells.data();
-	for (int i = 0; i < rows * columns; i++) {
-		int r = i / rows;
-		int c = i % columns;
-		if (cells_data[i]) {
-			chunk_coordinates.push_back(std::make_pair(r + chunk_origin_row, c + chunk_origin_column));
-		}
-	}
-
-	/*
-	for (int r = 0; r < rows; r++) {
-		for (int c = 0; c < columns; c++) {
-			if (cells(r, c)) {
-				chunk_coordinates.push_back(std::make_pair(r + chunk_origin_row, c + chunk_origin_column));
-			}
-		}
-	}
-	*/
-	number_of_alive_cells = (int) chunk_coordinates.size();
 }

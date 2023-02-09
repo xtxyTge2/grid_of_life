@@ -92,14 +92,12 @@ public:
 
 	void update_neighbour_count_and_set_info();
 
-	void update_chunk_coordinates();
-
 	bool has_to_update_in_direction(ChunkUpdateInfoDirection direction);
 
 	Coordinate transform_to_world_coordinate(Coordinate chunk_coord);
 
-	constexpr static int rows = 32;
-	constexpr static int columns = 32;
+	constexpr static char rows = 32;
+	constexpr static char columns = 32;
 
 	int grid_coordinate_row;
 	int grid_coordinate_column;
@@ -108,11 +106,10 @@ public:
 	int chunk_origin_column;
 	int number_of_alive_cells;
 
-	Eigen::Array < bool, rows, columns, Eigen::RowMajor > cells;
-	Eigen::Array < unsigned int, rows, columns, Eigen::RowMajor > neighbour_count;
+	Eigen::Array < unsigned char, rows, columns, Eigen::RowMajor > cells;
+	Eigen::Array < unsigned char, rows, columns, Eigen::RowMajor > neighbour_count;
 
 	std::array<ChunkUpdateInfo, ChunkUpdateInfoDirection::DIRECTION_COUNT> update_info;
 
-	std::vector<std::pair<int, int>> chunk_coordinates;
 	std::vector<std::pair<int, int>> border_coordinates;
 };

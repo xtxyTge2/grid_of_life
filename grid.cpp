@@ -129,7 +129,19 @@ void Grid::update_coordinates_for_alive_grid_cells() {
 	grid_coordinates.clear();
 	for (auto& [chunk_coord, chunk]: chunk_map) {
 		// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
-		for (std::pair<int, int> coord: chunk->chunk_coordinates) {
+
+		// get chunk coordinates from alive grid cells
+		std::vector<std::pair<int, int>> chunk_coordinates;
+		unsigned char* cells_data = chunk->cells.data();
+		for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
+			int r = i / Chunk::rows;
+			int c = i % Chunk::columns;
+			if (cells_data[i]) {
+				chunk_coordinates.push_back(std::make_pair(r + chunk->chunk_origin_row, c + chunk->chunk_origin_column));
+			}
+		}
+
+		for (std::pair<int, int> coord: chunk_coordinates) {
 			grid_coordinates.push_back(coord);
 		}
 	}
@@ -213,7 +225,6 @@ void Grid::create_new_chunk_and_set_alive_cells(const Coordinate& coord, const s
 	for (auto [r, c]: coordinates) {
 		chunk->cells(r, c) = true;
 	}
-	chunk->update_chunk_coordinates();
 
 	chunk_map.insert(std::make_pair(coord, chunk));
 }
@@ -290,10 +301,12 @@ void Grid::update_cells_of_all_chunks() {
 	ZoneScoped;
 	constexpr static bool use_opencl_context = false;
 	if (use_opencl_context && opencl_context->is_valid_context) {
+		/*
 		for (auto& [chunk_coord, chunk]: chunk_map) {
 			opencl_context->update_cells(chunk->neighbour_count, chunk->cells);
 			chunk->update_chunk_coordinates();
 		}
+		*/
 	} else {
 		for (auto& [chunk_coord, chunk]: chunk_map) {
 			chunk->update_cells();

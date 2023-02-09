@@ -104,16 +104,11 @@ void OpenCLContext::initialise_cells_buffer() {
 }
 
 
-
+/*
 void OpenCLContext::update_cells(Array < unsigned int, Chunk::rows, Chunk::columns, Eigen::RowMajor >& neighbour_count, Array < bool, Chunk::rows, Chunk::columns, Eigen::RowMajor >& cells) {
 	ZoneScoped;
 	unsigned int* neighbour_count_data = neighbour_count.data();
-	/*
-		cl_uint neighbour_count_data_converted[buffer_size];
-	for (int i = 0; i < neighbour_count.size(); i++) {
-		neighbour_count_data_converted[i] = (cl_uint) neighbour_count_data[i];
-	}
-	*/
+
 	clEnqueueWriteBuffer(command_queue, 
 	                     neighbour_count_buffer,
 	                     CL_FALSE,
@@ -163,16 +158,6 @@ void OpenCLContext::update_cells(Array < unsigned int, Chunk::rows, Chunk::colum
 	                    NULL);
 	
 
-	/*
-	std::cout << "########################\n";
-	for (int r = 0; r < Chunk::rows; r++) {
-		for (int c = 0; c < Chunk::columns; c++) {
-			std::cout << cells_output_data[r*Chunk::columns + c] << " ";
-		}
-		std::cout << "\n";
-	}
-	std::cout << "########################\n";
-	*/
 
 	for (int r = 0; r < Chunk::rows; r++) {
 		for (int c = 0; c < Chunk::columns; c++) {
@@ -180,3 +165,4 @@ void OpenCLContext::update_cells(Array < unsigned int, Chunk::rows, Chunk::colum
 		}
 	}
 }
+	*/
