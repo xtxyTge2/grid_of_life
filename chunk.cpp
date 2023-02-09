@@ -5,18 +5,18 @@ ChunkUpdateInfo::ChunkUpdateInfo()
 
 }
 
-void ChunkUpdateInfo::add_coordinate(int value) {
+void ChunkUpdateInfo::add_coordinate(char value) {
 	ZoneScoped;
 	switch (direction) {
 		case ChunkUpdateInfoDirection::LEFT:
 			// fallthrough, handle left and right together
 		case ChunkUpdateInfoDirection::RIGHT:
-			data.emplace_back(value + chunk_offset_coordinate.x, chunk_offset_coordinate.y);
+			data.push_back(std::make_pair(value + chunk_offset_coordinate.x, chunk_offset_coordinate.y));
 			break;
 		case ChunkUpdateInfoDirection::TOP:
 			// fallthrough, handle bottom and top together
 		case ChunkUpdateInfoDirection::BOTTOM:
-			data.emplace_back(chunk_offset_coordinate.x, value + chunk_offset_coordinate.y);
+			data.push_back(std::make_pair(chunk_offset_coordinate.x, value + chunk_offset_coordinate.y));
 			break;
 		case ChunkUpdateInfoDirection::TOP_LEFT:
 			// fallthrough, handle all corners together
@@ -25,7 +25,7 @@ void ChunkUpdateInfo::add_coordinate(int value) {
 		case ChunkUpdateInfoDirection::BOTTOM_LEFT:
 			// fallthrough
 		case ChunkUpdateInfoDirection::BOTTOM_RIGHT:
-			data.emplace_back(chunk_offset_coordinate.x, chunk_offset_coordinate.y);
+			data.push_back(std::make_pair(chunk_offset_coordinate.x, chunk_offset_coordinate.y));
 			break;
 		case DIRECTION_COUNT:
 			break;
@@ -110,19 +110,6 @@ number_of_alive_cells(0)
 	for (int direction = ChunkUpdateInfoDirection::LEFT; direction < ChunkUpdateInfoDirection::DIRECTION_COUNT; direction++) {
 		ChunkUpdateInfo& info = update_info[direction];
 		info.initialise((ChunkUpdateInfoDirection) direction, Coordinate(grid_coordinate_row, grid_coordinate_column));
-	}
-
-
-	border_coordinates.clear();
-	// calculate border coordinates.
-	border_coordinates.reserve(2 * rows + 2 * columns + 4);
-	for (int r = 0; r < rows; r++) {
-		border_coordinates.push_back(std::make_pair(chunk_origin_row + r,chunk_origin_column - 1));
-		border_coordinates.push_back(std::make_pair(chunk_origin_row + r, chunk_origin_column + columns));
-	}
-	for (int c = 0; c < columns; c++) {
-		border_coordinates.push_back(std::make_pair(chunk_origin_row -1, chunk_origin_column + c));
-		border_coordinates.push_back(std::make_pair(chunk_origin_row + rows, chunk_origin_column+ c));
 	}
 }
 

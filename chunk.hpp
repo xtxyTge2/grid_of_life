@@ -57,13 +57,13 @@ public:
 
 	void initialise(ChunkUpdateInfoDirection dir, Coordinate chunk_grid_coordinate);
 
-	void add_coordinate(int value);
+	void add_coordinate(char value);
 
 	ChunkUpdateInfoDirection direction;
 	Coordinate chunk_offset_coordinate;
 	Coordinate neighbour_grid_coordinate;
 	int data_max_value;
-	std::vector<Coordinate> data;
+	std::vector<std::pair<char, char>> data;
 };
 
 
@@ -110,6 +110,4 @@ public:
 	Eigen::Array < unsigned char, rows, columns, Eigen::RowMajor > neighbour_count;
 
 	std::array<ChunkUpdateInfo, ChunkUpdateInfoDirection::DIRECTION_COUNT> update_info;
-
-	std::vector<std::pair<int, int>> border_coordinates;
 };
