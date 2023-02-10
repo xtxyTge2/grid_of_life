@@ -203,6 +203,7 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 	}
 
 	// having determined what row/column we need to update we do it below. This is intentionally split up into two switch statements, so that we can streamline the bottom code via simple fallthrough, which actually keeps us from writing the same code/logic for left-right and bottom-top case again.
+	unsigned char* neighbour_count_data = neighbour_count.data();
 	switch (direction) {
 		case ChunkUpdateInfoDirection::LEFT: // fallthrough, left and right together
 		case ChunkUpdateInfoDirection::RIGHT:
@@ -210,12 +211,11 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 				if (cells(r, current_column)) {
 					info.add_coordinate(r);
 					
-					neighbour_count(r - 1, current_column)++;
-					neighbour_count(r + 1, current_column)++;
-					neighbour_count(r - 1, current_column + column_offset)++;
-					neighbour_count(r, current_column + column_offset)++;
-					neighbour_count(r + 1, current_column + column_offset)++;
-						
+					neighbour_count_data[(r - 1) * rows + current_column]++;
+					neighbour_count_data[(r + 1) * rows + current_column]++;
+					neighbour_count_data[(r - 1) * rows + current_column + column_offset]++;
+					neighbour_count_data[r * rows + current_column + column_offset]++;
+					neighbour_count_data[(r + 1)*rows + current_column + column_offset]++;
 				}
 				/*
 				neighbour_count(r, current_column) += cells(r - 1, current_column);
@@ -233,11 +233,11 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 				if (cells(current_row, c)) {
 					info.add_coordinate(c);
 
-					neighbour_count(current_row, c - 1)++;
-					neighbour_count(current_row, c + 1)++;
-					neighbour_count(current_row + row_offset, c - 1)++;
-					neighbour_count(current_row + row_offset, c)++;
-					neighbour_count(current_row + row_offset, c + 1)++;
+					neighbour_count_data[current_row*rows + c - 1]++; 
+					neighbour_count_data[current_row*rows + c + 1]++; 
+					neighbour_count_data[(current_row + row_offset)*rows + c - 1]++; 
+					neighbour_count_data[(current_row + row_offset)*rows + c]++; 
+					neighbour_count_data[(current_row + row_offset)*rows + c + 1]++; 
 				}
 				/*
 				neighbour_count(current_row, c) += cells(current_row, c - 1);
@@ -257,9 +257,10 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 				info.add_coordinate(0);
 				left_or_right_info->add_coordinate(current_row);
 				top_or_bottom_info->add_coordinate(current_column);
-				neighbour_count(current_row + row_offset, current_column + column_offset)++;
-				neighbour_count(current_row + row_offset, current_column)++;
-				neighbour_count(current_row, current_column + column_offset)++;
+				
+				neighbour_count_data[(current_row + row_offset)*rows +  current_column + column_offset]++; 
+				neighbour_count_data[(current_row + row_offset)*rows +  current_column]++;
+				neighbour_count_data[current_row*rows +  current_column + column_offset]++;
 			}
 			/*
 			neighbour_count(current_row, current_column) += cells(current_row + row_offset, current_column + column_offset);
