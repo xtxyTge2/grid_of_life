@@ -1,6 +1,6 @@
 #include "chunk.hpp"
 
-ChunkUpdateInfo::ChunkUpdateInfo() : 
+ChunkUpdateInDirectionInfo::ChunkUpdateInDirectionInfo() : 
 	data_max_value(0), 
 current_number_of_values(0),
 data({})
@@ -8,7 +8,11 @@ data({})
 
 }
 
-void ChunkUpdateInfo::add_coordinate(char value) {
+bool ChunkUpdateInDirectionInfo::is_not_trivial() {
+	return current_number_of_values > 0;
+}
+
+void ChunkUpdateInDirectionInfo::add_coordinate(char value) {
 	ZoneScoped;
 	switch (direction) {
 		case ChunkUpdateInfoDirection::LEFT:
@@ -37,7 +41,7 @@ void ChunkUpdateInfo::add_coordinate(char value) {
 	}
 }
 
-void ChunkUpdateInfo::initialise(ChunkUpdateInfoDirection dir, Coordinate chunk_grid_coordinate) 
+void ChunkUpdateInDirectionInfo::initialise(ChunkUpdateInfoDirection dir, Coordinate chunk_grid_coordinate) 
 {
 	ZoneScoped;
 
@@ -112,21 +116,16 @@ neighbour_count_data({})
 {
 	ZoneScoped;
 
-
-
-	for (int direction = ChunkUpdateInfoDirection::LEFT; direction < ChunkUpdateInfoDirection::DIRECTION_COUNT; direction++) {
-		ChunkUpdateInfo& info = update_info[direction];
-		info.initialise((ChunkUpdateInfoDirection) direction, Coordinate(grid_coordinate_row, grid_coordinate_column));
-	}
 }
 
-
-void Chunk::clear_neighbour_update_info() {
+ChunkUpdateInfo::ChunkUpdateInfo(Coordinate chunk_grid_coord) : 
+	data({}) 
+{
 	ZoneScoped;
 
-	for (ChunkUpdateInfo& info: update_info) {
-		info.data = {};
-		info.current_number_of_values = 0;
+	for (int direction = ChunkUpdateInfoDirection::LEFT; direction < ChunkUpdateInfoDirection::DIRECTION_COUNT; direction++) {
+		ChunkUpdateInDirectionInfo& info = data[direction];
+		info.initialise((ChunkUpdateInfoDirection) direction, chunk_grid_coord);
 	}
 }
 
@@ -136,10 +135,11 @@ Coordinate Chunk::transform_to_world_coordinate(Coordinate chunk_coord) {
 	return Coordinate(chunk_coord.x + chunk_origin_row, chunk_coord.y + chunk_origin_column);
 }
 
-void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection direction) {
+
+void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection direction, ChunkUpdateInfo& update_info) {
 	ZoneScoped;
 
-	ChunkUpdateInfo& info = update_info[direction];
+	ChunkUpdateInDirectionInfo& info = update_info.data[direction];
 
 	int current_row = 0;
 	int row_offset = 0; // offset, can either be -1, 0, or 1. It defines if we look one row up, stay in the current row or look one row down, when updating neighbour count.
@@ -149,8 +149,8 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 	int current_column = 0;
 	int column_offset = 0;
 
-	ChunkUpdateInfo* top_or_bottom_info = nullptr;
-	ChunkUpdateInfo* left_or_right_info = nullptr;
+	ChunkUpdateInDirectionInfo* top_or_bottom_info = nullptr;
+	ChunkUpdateInDirectionInfo* left_or_right_info = nullptr;
 	switch (direction) {
 		case ChunkUpdateInfoDirection::LEFT:
 			current_column = 0;
@@ -174,8 +174,8 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 			current_column = 0;
 			column_offset = 1;
 
-			top_or_bottom_info = &update_info[ChunkUpdateInfoDirection::TOP];
-			left_or_right_info = &update_info[ChunkUpdateInfoDirection::LEFT];
+			top_or_bottom_info = &update_info.data[ChunkUpdateInfoDirection::TOP];
+			left_or_right_info = &update_info.data[ChunkUpdateInfoDirection::LEFT];
 			break;
 		case ChunkUpdateInfoDirection::TOP_RIGHT:
 			current_row = 0;
@@ -183,8 +183,8 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 			current_column = Chunk::columns - 1;
 			column_offset = -1;
 
-			top_or_bottom_info = &update_info[ChunkUpdateInfoDirection::TOP];
-			left_or_right_info = &update_info[ChunkUpdateInfoDirection::RIGHT];
+			top_or_bottom_info = &update_info.data[ChunkUpdateInfoDirection::TOP];
+			left_or_right_info = &update_info.data[ChunkUpdateInfoDirection::RIGHT];
 			break;
 		case ChunkUpdateInfoDirection::BOTTOM_LEFT:
 			current_row = Chunk::rows - 1;
@@ -192,8 +192,8 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 			current_column = 0;
 			column_offset = 1;
 
-			top_or_bottom_info = &update_info[ChunkUpdateInfoDirection::BOTTOM];
-			left_or_right_info = &update_info[ChunkUpdateInfoDirection::LEFT];
+			top_or_bottom_info = &update_info.data[ChunkUpdateInfoDirection::BOTTOM];
+			left_or_right_info = &update_info.data[ChunkUpdateInfoDirection::LEFT];
 			break;
 		case ChunkUpdateInfoDirection::BOTTOM_RIGHT:
 			current_row = Chunk::rows - 1;
@@ -201,8 +201,8 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 			current_column = Chunk::columns - 1;
 			column_offset = -1;
 
-			top_or_bottom_info = &update_info[ChunkUpdateInfoDirection::BOTTOM];
-			left_or_right_info = &update_info[ChunkUpdateInfoDirection::RIGHT];
+			top_or_bottom_info = &update_info.data[ChunkUpdateInfoDirection::BOTTOM];
+			left_or_right_info = &update_info.data[ChunkUpdateInfoDirection::RIGHT];
 			break;
 		case DIRECTION_COUNT:
 			break;
@@ -263,6 +263,7 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 		case ChunkUpdateInfoDirection::BOTTOM_RIGHT:// fallthrough
 			if (cells_data[current_row*rows +current_column]) {
 				info.add_coordinate(0);
+
 				left_or_right_info->add_coordinate(current_row);
 				top_or_bottom_info->add_coordinate(current_column);
 				
@@ -283,21 +284,22 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 	}
 }
 
-void Chunk::update_neighbour_count_and_set_info() {
+void Chunk::update_neighbour_count_and_set_info(std::vector<ChunkUpdateInfo>& update_info_data) {
 	ZoneScoped;
-
-	clear_neighbour_update_info();
 
 	update_neighbour_count_inside();
 
+	ChunkUpdateInfo update_info = ChunkUpdateInfo(Coordinate(grid_coordinate_row, grid_coordinate_column));
+
+	bool is_not_trivial_info = false;
 	for (int direction = ChunkUpdateInfoDirection::LEFT; direction < ChunkUpdateInfoDirection::DIRECTION_COUNT; direction++) {
-		update_neighbour_count_in_direction(static_cast<ChunkUpdateInfoDirection> (direction));
+		update_neighbour_count_in_direction(static_cast<ChunkUpdateInfoDirection> (direction), update_info);
+		is_not_trivial_info |= update_info.data[direction].is_not_trivial();
 	}
-}
 
-
-bool Chunk::has_to_update_in_direction(ChunkUpdateInfoDirection direction) {
-	return update_info[direction].current_number_of_values > 0;
+	if (is_not_trivial_info) {
+		update_info_data.push_back(update_info);
+	}
 }
 
 

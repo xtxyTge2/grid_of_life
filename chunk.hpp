@@ -55,13 +55,17 @@ enum ChunkUpdateInfoDirection {
 };
 
 
-class ChunkUpdateInfo {
+
+
+class ChunkUpdateInDirectionInfo {
 public:
-	ChunkUpdateInfo();
+	ChunkUpdateInDirectionInfo();
 
 	void initialise(ChunkUpdateInfoDirection dir, Coordinate chunk_grid_coordinate);
 
 	void add_coordinate(char value);
+
+	bool is_not_trivial();
 
 	ChunkUpdateInfoDirection direction;
 	Coordinate chunk_offset_coordinate;
@@ -71,6 +75,13 @@ public:
 	constexpr static int MAX_NUMBER_OF_VALUES = CHUNK_ROWS;
 	int current_number_of_values;
 	std::array<std::pair<char, char>, MAX_NUMBER_OF_VALUES> data;
+};
+
+class ChunkUpdateInfo {
+public:
+	ChunkUpdateInfo(Coordinate chunk_grid_coord);
+
+	std::array<ChunkUpdateInDirectionInfo, ChunkUpdateInfoDirection::DIRECTION_COUNT> data;
 };
 
 
@@ -85,19 +96,18 @@ namespace std
 	};
 }
 
+
 class Chunk {
 public:
 	Chunk(const Coordinate& coord, Coordinate origin_coord);
 
-	void update_neighbour_count_in_direction(ChunkUpdateInfoDirection direction);
+	void update_neighbour_count_in_direction(ChunkUpdateInfoDirection direction, ChunkUpdateInfo& update_info);
 
 	void update_cells();
 
 	void update_neighbour_count_inside();
 
-	void clear_neighbour_update_info();
-
-	void update_neighbour_count_and_set_info();
+	void update_neighbour_count_and_set_info(std::vector<ChunkUpdateInfo>& update_info_data);
 
 	bool has_to_update_in_direction(ChunkUpdateInfoDirection direction);
 
@@ -115,6 +125,4 @@ public:
 
 	std::array<unsigned char, rows*columns> cells_data;
 	std::array<unsigned char, rows*columns> neighbour_count_data;
-
-	std::array<ChunkUpdateInfo, ChunkUpdateInfoDirection::DIRECTION_COUNT> update_info;
 };

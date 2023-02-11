@@ -11,6 +11,10 @@
 
 #include <unordered_set>
 
+
+
+
+
 //--------------------------------------------------------------------------------
 class Grid {
 public:
@@ -30,7 +34,7 @@ public:
 
 	void update();
 
-	void update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk);
+	void update_neighbours_of_chunk(ChunkUpdateInfo& chunk_update_info);
 
 	void update_neighbour_count_and_set_info_of_all_chunks();
 
@@ -46,10 +50,12 @@ public:
 
 	std::unordered_map<Coordinate, std::shared_ptr<Chunk>> chunk_map;
 
+	std::vector<ChunkUpdateInfo> update_info;
 	std::vector<std::pair<int, int>> grid_coordinates;
 	std::vector<std::pair<int, int>> border_coordinates;
 	std::shared_ptr<OpenCLContext> opencl_context;
 };
+
 
 //--------------------------------------------------------------------------------
 struct Grid_Execution_State {

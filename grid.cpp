@@ -244,10 +244,9 @@ void Grid::create_needed_neighbours_of_all_chunks() {
 	ZoneScoped;
 	// set of coordinates of the neighbour chunks, note that this is a set and hence we do not create neighbours multiple times
 	std::unordered_set<Coordinate> coordinates_of_chunks_to_create;
-	for (auto& [chunk_coord, chunk]: chunk_map) {
-		for (ChunkUpdateInfo& info: chunk->update_info) {
-			ChunkUpdateInfoDirection direction = info.direction;
-			if (chunk->has_to_update_in_direction(direction)) {
+	for (ChunkUpdateInfo& chunk_update_infos: update_info) {
+		for (ChunkUpdateInDirectionInfo& info: chunk_update_infos.data) {
+			if (info.is_not_trivial()) {
 				Coordinate neighbour_grid_coordinate = info.neighbour_grid_coordinate;
 				if (!chunk_map.contains(neighbour_grid_coordinate)) {
 					coordinates_of_chunks_to_create.insert(neighbour_grid_coordinate);
@@ -281,18 +280,27 @@ void Grid::next_iteration() {
 void Grid::update_neighbour_count_and_set_info_of_all_chunks() {
 	ZoneScoped;
 
+	update_info.clear();
+
 	for (auto& [chunk_coord, chunk]: chunk_map) {
-		chunk->update_neighbour_count_and_set_info();
+		chunk->update_neighbour_count_and_set_info(update_info);
 	}
 }
 
 void Grid::update_neighbours_of_all_chunks() {
 	ZoneScoped;
 
+	for (ChunkUpdateInfo& chunk_update_info: update_info) {
+		update_neighbours_of_chunk(chunk_update_info);
+	}
+
+	update_info.clear();
+	/*
 	for (auto& [chunk_coord, chunk]: chunk_map) {
 		update_neighbours_of_chunk(chunk);
 		chunk->clear_neighbour_update_info();
 	}
+	*/
 }
 
 
@@ -328,14 +336,16 @@ void Grid::remove_empty_chunks() {
 }
 
 
-void Grid::update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk) {
+void Grid::update_neighbours_of_chunk(ChunkUpdateInfo& chunk_update_info) {
 	ZoneScoped;
-	
-	for (ChunkUpdateInfo& info: chunk->update_info) {
+
+	for (ChunkUpdateInDirectionInfo& info: chunk_update_info.data) {
 		ChunkUpdateInfoDirection direction = info.direction;
-		if (!chunk->has_to_update_in_direction(direction)) {
+		// if its trivial continue
+		if (!info.is_not_trivial()) {
 			continue;
 		}
+
 		Coordinate neighbour_grid_coordinate = info.neighbour_grid_coordinate;
 		std::shared_ptr<Chunk> neighbour_chunk = chunk_map.find(neighbour_grid_coordinate)->second;
 
