@@ -341,7 +341,8 @@ void Grid::update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk) {
 
 		std::array<unsigned char, Chunk::rows*Chunk::columns>& neighbour_count_data = neighbour_chunk->neighbour_count_data;
 		if (direction == LEFT || direction == RIGHT) {
-			for (std::pair<char, char> coord: info.data) {
+			for (int i = 0; i < info.current_number_of_values; i++) {
+				std::pair<char, char>& coord = info.data[i];
 				int r = coord.first;
 				int c = coord.second;
 
@@ -355,7 +356,8 @@ void Grid::update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk) {
 				}
 			}
 		} else if (direction == TOP || direction == BOTTOM) {
-			for (std::pair<char, char> coord: info.data) {
+			for (int i = 0; i < info.current_number_of_values; i++) {
+				std::pair<char, char>& coord = info.data[i];
 				int r = coord.first;
 				int c = coord.second;
 
@@ -368,7 +370,8 @@ void Grid::update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk) {
 				}
 			}
 		} else if (direction == TOP_LEFT || direction == TOP_RIGHT || direction == BOTTOM_LEFT || direction == BOTTOM_RIGHT) {
-			std::pair<char, char> coord = info.data.front();
+			std::pair<char, char>& coord = info.data[0];
+			
 			int r = coord.first;
 			int c = coord.second;
 			neighbour_count_data[r*Chunk::rows +c]++;

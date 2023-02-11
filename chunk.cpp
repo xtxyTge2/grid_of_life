@@ -1,6 +1,9 @@
 #include "chunk.hpp"
 
-ChunkUpdateInfo::ChunkUpdateInfo() 
+ChunkUpdateInfo::ChunkUpdateInfo() : 
+	data_max_value(0), 
+current_number_of_values(0),
+data({})
 {
 
 }
@@ -11,12 +14,12 @@ void ChunkUpdateInfo::add_coordinate(char value) {
 		case ChunkUpdateInfoDirection::LEFT:
 			// fallthrough, handle left and right together
 		case ChunkUpdateInfoDirection::RIGHT:
-			data.push_back(std::make_pair(value + chunk_offset_coordinate.x, chunk_offset_coordinate.y));
+			data[current_number_of_values++] = std::make_pair(value + chunk_offset_coordinate.x, chunk_offset_coordinate.y);
 			break;
 		case ChunkUpdateInfoDirection::TOP:
 			// fallthrough, handle bottom and top together
 		case ChunkUpdateInfoDirection::BOTTOM:
-			data.push_back(std::make_pair(chunk_offset_coordinate.x, value + chunk_offset_coordinate.y));
+			data[current_number_of_values++] = std::make_pair(chunk_offset_coordinate.x, value + chunk_offset_coordinate.y);
 			break;
 		case ChunkUpdateInfoDirection::TOP_LEFT:
 			// fallthrough, handle all corners together
@@ -25,7 +28,7 @@ void ChunkUpdateInfo::add_coordinate(char value) {
 		case ChunkUpdateInfoDirection::BOTTOM_LEFT:
 			// fallthrough
 		case ChunkUpdateInfoDirection::BOTTOM_RIGHT:
-			data.push_back(std::make_pair(chunk_offset_coordinate.x, chunk_offset_coordinate.y));
+			data[current_number_of_values++] = std::make_pair(chunk_offset_coordinate.x, chunk_offset_coordinate.y);
 			break;
 		case DIRECTION_COUNT:
 			break;
@@ -42,7 +45,9 @@ void ChunkUpdateInfo::initialise(ChunkUpdateInfoDirection dir, Coordinate chunk_
 	int grid_row_offset = 0;
 	int grid_column_offset = 0;
 
-	data.clear();
+	data = {};
+	current_number_of_values = 0;
+
 	data_max_value = 0;
 
 	chunk_offset_coordinate = Coordinate(0, 0);
@@ -120,7 +125,8 @@ void Chunk::clear_neighbour_update_info() {
 	ZoneScoped;
 
 	for (ChunkUpdateInfo& info: update_info) {
-		info.data.clear();
+		info.data = {};
+		info.current_number_of_values = 0;
 	}
 }
 
@@ -291,7 +297,7 @@ void Chunk::update_neighbour_count_and_set_info() {
 
 
 bool Chunk::has_to_update_in_direction(ChunkUpdateInfoDirection direction) {
-	return update_info[direction].data.size() > 0;
+	return update_info[direction].current_number_of_values > 0;
 }
 
 
