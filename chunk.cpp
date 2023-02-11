@@ -101,11 +101,13 @@ Chunk::Chunk(const Coordinate& coord, Coordinate origin_coord) :
 grid_coordinate_column(coord.y),
 chunk_origin_row(origin_coord.x),
 chunk_origin_column(origin_coord.y),
-number_of_alive_cells(0)
+number_of_alive_cells(0),
+cells_data({}),
+neighbour_count_data({})
 {
 	ZoneScoped;
-	cells.setConstant(false);
-	neighbour_count.setConstant(0);
+
+
 
 	for (int direction = ChunkUpdateInfoDirection::LEFT; direction < ChunkUpdateInfoDirection::DIRECTION_COUNT; direction++) {
 		ChunkUpdateInfo& info = update_info[direction];
@@ -203,12 +205,12 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 	}
 
 	// having determined what row/column we need to update we do it below. This is intentionally split up into two switch statements, so that we can streamline the bottom code via simple fallthrough, which actually keeps us from writing the same code/logic for left-right and bottom-top case again.
-	unsigned char* neighbour_count_data = neighbour_count.data();
+	//unsigned char* neighbour_count_data = neighbour_count.data();
 	switch (direction) {
 		case ChunkUpdateInfoDirection::LEFT: // fallthrough, left and right together
 		case ChunkUpdateInfoDirection::RIGHT:
 			for (int r = 1; r < rows - 1; r++) {
-				if (cells(r, current_column)) {
+				if (cells_data[r*rows+current_column]) {
 					info.add_coordinate(r);
 					
 					neighbour_count_data[(r - 1) * rows + current_column]++;
@@ -230,7 +232,7 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 		case ChunkUpdateInfoDirection::TOP: // fallthrough, bottom and top together.
 		case ChunkUpdateInfoDirection::BOTTOM:
 			for (int c = 1; c < columns - 1; c++) {
-				if (cells(current_row, c)) {
+				if (cells_data[current_row*rows+ c]) {
 					info.add_coordinate(c);
 
 					neighbour_count_data[current_row*rows + c - 1]++; 
@@ -253,7 +255,7 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 		case ChunkUpdateInfoDirection::TOP_RIGHT:// fallthrough
 		case ChunkUpdateInfoDirection::BOTTOM_LEFT:// fallthrough
 		case ChunkUpdateInfoDirection::BOTTOM_RIGHT:// fallthrough
-			if (cells(current_row, current_column)) {
+			if (cells_data[current_row*rows +current_column]) {
 				info.add_coordinate(0);
 				left_or_right_info->add_coordinate(current_row);
 				top_or_bottom_info->add_coordinate(current_column);
@@ -295,11 +297,11 @@ bool Chunk::has_to_update_in_direction(ChunkUpdateInfoDirection direction) {
 
 void Chunk::update_neighbour_count_inside() {
 	ZoneScoped;
-	neighbour_count.setConstant(0);
+	//neighbour_count.setConstant(0);
+	neighbour_count_data = {};
 
 	
-	unsigned char* neighbour_count_data = neighbour_count.data();
-	unsigned char* cells_data = cells.data();
+	//unsigned char* neighbour_count_data = neighbour_count.data();
 	for (int r = 1; r < rows - 1; r++) {
 #pragma omp simd
 		for (int c = 1; c < columns - 1; c++) {
@@ -413,8 +415,7 @@ void Chunk::update_cells() {
 	}
 	*/
 	number_of_alive_cells = 0;
-	unsigned char* neighbour_count_data = neighbour_count.data();
-	unsigned char* cells_data = cells.data();
+	//unsigned char* neighbour_count_data = neighbour_count.data();
 	for (int i = 0; i < rows * columns; i++) {
 		unsigned char count = neighbour_count_data[i];
 		if (cells_data[i]) {

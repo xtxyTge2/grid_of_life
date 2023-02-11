@@ -131,7 +131,7 @@ void Grid::update_coordinates_for_alive_grid_cells() {
 		// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
 
 		// get chunk coordinates from alive grid cells
-		unsigned char* cells_data = chunk->cells.data();
+		std::array<unsigned char, Chunk::rows*Chunk::columns>& cells_data = chunk->cells_data;
 		for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
 			int r = i / Chunk::rows;
 			int c = i % Chunk::columns;
@@ -222,7 +222,7 @@ void Grid::create_new_chunk_and_set_alive_cells(const Coordinate& coord, const s
 	std::shared_ptr<Chunk> chunk = std::make_shared < Chunk > (coord, origin_coordinate); 
 
 	for (auto [r, c]: coordinates) {
-		chunk->cells(r, c) = true;
+		chunk->cells_data[r*Chunk::rows + c] = true;
 	}
 
 	chunk_map.insert(std::make_pair(coord, chunk));
@@ -338,17 +338,20 @@ void Grid::update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk) {
 		}
 		Coordinate neighbour_grid_coordinate = info.neighbour_grid_coordinate;
 		std::shared_ptr<Chunk> neighbour_chunk = chunk_map.find(neighbour_grid_coordinate)->second;
+
+		std::array<unsigned char, Chunk::rows*Chunk::columns>& neighbour_count_data = neighbour_chunk->neighbour_count_data;
 		if (direction == LEFT || direction == RIGHT) {
 			for (std::pair<char, char> coord: info.data) {
 				int r = coord.first;
 				int c = coord.second;
 
-				neighbour_chunk->neighbour_count(r, c)++;
+				neighbour_count_data[r*Chunk::rows +c]++;
 				if (r > 0) {
-					neighbour_chunk->neighbour_count(r - 1, c)++;
+					neighbour_count_data[(r-1)*Chunk::rows +c]++;
+
 				}
 				if (r <= info.data_max_value) {
-					neighbour_chunk->neighbour_count(r + 1, c)++;
+					neighbour_count_data[(r+ 1)*Chunk::rows +c]++;
 				}
 			}
 		} else if (direction == TOP || direction == BOTTOM) {
@@ -356,19 +359,19 @@ void Grid::update_neighbours_of_chunk(std::shared_ptr<Chunk> chunk) {
 				int r = coord.first;
 				int c = coord.second;
 
-				neighbour_chunk->neighbour_count(r, c)++;
+				neighbour_count_data[r*Chunk::rows +c]++;
 				if (c > 0) {
-					neighbour_chunk->neighbour_count(r, c - 1)++;
+					neighbour_count_data[r*Chunk::rows +c -1]++;
 				}
 				if (c <= info.data_max_value) {
-					neighbour_chunk->neighbour_count(r, c + 1)++;
+					neighbour_count_data[r*Chunk::rows +c + 1]++;
 				}
 			}
 		} else if (direction == TOP_LEFT || direction == TOP_RIGHT || direction == BOTTOM_LEFT || direction == BOTTOM_RIGHT) {
 			std::pair<char, char> coord = info.data.front();
 			int r = coord.first;
 			int c = coord.second;
-			neighbour_chunk->neighbour_count(r, c)++;
+			neighbour_count_data[r*Chunk::rows +c]++;
 		}
 	}
 }

@@ -106,8 +106,8 @@ public:
 	int chunk_origin_column;
 	int number_of_alive_cells;
 
-	Eigen::Array < unsigned char, rows, columns, Eigen::RowMajor > cells;
-	Eigen::Array < unsigned char, rows, columns, Eigen::RowMajor > neighbour_count;
+	std::array<unsigned char, rows*columns> cells_data;
+	std::array<unsigned char, rows*columns> neighbour_count_data;
 
 	std::array<ChunkUpdateInfo, ChunkUpdateInfoDirection::DIRECTION_COUNT> update_info;
 };
