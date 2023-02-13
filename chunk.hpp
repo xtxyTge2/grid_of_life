@@ -125,6 +125,9 @@ public:
 	int chunk_origin_column;
 	bool has_alive_cells;
 	
-	std::array<unsigned char, rows*columns> cells_data;
-	std::array<unsigned char, rows*columns> neighbour_count_data;
+	// the rows of the array are 32 * 8 = 256 bits big, ie each row fits into a AVX2 __mm256i simd register.
+	// we operate on complete rows in our main computation using simd functions and the used intrinsics
+	// assume that the data is aligned by 32!
+	alignas(32) std::array<unsigned char, rows*columns> cells_data;
+	alignas(32) std::array<unsigned char, rows*columns> neighbour_count_data;
 };
