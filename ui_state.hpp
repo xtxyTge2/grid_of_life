@@ -39,7 +39,6 @@ struct Grid_Info {
 
 	int origin_row; 
 	int origin_column;
-	int number_of_alive_cells;
 
 	int iteration;
 };

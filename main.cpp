@@ -1,5 +1,8 @@
 #include "Tracy.hpp"
 
+#include <immintrin.h>
+
+
 // memory leak detection on windows
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>

@@ -26,7 +26,6 @@ void Grid_Manager::update_grid_info() {
 	grid_info->columns = 0;
 	grid_info->origin_row = 0;
 	grid_info->origin_column = 0;
-	grid_info->number_of_alive_cells = grid->number_of_alive_cells;
 }
 
 //--------------------------------------------------------------------------------
@@ -131,7 +130,7 @@ void Grid::update_coordinates_for_alive_grid_cells() {
 		// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
 
 		// get chunk coordinates from alive grid cells
-		std::array<unsigned char, Chunk::rows*Chunk::columns>& cells_data = chunk->cells_data;
+		std::array<char, Chunk::rows*Chunk::columns>& cells_data = chunk->cells_data;
 		for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
 			int r = i / Chunk::rows;
 			int c = i % Chunk::columns;
@@ -161,7 +160,6 @@ void Grid::update_coordinates_for_chunk_borders() {
 
 //--------------------------------------------------------------------------------
 Grid::Grid(std::shared_ptr<OpenCLContext> context) :
-number_of_alive_cells(0),
 iteration(0),
 opencl_context(context)
 {
@@ -191,9 +189,6 @@ opencl_context(context)
 	};
 	create_new_chunk_and_set_alive_cells(Coordinate(0, 0), initial_coordinates);
 
-	for (auto& [chunk_coord, chunk]: chunk_map) {
-		number_of_alive_cells += chunk->number_of_alive_cells;
-	}
 
 	update_coordinates_for_alive_grid_cells();
 
@@ -219,11 +214,8 @@ void Grid::create_new_chunk_and_set_alive_cells(const Coordinate& coord, const s
 
 	Coordinate origin_coordinate = Coordinate(coord.x * Chunk::rows, coord.y * Chunk::columns);
 
-	std::shared_ptr<Chunk> chunk = std::make_shared < Chunk > (coord, origin_coordinate); 
+	std::shared_ptr<Chunk> chunk = std::make_shared < Chunk > (coord, origin_coordinate, coordinates); 
 
-	for (auto [r, c]: coordinates) {
-		chunk->cells_data[r*Chunk::rows + c] = true;
-	}
 
 	chunk_map.insert(std::make_pair(coord, chunk));
 }
@@ -295,12 +287,6 @@ void Grid::update_neighbours_of_all_chunks() {
 	}
 
 	update_info.clear();
-	/*
-	for (auto& [chunk_coord, chunk]: chunk_map) {
-		update_neighbours_of_chunk(chunk);
-		chunk->clear_neighbour_update_info();
-	}
-	*/
 }
 
 
@@ -323,13 +309,11 @@ void Grid::update_cells_of_all_chunks() {
 
 
 void Grid::remove_empty_chunks() {
-	number_of_alive_cells = 0;
 	for (auto it = chunk_map.begin(); it != chunk_map.end();) {
-		if (it->second->number_of_alive_cells <= 0) {
+		if (!it->second->has_alive_cells) {
 			it = chunk_map.erase(it); // erase does not invalidate the iterator of std::unordered_map, (insert does!)
 		} else {
 			// DONT FORGET TO ADVANCE THE ITERATOR!
-			number_of_alive_cells += it->second->number_of_alive_cells;
 			it++;
 		}
 	}
@@ -349,7 +333,7 @@ void Grid::update_neighbours_of_chunk(ChunkUpdateInfo& chunk_update_info) {
 		Coordinate neighbour_grid_coordinate = info.neighbour_grid_coordinate;
 		std::shared_ptr<Chunk> neighbour_chunk = chunk_map.find(neighbour_grid_coordinate)->second;
 
-		std::array<unsigned char, Chunk::rows*Chunk::columns>& neighbour_count_data = neighbour_chunk->neighbour_count_data;
+		std::array<char, Chunk::rows*Chunk::columns>& neighbour_count_data = neighbour_chunk->neighbour_count_data;
 		if (direction == LEFT || direction == RIGHT) {
 			for (int i = 0; i < info.current_number_of_values; i++) {
 				std::pair<char, char>& coord = info.data[i];

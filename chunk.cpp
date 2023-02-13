@@ -105,16 +105,22 @@ void ChunkUpdateInDirectionInfo::initialise(ChunkUpdateInfoDirection dir, Coordi
 	neighbour_grid_coordinate = Coordinate(chunk_grid_coordinate.x + grid_row_offset, chunk_grid_coordinate.y + grid_column_offset);
 }
 
-Chunk::Chunk(const Coordinate& coord, Coordinate origin_coord) :
+Chunk::Chunk(const Coordinate& coord, Coordinate origin_coord, const std::vector<std::pair<int, int>>& alive_cells_coordinates) :
 	grid_coordinate_row(coord.x),
 grid_coordinate_column(coord.y),
 chunk_origin_row(origin_coord.x),
 chunk_origin_column(origin_coord.y),
-number_of_alive_cells(0),
+has_alive_cells(false),
 cells_data({}),
 neighbour_count_data({})
 {
 	ZoneScoped;
+
+	has_alive_cells = alive_cells_coordinates.size() > 0;
+	for (auto [r, c]: alive_cells_coordinates) {
+		cells_data[r*Chunk::rows + c] = 0xFF;
+	}
+	
 
 }
 
@@ -305,7 +311,6 @@ void Chunk::update_neighbour_count_and_set_info(std::vector<ChunkUpdateInfo>& up
 
 void Chunk::update_neighbour_count_inside() {
 	ZoneScoped;
-	//neighbour_count.setConstant(0);
 	neighbour_count_data = {};
 
 	
@@ -379,69 +384,35 @@ void Chunk::update_neighbour_count_inside() {
 	*/
 }
 
+
+
 void Chunk::update_cells() {
 	ZoneScoped;
-	/*
-	unsigned char* neighbour_count_data = neighbour_count.data();
-	unsigned char* cells_data = cells.data();
 
-	unsigned char is_count_2[rows * columns];
-#pragma omp simd 
-	for (int i = 0; i < rows * columns; i++) {
-		unsigned char last_byte_of_count = neighbour_count_data[i];// &0xF;
-		is_count_2[i] = static_cast<unsigned char>(!(last_byte_of_count ^ 0x2));
-	}
+	// assume that Chunk::columns = 32, so that a single row is exactly 256 bits big.
+	__m256i* cells_data_ptr = (__m256i*) &cells_data[0];
+	__m256i* neighbour_count_data_ptr = (__m256i*) &neighbour_count_data[0];
 
-	unsigned char is_count_3[rows * columns];
-#pragma omp simd 
-	for (int i = 0; i < rows * columns; i++) {
-		unsigned char last_byte_of_count = neighbour_count_data[i] & 0xF;
-		is_count_3[i] = static_cast<unsigned char>(!(last_byte_of_count ^ 0x3));
-	}
-	
-	unsigned char is_count_2_or_3[rows * columns];
-#pragma omp simd 
-	for (int i = 0; i < rows * columns; i++) {
-		is_count_2_or_3[i] = is_count_2[i] | is_count_3[i];
-	}
-	
-	unsigned char alive_cells_data[rows * columns];
-#pragma omp simd 
-	for (int i = 0; i < rows * columns; i++) {
-		alive_cells_data[i] = cells_data[i] & is_count_2_or_3[i];
-	}
+	__m256i _mm256_epi8_equal_to_0x02_mask = _mm256_set_epi8(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2);
+	__m256i _mm256_epi8_equal_to_0x03_mask = _mm256_set_epi8(3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3);
+	has_alive_cells = false;
 
-	unsigned char dead_cells_data[rows * columns];
-#pragma omp simd 
-	for (int i = 0; i < rows * columns; i++) {
-		dead_cells_data[i] = static_cast<unsigned char>(!cells_data[i]) & is_count_3[i];
-	}
+	for(int r = 0; r < Chunk::rows; r++) {
+		__m256i neighbour_count_row = _mm256_load_si256(&neighbour_count_data_ptr[r]);
+		__m256i cells_data_row = _mm256_load_si256(&cells_data_ptr[r]);
 
-#pragma omp simd 
-	for (int i = 0; i < rows * columns; i++) {
-		cells_data[i] = alive_cells_data[i] | dead_cells_data[i];
-	}
-	*/
-	number_of_alive_cells = 0;
-	//unsigned char* neighbour_count_data = neighbour_count.data();
-	for (int i = 0; i < rows * columns; i++) {
-		unsigned char count = neighbour_count_data[i];
-		if (cells_data[i]) {
-			// a cell that is alive stays alive iff it has two or three neighbouring alive cells.
-			if (count == 2 || count == 3) {
-				cells_data[i] = true;
-				number_of_alive_cells++;
-			} else {
-				cells_data[i] = false;
-			}
-		} else {
-			// a dead cell becomes alive exactly iff it has three neighbouring alive cells.
-			if (count == 3) {
-				cells_data[i] = true;
-				number_of_alive_cells++;
-			} else {
-				cells_data[i] = false;
-			}
-		}
+		__m256i neighbour_count_equal_to_2 = _mm256_cmpeq_epi8(neighbour_count_row, _mm256_epi8_equal_to_0x02_mask);
+		__m256i neighbour_count_equal_to_3 = _mm256_cmpeq_epi8(neighbour_count_row, _mm256_epi8_equal_to_0x03_mask);
+		__m256i neighbour_count_equal_to_2_or_3 =_mm256_or_si256(neighbour_count_equal_to_2, neighbour_count_equal_to_3);
+
+		__m256i mask_cells_alive_and_neighbour_count_is_2_or_3 = _mm256_blendv_epi8(_mm256_setzero_si256(), neighbour_count_equal_to_2_or_3, cells_data_row);
+		__m256i mask_cells_dead_and_neighbour_count_is_3 = _mm256_blendv_epi8(neighbour_count_equal_to_3, _mm256_setzero_si256(), cells_data_row);
+
+		__m256i new_row_values = _mm256_or_si256(mask_cells_alive_and_neighbour_count_is_2_or_3, mask_cells_dead_and_neighbour_count_is_3);
+
+		_mm256_store_si256(&cells_data_ptr[r], new_row_values);
+
+		bool is_zero_row = (bool) _mm256_testz_si256(new_row_values, new_row_values);
+		has_alive_cells |= !is_zero_row;
 	}
 }

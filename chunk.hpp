@@ -99,7 +99,7 @@ namespace std
 
 class Chunk {
 public:
-	Chunk(const Coordinate& coord, Coordinate origin_coord);
+	Chunk(const Coordinate& coord, Coordinate origin_coord, const std::vector<std::pair<int, int>>& alive_cells_coordinates);
 
 	void update_neighbour_count_in_direction(ChunkUpdateInfoDirection direction, ChunkUpdateInfo& update_info);
 
@@ -108,8 +108,6 @@ public:
 	void update_neighbour_count_inside();
 
 	void update_neighbour_count_and_set_info(std::vector<ChunkUpdateInfo>& update_info_data);
-
-	bool has_to_update_in_direction(ChunkUpdateInfoDirection direction);
 
 	Coordinate transform_to_world_coordinate(Coordinate chunk_coord);
 
@@ -121,8 +119,8 @@ public:
 
 	int chunk_origin_row;
 	int chunk_origin_column;
-	int number_of_alive_cells;
-
-	std::array<unsigned char, rows*columns> cells_data;
-	std::array<unsigned char, rows*columns> neighbour_count_data;
+	bool has_alive_cells;
+	
+	std::array<char, rows*columns> cells_data;
+	std::array<char, rows*columns> neighbour_count_data;
 };

@@ -45,7 +45,6 @@ public:
 	void create_needed_neighbours_of_all_chunks();
 	//--------------------------------------------------------------------------------
 	// data
-	int number_of_alive_cells;
 	int iteration;
 
 	std::unordered_map<Coordinate, std::shared_ptr<Chunk>> chunk_map;

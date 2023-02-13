@@ -108,7 +108,6 @@ void UI_State::setup_ui_for_current_frame(const Grid_Info& grid_info) {
 		ImGui::Text("Grid iteration: %d", grid_info.iteration);
 		ImGui::Text("Grid rows: %d, columns: %d", grid_info.rows, grid_info.columns);
 		ImGui::Text("Origin row: %d, Origin column: %d", grid_info.origin_row, grid_info.origin_column);
-		ImGui::Text("Number of alive cells: %d", grid_info.number_of_alive_cells);
 
 		ImGuiSliderFlags slider_flags = ImGuiSliderFlags_AlwaysClamp;
 		slider_flags |= ImGuiSliderFlags_NoInput;
