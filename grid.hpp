@@ -62,7 +62,7 @@ struct Grid_Execution_State {
 	int number_of_iterations_per_single_frame = 1;
 	bool updated_grid_coordinates = false;
 	bool updated_border_coordinates = false;
-	bool is_running = false;
+	bool is_running = true;
 	bool run_manual_next_iteration = false;
 	float time_since_last_iteration = 0.0f;
 	float grid_speed = 1.0f;
