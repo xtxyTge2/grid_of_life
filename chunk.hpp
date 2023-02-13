@@ -11,6 +11,9 @@ constexpr static int CHUNK_ROWS = 32;
 constexpr static int CHUNK_COLUMNS = 32;
 
 
+__m256i _mm256_custom_shift_left_epi256(__m256i a, const int imm8);
+__m256i _mm256_custom_shift_right_epi256(__m256i a, const int imm8);
+
 class Coordinate {
 public:
 	Coordinate() : x(0), y(0) 

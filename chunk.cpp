@@ -224,6 +224,7 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 			for (int r = 1; r < rows - 1; r++) {
 				if (cells_data[r*rows + current_column]) {
 					info.add_coordinate(r);
+					
 					/*
 					neighbour_count_data[(r - 1) * rows + current_column]++;
 					neighbour_count_data[(r + 1) * rows + current_column]++;
@@ -231,14 +232,16 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 					neighbour_count_data[r * rows + current_column + column_offset]++;
 					neighbour_count_data[(r + 1)*rows + current_column + column_offset]++;
 					*/
+					
 				}
-				
+				/*
 				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[(r - 1)*rows + current_column]);
 				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[(r + 1)*rows + current_column]);
 
 				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[(r - 1)*rows + current_column + column_offset]);
 				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[r * rows + current_column + column_offset]);
 				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[(r + 1)* rows + current_column + column_offset]);
+				*/
 			}
 			break;
 		case ChunkUpdateInfoDirection::TOP: // fallthrough, bottom and top together.
@@ -253,15 +256,18 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 					neighbour_count_data[(current_row + row_offset)*rows + c - 1]++; 
 					neighbour_count_data[(current_row + row_offset)*rows + c]++; 
 					neighbour_count_data[(current_row + row_offset)*rows + c + 1]++; 
-					*/
+						*/
+					
 				}
 				
+				/*
 				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[current_row * rows + c - 1]);
 				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[current_row * rows + c + 1]);
 
 				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[(current_row + row_offset) * rows + c - 1]);
 				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[(current_row + row_offset) * rows + c]);
 				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[(current_row + row_offset) * rows + c + 1]);
+				*/
 			}
 			break;
 		case ChunkUpdateInfoDirection::TOP_LEFT:// fallthrough
@@ -274,16 +280,19 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 				
 				left_or_right_info->add_coordinate(current_row);
 				top_or_bottom_info->add_coordinate(current_column);
+				
 				/*
 				neighbour_count_data[(current_row + row_offset)*rows +  current_column + column_offset]++; 
 				neighbour_count_data[(current_row + row_offset)*rows +  current_column]++;
 				neighbour_count_data[current_row*rows +  current_column + column_offset]++;
 				*/
+				
 			}
-			
+			/*
 			neighbour_count_data[current_row * rows + current_column] += ((bool) cells_data[(current_row + row_offset) * rows + current_column + column_offset]);
 			neighbour_count_data[current_row * rows + current_column] += ((bool) cells_data[(current_row + row_offset) * rows + current_column]);
 			neighbour_count_data[current_row * rows + current_column] += ((bool) cells_data[current_row * rows + current_column + column_offset]);
+			*/
 			break;
 		case DIRECTION_COUNT:
 			break;
@@ -313,14 +322,14 @@ void Chunk::update_neighbour_count_and_set_info(std::vector<ChunkUpdateInfo>& up
 
 void Chunk::update_neighbour_count_inside() {
 	ZoneScoped;
-	neighbour_count_data = {};
 
-	
+	/*
+	neighbour_count_data = {};
 	for (int r = 1; r < rows - 1; r++) {
 #pragma omp simd
 		for (int c = 1; c < columns - 1; c++) {
+
 			int i = r * rows + c;
-			
 			neighbour_count_data[i] += ((bool) cells_data[rows * (r - 1) + c - 1]);
 			neighbour_count_data[i] += ((bool) cells_data[rows * (r - 1) + c]);
 			neighbour_count_data[i] += ((bool) cells_data[rows * (r - 1) + c + 1]);
@@ -329,8 +338,9 @@ void Chunk::update_neighbour_count_inside() {
 			neighbour_count_data[i] += ((bool) cells_data[rows * (r + 1) + c - 1]);
 			neighbour_count_data[i] += ((bool) cells_data[rows * (r + 1) + c]);
 			neighbour_count_data[i] += ((bool) cells_data[rows * (r + 1) + c + 1]);
-			
-			/*
+
+
+			int i = r * rows + c;
 			if (cells_data[i]) {
 				//neighbour_count(r - 1, c - 1)++;
 				int index1 = rows * (r - 1) + c - 1;
@@ -362,30 +372,86 @@ void Chunk::update_neighbour_count_inside() {
 				//neighbour_count(r + 1, c + 1)++;
 				int index8 = rows * (r + 1) + c + 1;
 				neighbour_count_data[index8]++;
-			}	
-			*/
-		}
-	}
-	/*
-	for (int r = 1; r < rows - 1; r++) {
-		for (int c = 1; c < columns - 1; c++) {
-			if (cells(r, c)) {
-				neighbour_count(r - 1, c - 1)++;
-				neighbour_count(r - 1, c)++;
-				neighbour_count(r - 1, c + 1)++;
-				neighbour_count(r, c - 1)++;
-				
-				neighbour_count(r, c + 1)++;
-				neighbour_count(r + 1, c - 1)++;
-				neighbour_count(r + 1, c)++;
-				neighbour_count(r + 1, c + 1)++;
 			}
+
 		}
 	}
 	*/
+
+	/*
+	cells_data = {};
+	std::vector<std::pair<int, int>> coords = { {0, 0}, {0,2}, {0,3}, {0, 7}, {1, 3}, {2, 6}, {3, 6}, {3, 7}, 
+		{31, 0}, {31, 31}, {31, 2}, {30, 4}};
+	std::vector<int> indices;
+	for (auto& coord : coords) {
+		int idx = coord.first * rows + coord.second;
+		cells_data[idx] = 0xFF;
+	}
+	*/
+
+	//neighbour_count_data = {};
+	__m256i _mm256_epi8_value_1 = _mm256_set_epi8(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+	__m256i* cells_data_ptr = (__m256i*) &cells_data[0];
+	__m256i* neighbour_count_data_ptr = (__m256i*) &neighbour_count_data[0];
+
+	__m256i current_row_cells_data = _mm256_load_si256(&cells_data_ptr[0]);
+	__m256i values_middle = _mm256_blendv_epi8(_mm256_setzero_si256(), _mm256_epi8_value_1, current_row_cells_data);
+	//__m256i test = _mm256_set_epi8(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+	//__m256i test = _mm256_epi8_value_1;
+
+	__m256i values_left_shifted = _mm256_custom_shift_left_epi256(values_middle, 1);
+	__m256i values_right_shifted = _mm256_custom_shift_right_epi256(values_middle, 1);
+
+	__m256i values_left_right = _mm256_add_epi8(values_left_shifted, values_right_shifted);
+	__m256i values_left_middle_right = _mm256_add_epi8(values_left_right, values_middle);
+
+	__m256i prev_row_neighbour_count = _mm256_setzero_si256();
+	__m256i current_row_neighbour_count = values_left_right;
+	__m256i next_row_neighbour_count = values_left_middle_right;
+
+	prev_row_neighbour_count = current_row_neighbour_count;
+	current_row_neighbour_count = next_row_neighbour_count;
+	next_row_neighbour_count = _mm256_setzero_si256();
+
+	for (int r = 1; r < Chunk::rows; r++) {
+		current_row_cells_data = _mm256_load_si256(&cells_data_ptr[r]);
+		values_middle = _mm256_blendv_epi8(_mm256_setzero_si256(), _mm256_epi8_value_1, current_row_cells_data);
+
+		values_left_shifted = _mm256_custom_shift_left_epi256(values_middle, 1);
+		values_right_shifted = _mm256_custom_shift_right_epi256(values_middle, 1);
+
+		values_left_right = _mm256_add_epi8(values_left_shifted, values_right_shifted);
+		values_left_middle_right = _mm256_add_epi8(values_left_right, values_middle);
+
+		prev_row_neighbour_count = _mm256_add_epi8(prev_row_neighbour_count, values_left_middle_right);
+		current_row_neighbour_count = _mm256_add_epi8(current_row_neighbour_count, values_left_right);
+		next_row_neighbour_count = _mm256_add_epi8(next_row_neighbour_count, values_left_middle_right);
+
+		_mm256_store_si256(&neighbour_count_data_ptr[r - 1], prev_row_neighbour_count);
+
+		prev_row_neighbour_count = current_row_neighbour_count;
+		current_row_neighbour_count = next_row_neighbour_count;
+		next_row_neighbour_count = _mm256_setzero_si256();
+	}
+	// store last row
+	_mm256_store_si256(&neighbour_count_data_ptr[rows - 1], prev_row_neighbour_count);
 }
 
+__m256i _mm256_custom_shift_left_epi256(__m256i a, const int imm8) {
+	int left_correction_value = _mm256_extract_epi8(a, 15);
+	__m256i left_shift_correction = _mm256_set_epi32(0, 0, 0, left_correction_value, 0, 0, 0, 0);
+	__m256i left_shift = _mm256_bslli_epi128(a, 1);
+	__m256i values_left_shifted = _mm256_or_si256(left_shift, left_shift_correction);
+	return values_left_shifted;
+}
 
+__m256i _mm256_custom_shift_right_epi256(__m256i a, const int imm8) {
+	int right_correction_value = _mm256_extract_epi8(a, 16) << 24;
+	__m256i right_shift_correction = _mm256_set_epi32(0, 0, 0, 0, right_correction_value, 0, 0, 0);
+	__m256i right_shift = _mm256_bsrli_epi128(a, 1);
+	__m256i values_right_shifted = _mm256_or_si256(right_shift, right_shift_correction);
+	return values_right_shifted;
+}
 
 void Chunk::update_cells() {
 	ZoneScoped;
@@ -397,7 +463,6 @@ void Chunk::update_cells() {
 	__m256i _mm256_epi8_equal_to_0x02_mask = _mm256_set_epi8(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2);
 	__m256i _mm256_epi8_equal_to_0x03_mask = _mm256_set_epi8(3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3);
 	has_alive_cells = false;
-
 	for (int r = 0; r < Chunk::rows; r++) {
 		__m256i neighbour_count_row = _mm256_load_si256(&neighbour_count_data_ptr[r]);
 		__m256i cells_data_row = _mm256_load_si256(&cells_data_ptr[r]);
