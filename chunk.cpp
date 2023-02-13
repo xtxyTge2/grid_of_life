@@ -1,7 +1,7 @@
 #include "chunk.hpp"
 
-ChunkUpdateInDirectionInfo::ChunkUpdateInDirectionInfo() : 
-	data_max_value(0), 
+ChunkUpdateInDirectionInfo::ChunkUpdateInDirectionInfo() :
+	data_max_value(0),
 current_number_of_values(0),
 data({})
 {
@@ -41,7 +41,7 @@ void ChunkUpdateInDirectionInfo::add_coordinate(char value) {
 	}
 }
 
-void ChunkUpdateInDirectionInfo::initialise(ChunkUpdateInfoDirection dir, Coordinate chunk_grid_coordinate) 
+void ChunkUpdateInDirectionInfo::initialise(ChunkUpdateInfoDirection dir, Coordinate chunk_grid_coordinate)
 {
 	ZoneScoped;
 
@@ -124,8 +124,8 @@ neighbour_count_data({})
 
 }
 
-ChunkUpdateInfo::ChunkUpdateInfo(Coordinate chunk_grid_coord) : 
-	data({}) 
+ChunkUpdateInfo::ChunkUpdateInfo(Coordinate chunk_grid_coord) :
+	data({})
 {
 	ZoneScoped;
 
@@ -222,66 +222,68 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 		case ChunkUpdateInfoDirection::LEFT: // fallthrough, left and right together
 		case ChunkUpdateInfoDirection::RIGHT:
 			for (int r = 1; r < rows - 1; r++) {
-				if (cells_data[r*rows+current_column]) {
+				if (cells_data[r*rows + current_column]) {
 					info.add_coordinate(r);
-					
+					/*
 					neighbour_count_data[(r - 1) * rows + current_column]++;
 					neighbour_count_data[(r + 1) * rows + current_column]++;
 					neighbour_count_data[(r - 1) * rows + current_column + column_offset]++;
 					neighbour_count_data[r * rows + current_column + column_offset]++;
 					neighbour_count_data[(r + 1)*rows + current_column + column_offset]++;
+					*/
 				}
-				/*
-				neighbour_count(r, current_column) += cells(r - 1, current_column);
-				neighbour_count(r, current_column) += cells(r + 1, current_column);
+				
+				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[(r - 1)*rows + current_column]);
+				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[(r + 1)*rows + current_column]);
 
-				neighbour_count(r, current_column) += cells(r - 1, current_column + column_offset);
-				neighbour_count(r, current_column) += cells(r, current_column + column_offset);
-				neighbour_count(r, current_column) += cells(r + 1, current_column + column_offset);
-				*/
+				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[(r - 1)*rows + current_column + column_offset]);
+				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[r * rows + current_column + column_offset]);
+				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[(r + 1)* rows + current_column + column_offset]);
 			}
 			break;
 		case ChunkUpdateInfoDirection::TOP: // fallthrough, bottom and top together.
 		case ChunkUpdateInfoDirection::BOTTOM:
 			for (int c = 1; c < columns - 1; c++) {
-				if (cells_data[current_row*rows+ c]) {
+				if (cells_data[current_row*rows + c]) {
 					info.add_coordinate(c);
 
+					/*
 					neighbour_count_data[current_row*rows + c - 1]++; 
 					neighbour_count_data[current_row*rows + c + 1]++; 
 					neighbour_count_data[(current_row + row_offset)*rows + c - 1]++; 
 					neighbour_count_data[(current_row + row_offset)*rows + c]++; 
 					neighbour_count_data[(current_row + row_offset)*rows + c + 1]++; 
+					*/
 				}
-				/*
-				neighbour_count(current_row, c) += cells(current_row, c - 1);
-				neighbour_count(current_row, c) += cells(current_row, c + 1);
+				
+				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[current_row * rows + c - 1]);
+				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[current_row * rows + c + 1]);
 
-				neighbour_count(current_row, c) += cells(current_row + row_offset, c - 1);
-				neighbour_count(current_row, c) += cells(current_row + row_offset, c);
-				neighbour_count(current_row, c) += cells(current_row + row_offset, c + 1);
-				*/
+				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[(current_row + row_offset) * rows + c - 1]);
+				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[(current_row + row_offset) * rows + c]);
+				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[(current_row + row_offset) * rows + c + 1]);
 			}
 			break;
 		case ChunkUpdateInfoDirection::TOP_LEFT:// fallthrough
 		case ChunkUpdateInfoDirection::TOP_RIGHT:// fallthrough
 		case ChunkUpdateInfoDirection::BOTTOM_LEFT:// fallthrough
 		case ChunkUpdateInfoDirection::BOTTOM_RIGHT:// fallthrough
-			if (cells_data[current_row*rows +current_column]) {
+			if (cells_data[current_row*rows + current_column]) {
 				info.add_coordinate(0);
 
+				
 				left_or_right_info->add_coordinate(current_row);
 				top_or_bottom_info->add_coordinate(current_column);
-				
+				/*
 				neighbour_count_data[(current_row + row_offset)*rows +  current_column + column_offset]++; 
 				neighbour_count_data[(current_row + row_offset)*rows +  current_column]++;
 				neighbour_count_data[current_row*rows +  current_column + column_offset]++;
+				*/
 			}
-			/*
-			neighbour_count(current_row, current_column) += cells(current_row + row_offset, current_column + column_offset);
-			neighbour_count(current_row, current_column) += cells(current_row + row_offset, current_column);
-			neighbour_count(current_row, current_column) += cells(current_row, current_column + column_offset);
-			*/
+			
+			neighbour_count_data[current_row * rows + current_column] += ((bool) cells_data[(current_row + row_offset) * rows + current_column + column_offset]);
+			neighbour_count_data[current_row * rows + current_column] += ((bool) cells_data[(current_row + row_offset) * rows + current_column]);
+			neighbour_count_data[current_row * rows + current_column] += ((bool) cells_data[current_row * rows + current_column + column_offset]);
 			break;
 		case DIRECTION_COUNT:
 			break;
@@ -299,7 +301,7 @@ void Chunk::update_neighbour_count_and_set_info(std::vector<ChunkUpdateInfo>& up
 
 	bool is_not_trivial_info = false;
 	for (int direction = ChunkUpdateInfoDirection::LEFT; direction < ChunkUpdateInfoDirection::DIRECTION_COUNT; direction++) {
-		update_neighbour_count_in_direction(static_cast<ChunkUpdateInfoDirection> (direction), update_info);
+		update_neighbour_count_in_direction(static_cast<ChunkUpdateInfoDirection>(direction), update_info);
 		is_not_trivial_info |= update_info.data[direction].is_not_trivial();
 	}
 
@@ -314,23 +316,21 @@ void Chunk::update_neighbour_count_inside() {
 	neighbour_count_data = {};
 
 	
-	//unsigned char* neighbour_count_data = neighbour_count.data();
 	for (int r = 1; r < rows - 1; r++) {
 #pragma omp simd
 		for (int c = 1; c < columns - 1; c++) {
 			int i = r * rows + c;
 			
-			/*
-			neighbour_count_data[i] += cells_data[rows * (r - 1) + c - 1];
-			neighbour_count_data[i] += cells_data[rows * (r - 1) + c];
-			neighbour_count_data[i] += cells_data[rows * (r - 1) + c + 1];
-			neighbour_count_data[i] += cells_data[rows * r + c - 1];
-			neighbour_count_data[i] += cells_data[rows * r + c + 1];
-			neighbour_count_data[i] += cells_data[rows * (r + 1) + c - 1];
-			neighbour_count_data[i] += cells_data[rows * (r + 1) + c];
-			neighbour_count_data[i] += cells_data[rows * (r + 1) + c + 1];
-			*/
+			neighbour_count_data[i] += ((bool) cells_data[rows * (r - 1) + c - 1]);
+			neighbour_count_data[i] += ((bool) cells_data[rows * (r - 1) + c]);
+			neighbour_count_data[i] += ((bool) cells_data[rows * (r - 1) + c + 1]);
+			neighbour_count_data[i] += ((bool) cells_data[rows * r + c - 1]);
+			neighbour_count_data[i] += ((bool) cells_data[rows * r + c + 1]);
+			neighbour_count_data[i] += ((bool) cells_data[rows * (r + 1) + c - 1]);
+			neighbour_count_data[i] += ((bool) cells_data[rows * (r + 1) + c]);
+			neighbour_count_data[i] += ((bool) cells_data[rows * (r + 1) + c + 1]);
 			
+			/*
 			if (cells_data[i]) {
 				//neighbour_count(r - 1, c - 1)++;
 				int index1 = rows * (r - 1) + c - 1;
@@ -363,6 +363,7 @@ void Chunk::update_neighbour_count_inside() {
 				int index8 = rows * (r + 1) + c + 1;
 				neighbour_count_data[index8]++;
 			}	
+			*/
 		}
 	}
 	/*
@@ -397,22 +398,22 @@ void Chunk::update_cells() {
 	__m256i _mm256_epi8_equal_to_0x03_mask = _mm256_set_epi8(3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3);
 	has_alive_cells = false;
 
-	for(int r = 0; r < Chunk::rows; r++) {
+	for (int r = 0; r < Chunk::rows; r++) {
 		__m256i neighbour_count_row = _mm256_load_si256(&neighbour_count_data_ptr[r]);
 		__m256i cells_data_row = _mm256_load_si256(&cells_data_ptr[r]);
 
 		__m256i neighbour_count_equal_to_2 = _mm256_cmpeq_epi8(neighbour_count_row, _mm256_epi8_equal_to_0x02_mask);
 		__m256i neighbour_count_equal_to_3 = _mm256_cmpeq_epi8(neighbour_count_row, _mm256_epi8_equal_to_0x03_mask);
-		__m256i neighbour_count_equal_to_2_or_3 =_mm256_or_si256(neighbour_count_equal_to_2, neighbour_count_equal_to_3);
+		__m256i neighbour_count_equal_to_2_or_3 = _mm256_or_si256(neighbour_count_equal_to_2, neighbour_count_equal_to_3);
 
 		__m256i mask_cells_alive_and_neighbour_count_is_2_or_3 = _mm256_blendv_epi8(_mm256_setzero_si256(), neighbour_count_equal_to_2_or_3, cells_data_row);
 		__m256i mask_cells_dead_and_neighbour_count_is_3 = _mm256_blendv_epi8(neighbour_count_equal_to_3, _mm256_setzero_si256(), cells_data_row);
 
-		__m256i new_row_values = _mm256_or_si256(mask_cells_alive_and_neighbour_count_is_2_or_3, mask_cells_dead_and_neighbour_count_is_3);
+		__m256i new_row = _mm256_or_si256(mask_cells_alive_and_neighbour_count_is_2_or_3, mask_cells_dead_and_neighbour_count_is_3);
 
-		_mm256_store_si256(&cells_data_ptr[r], new_row_values);
+		_mm256_store_si256(&cells_data_ptr[r], new_row);
 
-		bool is_zero_row = (bool) _mm256_testz_si256(new_row_values, new_row_values);
+		bool is_zero_row = (bool) _mm256_testz_si256(new_row, new_row);
 		has_alive_cells |= !is_zero_row;
 	}
 }

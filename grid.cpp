@@ -130,7 +130,7 @@ void Grid::update_coordinates_for_alive_grid_cells() {
 		// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
 
 		// get chunk coordinates from alive grid cells
-		std::array<char, Chunk::rows*Chunk::columns>& cells_data = chunk->cells_data;
+		std::array<unsigned char, Chunk::rows*Chunk::columns>& cells_data = chunk->cells_data;
 		for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
 			int r = i / Chunk::rows;
 			int c = i % Chunk::columns;
@@ -333,7 +333,7 @@ void Grid::update_neighbours_of_chunk(ChunkUpdateInfo& chunk_update_info) {
 		Coordinate neighbour_grid_coordinate = info.neighbour_grid_coordinate;
 		std::shared_ptr<Chunk> neighbour_chunk = chunk_map.find(neighbour_grid_coordinate)->second;
 
-		std::array<char, Chunk::rows*Chunk::columns>& neighbour_count_data = neighbour_chunk->neighbour_count_data;
+		std::array<unsigned char, Chunk::rows*Chunk::columns>& neighbour_count_data = neighbour_chunk->neighbour_count_data;
 		if (direction == LEFT || direction == RIGHT) {
 			for (int i = 0; i < info.current_number_of_values; i++) {
 				std::pair<char, char>& coord = info.data[i];

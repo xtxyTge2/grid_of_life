@@ -121,6 +121,6 @@ public:
 	int chunk_origin_column;
 	bool has_alive_cells;
 	
-	std::array<char, rows*columns> cells_data;
-	std::array<char, rows*columns> neighbour_count_data;
+	std::array<unsigned char, rows*columns> cells_data;
+	std::array<unsigned char, rows*columns> neighbour_count_data;
 };
