@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Tracy.hpp"
+#include <immintrin.h>
 
-#include <Eigen/Core>
 #include <iostream>
+#include <array>
 #include <vector>
 #include <unordered_set>
 

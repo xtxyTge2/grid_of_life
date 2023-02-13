@@ -258,10 +258,6 @@ void Grid::next_iteration() {
 
 	iteration++;
 
-	if (iteration == 169) {
-		int t = 0;
-	}
-
 	update_neighbour_count_and_set_info_of_all_chunks();
 
 	create_needed_neighbours_of_all_chunks();

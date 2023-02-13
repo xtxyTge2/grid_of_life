@@ -224,24 +224,7 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 			for (int r = 1; r < rows - 1; r++) {
 				if (cells_data[r*rows + current_column]) {
 					info.add_coordinate(r);
-					
-					/*
-					neighbour_count_data[(r - 1) * rows + current_column]++;
-					neighbour_count_data[(r + 1) * rows + current_column]++;
-					neighbour_count_data[(r - 1) * rows + current_column + column_offset]++;
-					neighbour_count_data[r * rows + current_column + column_offset]++;
-					neighbour_count_data[(r + 1)*rows + current_column + column_offset]++;
-					*/
-					
 				}
-				/*
-				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[(r - 1)*rows + current_column]);
-				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[(r + 1)*rows + current_column]);
-
-				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[(r - 1)*rows + current_column + column_offset]);
-				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[r * rows + current_column + column_offset]);
-				neighbour_count_data[r * rows + current_column] += ((bool) cells_data[(r + 1)* rows + current_column + column_offset]);
-				*/
 			}
 			break;
 		case ChunkUpdateInfoDirection::TOP: // fallthrough, bottom and top together.
@@ -249,25 +232,8 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 			for (int c = 1; c < columns - 1; c++) {
 				if (cells_data[current_row*rows + c]) {
 					info.add_coordinate(c);
-
-					/*
-					neighbour_count_data[current_row*rows + c - 1]++; 
-					neighbour_count_data[current_row*rows + c + 1]++; 
-					neighbour_count_data[(current_row + row_offset)*rows + c - 1]++; 
-					neighbour_count_data[(current_row + row_offset)*rows + c]++; 
-					neighbour_count_data[(current_row + row_offset)*rows + c + 1]++; 
-						*/
-					
 				}
 				
-				/*
-				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[current_row * rows + c - 1]);
-				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[current_row * rows + c + 1]);
-
-				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[(current_row + row_offset) * rows + c - 1]);
-				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[(current_row + row_offset) * rows + c]);
-				neighbour_count_data[current_row * rows + c] += ((bool) cells_data[(current_row + row_offset) * rows + c + 1]);
-				*/
 			}
 			break;
 		case ChunkUpdateInfoDirection::TOP_LEFT:// fallthrough
@@ -277,22 +243,9 @@ void Chunk::update_neighbour_count_in_direction(ChunkUpdateInfoDirection directi
 			if (cells_data[current_row*rows + current_column]) {
 				info.add_coordinate(0);
 
-				
 				left_or_right_info->add_coordinate(current_row);
 				top_or_bottom_info->add_coordinate(current_column);
-				
-				/*
-				neighbour_count_data[(current_row + row_offset)*rows +  current_column + column_offset]++; 
-				neighbour_count_data[(current_row + row_offset)*rows +  current_column]++;
-				neighbour_count_data[current_row*rows +  current_column + column_offset]++;
-				*/
-				
 			}
-			/*
-			neighbour_count_data[current_row * rows + current_column] += ((bool) cells_data[(current_row + row_offset) * rows + current_column + column_offset]);
-			neighbour_count_data[current_row * rows + current_column] += ((bool) cells_data[(current_row + row_offset) * rows + current_column]);
-			neighbour_count_data[current_row * rows + current_column] += ((bool) cells_data[current_row * rows + current_column + column_offset]);
-			*/
 			break;
 		case DIRECTION_COUNT:
 			break;
@@ -323,73 +276,6 @@ void Chunk::update_neighbour_count_and_set_info(std::vector<ChunkUpdateInfo>& up
 void Chunk::update_neighbour_count_inside() {
 	ZoneScoped;
 
-	/*
-	neighbour_count_data = {};
-	for (int r = 1; r < rows - 1; r++) {
-#pragma omp simd
-		for (int c = 1; c < columns - 1; c++) {
-
-			int i = r * rows + c;
-			neighbour_count_data[i] += ((bool) cells_data[rows * (r - 1) + c - 1]);
-			neighbour_count_data[i] += ((bool) cells_data[rows * (r - 1) + c]);
-			neighbour_count_data[i] += ((bool) cells_data[rows * (r - 1) + c + 1]);
-			neighbour_count_data[i] += ((bool) cells_data[rows * r + c - 1]);
-			neighbour_count_data[i] += ((bool) cells_data[rows * r + c + 1]);
-			neighbour_count_data[i] += ((bool) cells_data[rows * (r + 1) + c - 1]);
-			neighbour_count_data[i] += ((bool) cells_data[rows * (r + 1) + c]);
-			neighbour_count_data[i] += ((bool) cells_data[rows * (r + 1) + c + 1]);
-
-
-			int i = r * rows + c;
-			if (cells_data[i]) {
-				//neighbour_count(r - 1, c - 1)++;
-				int index1 = rows * (r - 1) + c - 1;
-				neighbour_count_data[index1]++;
-				//neighbour_count(r - 1, c)++;
-				int index2 = rows * (r - 1) + c;
-				neighbour_count_data[index2]++;
-
-				//neighbour_count(r - 1, c + 1)++;
-				int index3 = rows * (r - 1) + c + 1;
-				neighbour_count_data[index3]++;
-
-				//neighbour_count(r, c - 1)++;
-				int index4 = rows * r + c - 1;
-				neighbour_count_data[index4]++;
-
-				//neighbour_count(r, c + 1)++;
-				int index5 = rows * r + c + 1;
-				neighbour_count_data[index5]++;
-
-				//neighbour_count(r + 1, c - 1)++;
-				int index6 = rows * (r + 1) + c - 1;
-				neighbour_count_data[index6]++;
-
-				//neighbour_count(r + 1, c)++;
-				int index7 = rows * (r + 1) + c;
-				neighbour_count_data[index7]++;
-
-				//neighbour_count(r + 1, c + 1)++;
-				int index8 = rows * (r + 1) + c + 1;
-				neighbour_count_data[index8]++;
-			}
-
-		}
-	}
-	*/
-
-	/*
-	cells_data = {};
-	std::vector<std::pair<int, int>> coords = { {0, 0}, {0,2}, {0,3}, {0, 7}, {1, 3}, {2, 6}, {3, 6}, {3, 7}, 
-		{31, 0}, {31, 31}, {31, 2}, {30, 4}};
-	std::vector<int> indices;
-	for (auto& coord : coords) {
-		int idx = coord.first * rows + coord.second;
-		cells_data[idx] = 0xFF;
-	}
-	*/
-
-	//neighbour_count_data = {};
 	__m256i _mm256_epi8_value_1 = _mm256_set_epi8(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
 	__m256i* cells_data_ptr = (__m256i*) &cells_data[0];
 	__m256i* neighbour_count_data_ptr = (__m256i*) &neighbour_count_data[0];
