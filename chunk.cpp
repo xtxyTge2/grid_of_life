@@ -227,7 +227,6 @@ void Chunk::update_cells() {
 }
 
 
-
 bool _mm256_is_zero(__m256i a) {
 	return (bool) _mm256_testz_si256(a, a);
 }
