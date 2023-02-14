@@ -281,12 +281,13 @@ void Grid::set_chunk_neighbour_info(std::shared_ptr<Chunk> chunk) {
 	// top side of chunk, so bottom side of neighbour chunk
 	bool has_to_update_top = false;
 	std::array<unsigned char, Chunk::columns> top_row;
-	for (int c = 0; c < Chunk::columns; c++) {
-		unsigned char value = cells_data[c];
+
+	std::copy_n(std::begin(cells_data), Chunk::columns, std::begin(top_row));
+	for (unsigned char value: top_row) {
 		if (value) {
 			has_to_update_top = true;
+			break;
 		}
-		top_row[c] = value;
 	}
 	if (has_to_update_top) {
 		Coordinate top_coord = Coordinate(chunk->grid_coordinate_row - 1, chunk->grid_coordinate_column);
@@ -302,12 +303,13 @@ void Grid::set_chunk_neighbour_info(std::shared_ptr<Chunk> chunk) {
 	// bottom side of chunk, so top side of neighbour chunk
 	bool has_to_update_bottom = false;
 	std::array<unsigned char, Chunk::columns> bottom_row;
-	for (int c = 0; c < Chunk::columns; c++) {
-		unsigned char value = cells_data[(Chunk::rows - 1) * Chunk::rows + c];
+
+	std::copy_n(std::end(cells_data) - Chunk::columns , Chunk::columns, std::begin(bottom_row));
+	for (unsigned char value: bottom_row) {
 		if (value) {
 			has_to_update_bottom = true;
+			break;
 		}
-		bottom_row[c] = value;
 	}
 	if (has_to_update_bottom) {
 		Coordinate bottom_coord = Coordinate(chunk->grid_coordinate_row + 1, chunk->grid_coordinate_column);

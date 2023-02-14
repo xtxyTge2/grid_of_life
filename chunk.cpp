@@ -222,7 +222,12 @@ void Chunk::update_cells() {
 
 		_mm256_store_si256(&cells_data_ptr[r], new_row);
 
-		bool is_zero_row = (bool) _mm256_testz_si256(new_row, new_row);
-		has_alive_cells |= !is_zero_row;
+		has_alive_cells |= !_mm256_is_zero(new_row);
 	}
+}
+
+
+
+bool _mm256_is_zero(__m256i a) {
+	return (bool) _mm256_testz_si256(a, a);
 }

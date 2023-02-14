@@ -14,6 +14,7 @@ constexpr static int CHUNK_COLUMNS = 32;
 
 __m256i _mm256_custom_shift_left_epi256(__m256i a, const int imm8);
 __m256i _mm256_custom_shift_right_epi256(__m256i a, const int imm8);
+bool _mm256_is_zero(__m256i a);
 
 class Coordinate {
 public:
