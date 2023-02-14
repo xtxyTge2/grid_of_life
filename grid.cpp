@@ -139,7 +139,6 @@ void Grid::update_coordinates_for_alive_grid_cells() {
 			}
 		}
 	}
-	
 }
 
 void Grid::update_coordinates_for_chunk_borders() {
@@ -232,27 +231,6 @@ void Grid::update() {
 }
 
 
-void Grid::create_needed_neighbours_of_all_chunks() {
-	ZoneScoped;
-	// set of coordinates of the neighbour chunks, note that this is a set and hence we do not create neighbours multiple times
-	std::unordered_set<Coordinate> coordinates_of_chunks_to_create;
-	for (ChunkUpdateInfo& chunk_update_infos: update_info) {
-		for (ChunkUpdateInDirectionInfo& info: chunk_update_infos.data) {
-			if (info.is_not_trivial()) {
-				Coordinate neighbour_grid_coordinate = info.neighbour_grid_coordinate;
-				if (!chunk_map.contains(neighbour_grid_coordinate)) {
-					coordinates_of_chunks_to_create.insert(neighbour_grid_coordinate);
-				}
-			}
-		}
-	}
-
-	// create the chunks now
-	for (Coordinate coord: coordinates_of_chunks_to_create) {
-		create_new_chunk(coord);
-	}
-}
-
 void Grid::next_iteration() {
 	ZoneScoped;
 
@@ -260,7 +238,9 @@ void Grid::next_iteration() {
 
 	update_neighbour_count_and_set_info_of_all_chunks();
 
-	create_needed_neighbours_of_all_chunks();
+	for (Coordinate coord: coordinates_of_chunks_to_create) {
+		create_new_chunk(coord);
+	}
 
 	update_neighbours_of_all_chunks();
 
@@ -269,24 +249,205 @@ void Grid::next_iteration() {
 	remove_empty_chunks();
 }
 
+
 void Grid::update_neighbour_count_and_set_info_of_all_chunks() {
 	ZoneScoped;
 
-	update_info.clear();
+	chunks_left_side_update_infos.clear();
+	chunks_right_side_update_infos.clear();
+	chunks_bottom_side_update_infos.clear();
+	chunks_top_side_update_infos.clear();
+
+	top_left_corner_update_infos.clear();
+	top_right_corner_update_infos.clear();
+	bottom_left_corner_update_infos.clear();
+	bottom_right_corner_update_infos.clear();
+
+	coordinates_of_chunks_to_create.clear();
 
 	for (auto& [chunk_coord, chunk]: chunk_map) {
-		chunk->update_neighbour_count_and_set_info(update_info);
+		chunk->update_neighbour_count_inside();
+	}
+	for (auto& [chunk_coord, chunk]: chunk_map) {
+		set_chunk_neighbour_info(chunk);
+	}
+}
+
+void Grid::set_chunk_neighbour_info(std::shared_ptr<Chunk> chunk) {
+	ZoneScoped;
+
+	std::array<unsigned char, Chunk::rows*Chunk::columns>& cells_data = chunk->cells_data;
+
+	// top side of chunk, so bottom side of neighbour chunk
+	bool has_to_update_top = false;
+	std::array<unsigned char, Chunk::columns> top_row;
+	for (int c = 0; c < Chunk::columns; c++) {
+		unsigned char value = cells_data[c];
+		if (value) {
+			has_to_update_top = true;
+		}
+		top_row[c] = value;
+	}
+	if (has_to_update_top) {
+		Coordinate top_coord = Coordinate(chunk->grid_coordinate_row - 1, chunk->grid_coordinate_column);
+		if (!coordinates_of_chunks_to_create.contains(top_coord)) {
+			coordinates_of_chunks_to_create.insert(top_coord);
+		}
+		ChunkSideUpdateInfo top_info;
+		top_info.data = top_row;
+		top_info.chunk_to_update_coordinate = top_coord;
+		chunks_bottom_side_update_infos.push_back(top_info);
+	}
+
+	// bottom side of chunk, so top side of neighbour chunk
+	bool has_to_update_bottom = false;
+	std::array<unsigned char, Chunk::columns> bottom_row;
+	for (int c = 0; c < Chunk::columns; c++) {
+		unsigned char value = cells_data[(Chunk::rows - 1) * Chunk::rows + c];
+		if (value) {
+			has_to_update_bottom = true;
+		}
+		bottom_row[c] = value;
+	}
+	if (has_to_update_bottom) {
+		Coordinate bottom_coord = Coordinate(chunk->grid_coordinate_row + 1, chunk->grid_coordinate_column);
+		if (!coordinates_of_chunks_to_create.contains(bottom_coord)) {
+			coordinates_of_chunks_to_create.insert(bottom_coord);
+		}
+
+		ChunkSideUpdateInfo bottom_info;
+		bottom_info.data = bottom_row;
+		bottom_info.chunk_to_update_coordinate = bottom_coord;
+		chunks_top_side_update_infos.push_back(bottom_info);
+	}
+
+	// left side of chunk, so right side of neighbour chunk
+	bool has_to_update_left = false;
+	std::array<unsigned char, Chunk::columns> left_column;
+	for (int r = 0; r < Chunk::rows; r++) {
+		unsigned char value = cells_data[r * Chunk::rows];
+		if (value) {
+			has_to_update_left = true;
+		}
+		left_column[r] = value;
+	}
+	if (has_to_update_left) {
+		Coordinate left_coord = Coordinate(chunk->grid_coordinate_row, chunk->grid_coordinate_column - 1);
+		if (!coordinates_of_chunks_to_create.contains(left_coord)) {
+			coordinates_of_chunks_to_create.insert(left_coord);
+		}
+
+		ChunkSideUpdateInfo left_info;
+		left_info.data = left_column;
+		left_info.chunk_to_update_coordinate = left_coord;
+		chunks_right_side_update_infos.push_back(left_info);
+	}
+
+	// right side of chunk, so left side of neighbour chunk
+	bool has_to_update_right = false;
+	std::array<unsigned char, Chunk::columns> right_column;
+	for (int r = 0; r < Chunk::rows; r++) {
+		unsigned char value = cells_data[r*Chunk::rows + Chunk::columns - 1];
+		if (value) {
+			has_to_update_right = true;
+		}
+		right_column[r] = value;
+	}
+	if (has_to_update_right) {
+		Coordinate right_coord = Coordinate(chunk->grid_coordinate_row, chunk->grid_coordinate_column + 1);
+		if (!coordinates_of_chunks_to_create.contains(right_coord)) {
+			coordinates_of_chunks_to_create.insert(right_coord);
+		}
+		ChunkSideUpdateInfo right_info;
+		right_info.data = right_column;
+		right_info.chunk_to_update_coordinate = right_coord;
+		chunks_left_side_update_infos.push_back(right_info);
+	}
+
+	//top left corner
+	if (cells_data[0]) {
+		Coordinate top_left_coord = Coordinate(chunk->grid_coordinate_row - 1, chunk->grid_coordinate_column - 1);
+		if (!coordinates_of_chunks_to_create.contains(top_left_coord)) {
+			coordinates_of_chunks_to_create.insert(top_left_coord);
+		}
+		
+		bottom_right_corner_update_infos.push_back(top_left_coord);
+	}
+	//top right corner
+	if (cells_data[Chunk::columns - 1]) {
+		Coordinate top_right_coord = Coordinate(chunk->grid_coordinate_row - 1, chunk->grid_coordinate_column + 1);
+		if (!coordinates_of_chunks_to_create.contains(top_right_coord)) {
+			coordinates_of_chunks_to_create.insert(top_right_coord);
+		}
+		
+		bottom_left_corner_update_infos.push_back(top_right_coord);
+	}
+	//bottom right corner
+	if (cells_data[(Chunk::rows - 1) * Chunk::rows + Chunk::columns - 1]) {
+		Coordinate bottom_right_coord = Coordinate(chunk->grid_coordinate_row + 1, chunk->grid_coordinate_column + 1);
+		if (!coordinates_of_chunks_to_create.contains(bottom_right_coord)) {
+			coordinates_of_chunks_to_create.insert(bottom_right_coord);
+		}
+		
+		top_left_corner_update_infos.push_back(bottom_right_coord);
+	}
+	//bottom left corner
+	if (cells_data[(Chunk::rows - 1) * Chunk::rows]) {
+		Coordinate bottom_left_coord = Coordinate(chunk->grid_coordinate_row + 1, chunk->grid_coordinate_column - 1);
+		if (!coordinates_of_chunks_to_create.contains(bottom_left_coord)) {
+			coordinates_of_chunks_to_create.insert(bottom_left_coord);
+		}
+		
+		top_right_corner_update_infos.push_back(bottom_left_coord);
 	}
 }
 
 void Grid::update_neighbours_of_all_chunks() {
 	ZoneScoped;
 
-	for (ChunkUpdateInfo& chunk_update_info: update_info) {
-		update_neighbours_of_chunk(chunk_update_info);
+	for (ChunkSideUpdateInfo& info: chunks_left_side_update_infos) {
+		Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
+		std::shared_ptr < Chunk > chunk = chunk_map.find(chunk_coordinate)->second;
+		chunk->update_neighbour_count_left_side(info.data);
 	}
 
-	update_info.clear();
+	for (ChunkSideUpdateInfo& info: chunks_right_side_update_infos) {
+		Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
+		std::shared_ptr < Chunk > chunk = chunk_map.find(chunk_coordinate)->second;
+		chunk->update_neighbour_count_right_side(info.data);
+	}
+
+	for (ChunkSideUpdateInfo& info: chunks_top_side_update_infos) {
+		Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
+		std::shared_ptr < Chunk > chunk = chunk_map.find(chunk_coordinate)->second;
+		chunk->update_neighbour_count_top_side(info.data);
+	}
+
+	for (ChunkSideUpdateInfo& info: chunks_bottom_side_update_infos) {
+		Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
+		std::shared_ptr < Chunk > chunk = chunk_map.find(chunk_coordinate)->second;
+		chunk->update_neighbour_count_bottom_side(info.data);
+	}
+
+	for (Coordinate& chunk_coordinate: top_left_corner_update_infos) {
+		std::shared_ptr < Chunk > chunk = chunk_map.find(chunk_coordinate)->second;
+		chunk->update_neighbour_count_top_left_corner();
+	}
+
+	for (Coordinate& chunk_coordinate: top_right_corner_update_infos) {
+		std::shared_ptr < Chunk > chunk = chunk_map.find(chunk_coordinate)->second;
+		chunk->update_neighbour_count_top_right_corner();
+	}
+
+	for (Coordinate& chunk_coordinate: bottom_left_corner_update_infos) {
+		std::shared_ptr < Chunk > chunk = chunk_map.find(chunk_coordinate)->second;
+		chunk->update_neighbour_count_bottom_left_corner();
+	}
+
+	for (Coordinate& chunk_coordinate: bottom_right_corner_update_infos) {
+		std::shared_ptr<Chunk> chunk = chunk_map.find(chunk_coordinate)->second;
+		chunk->update_neighbour_count_bottom_right_corner();
+	}
 }
 
 
@@ -315,60 +476,6 @@ void Grid::remove_empty_chunks() {
 		} else {
 			// DONT FORGET TO ADVANCE THE ITERATOR!
 			it++;
-		}
-	}
-}
-
-
-void Grid::update_neighbours_of_chunk(ChunkUpdateInfo& chunk_update_info) {
-	ZoneScoped;
-
-	for (ChunkUpdateInDirectionInfo& info: chunk_update_info.data) {
-		ChunkUpdateInfoDirection direction = info.direction;
-		// if its trivial continue
-		if (!info.is_not_trivial()) {
-			continue;
-		}
-
-		Coordinate neighbour_grid_coordinate = info.neighbour_grid_coordinate;
-		std::shared_ptr<Chunk> neighbour_chunk = chunk_map.find(neighbour_grid_coordinate)->second;
-
-		std::array<unsigned char, Chunk::rows*Chunk::columns>& neighbour_count_data = neighbour_chunk->neighbour_count_data;
-		if (direction == LEFT || direction == RIGHT) {
-			for (int i = 0; i < info.current_number_of_values; i++) {
-				std::pair<char, char>& coord = info.data[i];
-				int r = coord.first;
-				int c = coord.second;
-
-				neighbour_count_data[r*Chunk::rows +c]++;
-				if (r > 0) {
-					neighbour_count_data[(r-1)*Chunk::rows +c]++;
-
-				}
-				if (r <= info.data_max_value) {
-					neighbour_count_data[(r+ 1)*Chunk::rows +c]++;
-				}
-			}
-		} else if (direction == TOP || direction == BOTTOM) {
-			for (int i = 0; i < info.current_number_of_values; i++) {
-				std::pair<char, char>& coord = info.data[i];
-				int r = coord.first;
-				int c = coord.second;
-
-				neighbour_count_data[r*Chunk::rows +c]++;
-				if (c > 0) {
-					neighbour_count_data[r*Chunk::rows +c -1]++;
-				}
-				if (c <= info.data_max_value) {
-					neighbour_count_data[r*Chunk::rows +c + 1]++;
-				}
-			}
-		} else if (direction == TOP_LEFT || direction == TOP_RIGHT || direction == BOTTOM_LEFT || direction == BOTTOM_RIGHT) {
-			std::pair<char, char>& coord = info.data[0];
-			
-			int r = coord.first;
-			int c = coord.second;
-			neighbour_count_data[r*Chunk::rows +c]++;
 		}
 	}
 }

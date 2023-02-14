@@ -59,36 +59,6 @@ enum ChunkUpdateInfoDirection {
 };
 
 
-
-
-class ChunkUpdateInDirectionInfo {
-public:
-	ChunkUpdateInDirectionInfo();
-
-	void initialise(ChunkUpdateInfoDirection dir, Coordinate chunk_grid_coordinate);
-
-	void add_coordinate(char value);
-
-	bool is_not_trivial();
-
-	ChunkUpdateInfoDirection direction;
-	Coordinate chunk_offset_coordinate;
-	Coordinate neighbour_grid_coordinate;
-	int data_max_value;
-	// assume that CHUNK_ROWS == CHUNK_COLUMNS!
-	constexpr static int MAX_NUMBER_OF_VALUES = CHUNK_ROWS;
-	int current_number_of_values;
-	std::array<std::pair<char, char>, MAX_NUMBER_OF_VALUES> data;
-};
-
-class ChunkUpdateInfo {
-public:
-	ChunkUpdateInfo(Coordinate chunk_grid_coord);
-
-	std::array<ChunkUpdateInDirectionInfo, ChunkUpdateInfoDirection::DIRECTION_COUNT> data;
-};
-
-
 namespace std
 {
 	template<>
@@ -103,20 +73,34 @@ namespace std
 
 class Chunk {
 public:
-	Chunk(const Coordinate& coord, Coordinate origin_coord, const std::vector<std::pair<int, int>>& alive_cells_coordinates);
 
-	void update_neighbour_count_in_direction(ChunkUpdateInfoDirection direction, ChunkUpdateInfo& update_info);
+	constexpr static int rows = CHUNK_ROWS;
+	constexpr static int columns = CHUNK_COLUMNS;
+
+	Chunk(const Coordinate& coord, Coordinate origin_coord, const std::vector<std::pair<int, int>>& alive_cells_coordinates);
 
 	void update_cells();
 
 	void update_neighbour_count_inside();
 
-	void update_neighbour_count_and_set_info(std::vector<ChunkUpdateInfo>& update_info_data);
+	void update_neighbour_count_left_side(const std::array<unsigned char, rows>& data);
+
+	void update_neighbour_count_right_side(const std::array<unsigned char, rows>& data);
+
+	void update_neighbour_count_top_side(const std::array<unsigned char, columns>& data);
+
+	void update_neighbour_count_bottom_side(const std::array<unsigned char, columns>& data);
+
+	void update_neighbour_count_top_left_corner();
+
+	void update_neighbour_count_top_right_corner();
+
+	void update_neighbour_count_bottom_left_corner();
+
+	void update_neighbour_count_bottom_right_corner();
 
 	Coordinate transform_to_world_coordinate(Coordinate chunk_coord);
 
-	constexpr static int rows = CHUNK_ROWS;
-	constexpr static int columns = CHUNK_COLUMNS;
 
 	int grid_coordinate_row;
 	int grid_coordinate_column;
@@ -130,4 +114,10 @@ public:
 	// assume that the data is aligned by 32!
 	alignas(32) std::array<unsigned char, rows*columns> cells_data;
 	alignas(32) std::array<unsigned char, rows*columns> neighbour_count_data;
+};
+
+// assume Chunk::rows == Chunk::columns!
+struct ChunkSideUpdateInfo {
+	std::array<unsigned char, Chunk::rows> data;
+	Coordinate chunk_to_update_coordinate;
 };

@@ -34,8 +34,6 @@ public:
 
 	void update();
 
-	void update_neighbours_of_chunk(ChunkUpdateInfo& chunk_update_info);
-
 	void update_neighbour_count_and_set_info_of_all_chunks();
 
 	void next_iteration();
@@ -43,13 +41,26 @@ public:
 	void update_neighbours_of_all_chunks();
 
 	void create_needed_neighbours_of_all_chunks();
+
+	void set_chunk_neighbour_info(std::shared_ptr<Chunk> chunk);
 	//--------------------------------------------------------------------------------
 	// data
 	int iteration;
 
 	std::unordered_map<Coordinate, std::shared_ptr<Chunk>> chunk_map;
 
-	std::vector<ChunkUpdateInfo> update_info;
+	std::vector<ChunkSideUpdateInfo> chunks_left_side_update_infos;
+	std::vector<ChunkSideUpdateInfo> chunks_right_side_update_infos;
+	std::vector<ChunkSideUpdateInfo> chunks_top_side_update_infos;
+	std::vector<ChunkSideUpdateInfo> chunks_bottom_side_update_infos;
+
+	std::vector<Coordinate> top_left_corner_update_infos;
+	std::vector<Coordinate> top_right_corner_update_infos;
+	std::vector<Coordinate> bottom_left_corner_update_infos;
+	std::vector<Coordinate> bottom_right_corner_update_infos;
+	
+	std::unordered_set<Coordinate> coordinates_of_chunks_to_create;
+
 	std::vector<std::pair<int, int>> grid_coordinates;
 	std::vector<std::pair<int, int>> border_coordinates;
 	std::shared_ptr<OpenCLContext> opencl_context;
@@ -62,7 +73,7 @@ struct Grid_Execution_State {
 	int number_of_iterations_per_single_frame = 1;
 	bool updated_grid_coordinates = false;
 	bool updated_border_coordinates = false;
-	bool is_running = true;
+	bool is_running = false;
 	bool run_manual_next_iteration = false;
 	float time_since_last_iteration = 0.0f;
 	float grid_speed = 1.0f;
