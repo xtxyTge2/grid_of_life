@@ -470,6 +470,8 @@ void Grid::update_cells_of_all_chunks() {
 
 
 void Grid::remove_empty_chunks() {
+	ZoneScoped;
+
 	for (auto it = chunk_map.begin(); it != chunk_map.end();) {
 		if (!it->second->has_alive_cells) {
 			it = chunk_map.erase(it); // erase does not invalidate the iterator of std::unordered_map, (insert does!)

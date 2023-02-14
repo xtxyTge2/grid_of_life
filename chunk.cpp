@@ -71,45 +71,52 @@ void Chunk::update_neighbour_count_right_side(const std::array<unsigned char, Ch
 void Chunk::update_neighbour_count_top_side(const std::array<unsigned char, Chunk::columns>& data) {
 	ZoneScoped;
 
-	if (data[0]) {
-		neighbour_count_data[0]++;
-		neighbour_count_data[1]++;
-	}
+	const long long value_1 = 0x0101010101010101;
+	__m256i _mm256_epi8_value_1 = _mm256_set_epi64x(value_1, value_1, value_1, value_1);
+	
+	// here we assume Chunk::columns == 32, so that the array contains exactly 32 * 8 = 256 bits and fit into the __m256i registers.
+	__m256i const* cells_data_ptr = (__m256i const *) data.data();
+	__m256i cells_data_row = _mm256_loadu_si256(cells_data_ptr);
 
-	for (int c = 1; c < Chunk::columns - 1; c++) {
-		if (data[c]) {
-			neighbour_count_data[c - 1]++;
-			neighbour_count_data[c]++;
-			neighbour_count_data[c + 1]++;
-		}
-	}
+	__m256i const* neighbour_count_data_ptr = (__m256i const *) neighbour_count_data.data();
+	__m256i neighbour_count_data_row = _mm256_loadu_si256(neighbour_count_data_ptr);
 
-	if (data[Chunk::columns - 1]) {
-		neighbour_count_data[Chunk::columns - 2]++;
-		neighbour_count_data[Chunk::columns - 1]++;
-	}
+	__m256i values_middle = _mm256_blendv_epi8(_mm256_setzero_si256(), _mm256_epi8_value_1, cells_data_row);
+
+	__m256i values_left_shifted = _mm256_custom_shift_left_epi256(values_middle, 1);
+	__m256i values_right_shifted = _mm256_custom_shift_right_epi256(values_middle, 1);
+
+	__m256i values_left_right_added = _mm256_add_epi8(values_left_shifted, values_right_shifted);
+	__m256i values_left_middle_right_added = _mm256_add_epi8(values_left_right_added, values_middle);
+
+	neighbour_count_data_row = _mm256_add_epi8(neighbour_count_data_row, values_left_middle_right_added);
+	_mm256_store_si256((__m256i *)neighbour_count_data_ptr, neighbour_count_data_row);
 }
 
 void Chunk::update_neighbour_count_bottom_side(const std::array<unsigned char, Chunk::columns>& data) {
 	ZoneScoped;
 
-	if (data[0]) {
-		neighbour_count_data[(Chunk::rows - 1) * Chunk::rows]++;
-		neighbour_count_data[(Chunk::rows - 1) * Chunk::rows + 1]++;
-	}
+	const long long value_1 = 0x0101010101010101;
+	__m256i _mm256_epi8_value_1 = _mm256_set_epi64x(value_1, value_1, value_1, value_1);
+	
+	// here we assume Chunk::columns == 32, so that the array contains exactly 32 * 8 = 256 bits and fit into the __m256i registers.
+	__m256i const* cells_data_ptr = (__m256i const *) data.data();
+	__m256i cells_data_row = _mm256_loadu_si256(cells_data_ptr);
 
-	for (int c = 1; c < Chunk::columns - 1; c++) {
-		if (data[c]) {
-			neighbour_count_data[(Chunk::rows - 1) * Chunk::rows + c - 1]++;
-			neighbour_count_data[(Chunk::rows - 1) * Chunk::rows + c]++;
-			neighbour_count_data[(Chunk::rows - 1) * Chunk::rows + c + 1]++;
-		}
-	}
+	__m256i const* neighbour_count_data_ptr = (__m256i const *) neighbour_count_data.data();
 
-	if (data[Chunk::columns - 1]) {
-		neighbour_count_data[(Chunk::rows - 1) * Chunk::rows + Chunk::columns - 2]++;
-		neighbour_count_data[(Chunk::rows - 1) * Chunk::rows + Chunk::columns - 1]++;
-	}
+	__m256i neighbour_count_data_row = _mm256_loadu_si256((__m256i const*) &neighbour_count_data_ptr[Chunk::rows - 1]);
+
+	__m256i values_middle = _mm256_blendv_epi8(_mm256_setzero_si256(), _mm256_epi8_value_1, cells_data_row);
+
+	__m256i values_left_shifted = _mm256_custom_shift_left_epi256(values_middle, 1);
+	__m256i values_right_shifted = _mm256_custom_shift_right_epi256(values_middle, 1);
+
+	__m256i values_left_right_added = _mm256_add_epi8(values_left_shifted, values_right_shifted);
+	__m256i values_left_middle_right_added = _mm256_add_epi8(values_left_right_added, values_middle);
+
+	neighbour_count_data_row = _mm256_add_epi8(neighbour_count_data_row, values_left_middle_right_added);
+	_mm256_store_si256((__m256i *)&neighbour_count_data_ptr[Chunk::rows - 1], neighbour_count_data_row);
 }
 
 void Chunk::update_neighbour_count_top_left_corner() {
