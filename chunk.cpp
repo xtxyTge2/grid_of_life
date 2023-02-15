@@ -1,5 +1,13 @@
 #include "chunk.hpp"
 
+
+std::size_t hash_value(Coordinate const& c)
+{
+	ZoneScoped;
+	return 51 + boost::hash < int > ()(c.x) + 51 * boost::hash < int > ()(c.y);
+}
+
+
 Chunk::Chunk(const Coordinate& coord, Coordinate origin_coord, const std::vector<std::pair<int, int>>& alive_cells_coordinates) :
 	grid_coordinate_row(coord.x),
 grid_coordinate_column(coord.y),
@@ -195,6 +203,11 @@ __m256i _mm256_custom_shift_right_epi256(__m256i a, const int imm8) {
 	return values_right_shifted;
 }
 
+bool _mm256_is_zero(__m256i a) {
+	return (bool) _mm256_testz_si256(a, a);
+}
+
+
 void Chunk::update_cells() {
 	ZoneScoped;
 
@@ -224,9 +237,4 @@ void Chunk::update_cells() {
 
 		has_alive_cells |= !_mm256_is_zero(new_row);
 	}
-}
-
-
-bool _mm256_is_zero(__m256i a) {
-	return (bool) _mm256_testz_si256(a, a);
 }

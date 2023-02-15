@@ -474,12 +474,20 @@ void Grid::update_cells_of_all_chunks() {
 void Grid::remove_empty_chunks() {
 	ZoneScoped;
 
+	// we have to use this, since in boost::unordered::unordered_flat_map the erase method does not return an iterator,
+	// hence we cant do the for loop below.
+
+	// remove all chunks, which dont have alive cells.
+	boost::unordered::erase_if(chunk_map, [](const auto& item) {
+	         return !item.second->has_alive_cells;
+	});
+	/*
 	for (auto it = chunk_map.begin(); it != chunk_map.end();) {
 		if (!it->second->has_alive_cells) {
-			it = chunk_map.erase(it); // erase does not invalidate the iterator of std::unordered_map, (insert does!)
+			chunk_map.erase(it);
 		} else {
-			// DONT FORGET TO ADVANCE THE ITERATOR!
-			it++;
+			++it;
 		}
 	}
+	*/
 }

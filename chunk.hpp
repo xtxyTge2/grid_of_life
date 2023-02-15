@@ -8,6 +8,8 @@
 #include <vector>
 #include <unordered_set>
 
+#include <boost/container_hash/hash.hpp>
+
 constexpr static int CHUNK_ROWS = 32;
 constexpr static int CHUNK_COLUMNS = 32;
 
@@ -45,19 +47,7 @@ public:
 	int y;
 };
 
-// DONT CHANGE THE VALUES BELOW, THEY ACT AS ARRAY INDICES FOR THE UPDATE NEIGHBBOUR INFO ON CHUNKS! THERE CANT BE HOLES IN THIS ENUM! DIRECTION_COUNT IS ALWAYS LAST AND KEEPS TRACK OF THE SIZE OF THE ENUM. 
-//SRY FOR CAPS...
-enum ChunkUpdateInfoDirection {
-	LEFT = 0,
-	TOP,
-	RIGHT,
-	BOTTOM,
-	TOP_LEFT,
-	TOP_RIGHT,
-	BOTTOM_RIGHT,
-	BOTTOM_LEFT,
-	DIRECTION_COUNT
-};
+std::size_t hash_value(Coordinate const& c);
 
 
 namespace std
@@ -101,7 +91,6 @@ public:
 	void update_neighbour_count_bottom_right_corner();
 
 	Coordinate transform_to_world_coordinate(Coordinate chunk_coord);
-
 
 	int grid_coordinate_row;
 	int grid_coordinate_column;

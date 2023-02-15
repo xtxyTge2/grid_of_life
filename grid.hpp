@@ -3,13 +3,15 @@
 #include "Tracy.hpp"
 
 #include <omp.h>
-#include <Eigen/Core>
 #include "cube.hpp"
 #include "ui_state.hpp"
 #include "opencl_context.hpp"
 #include "chunk.hpp"
 
-#include <unordered_set>
+#include <boost/unordered/unordered_flat_map.hpp>
+#include <boost/unordered/unordered_flat_set.hpp>
+
+
 
 
 
@@ -47,7 +49,7 @@ public:
 	// data
 	int iteration;
 
-	std::unordered_map<Coordinate, std::shared_ptr<Chunk>> chunk_map;
+	boost::unordered_flat_map<Coordinate, std::shared_ptr<Chunk>> chunk_map;
 
 	std::vector<ChunkSideUpdateInfo> chunks_left_side_update_infos;
 	std::vector<ChunkSideUpdateInfo> chunks_right_side_update_infos;
@@ -59,7 +61,7 @@ public:
 	std::vector<Coordinate> bottom_left_corner_update_infos;
 	std::vector<Coordinate> bottom_right_corner_update_infos;
 	
-	std::unordered_set<Coordinate> coordinates_of_chunks_to_create;
+	boost::unordered_flat_set<Coordinate> coordinates_of_chunks_to_create;
 
 	std::vector<std::pair<int, int>> grid_coordinates;
 	std::vector<std::pair<int, int>> border_coordinates;
