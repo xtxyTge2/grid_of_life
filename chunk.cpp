@@ -14,7 +14,7 @@ chunk_origin_row(0),
 chunk_origin_column(0),
 has_alive_cells(false),
 cells_data({}),
-neighbour_count_data({}) 
+neighbour_count_data({})
 {
 	ZoneScoped;
 }
@@ -173,7 +173,7 @@ void Chunk::update_neighbour_count_inside() {
 	__m256i current_row_neighbour_count = _mm256_setzero_si256();
 	__m256i next_row_neighbour_count = _mm256_setzero_si256();
 	int r = 0;
-	while(r < Chunk::rows) {
+	while (r < Chunk::rows) {
 		__m256i current_row_cells_data = _mm256_load_si256(&cells_data_ptr[r]);
 		__m256i values_middle = _mm256_blendv_epi8(_mm256_setzero_si256(), _mm256_epi8_value_1, current_row_cells_data);
 

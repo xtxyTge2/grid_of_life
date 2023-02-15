@@ -274,11 +274,20 @@ void Grid::update_neighbour_count_and_set_info_of_all_chunks() {
 
 	coordinates_of_chunks_to_create.clear();
 
+	std::for_each(
+		std::execution::par_unseq,
+		chunk_map.begin(),
+		chunk_map.end(),
+		[](auto&& it) {
+		Chunk& chunk = it.second;
+		chunk.update_neighbour_count_inside();
+	}
+	);
+
+	// cant use pragma omp parallel below, since we insert into a vector and that is not thread safe.
 	for (auto it = chunk_map.begin(); it != chunk_map.end(); ++it) {
-#pragma omp task
 		{
 			Chunk& chunk = it->second;
-			chunk.update_neighbour_count_inside();
 			set_chunk_neighbour_info(chunk);
 		}
 	}
@@ -406,62 +415,61 @@ void Grid::set_chunk_neighbour_info(Chunk& chunk) {
 void Grid::update_neighbours_of_all_chunks() {
 	ZoneScoped;
 	{
-#pragma omp task
-		{
-			for (ChunkSideUpdateInfo& info: chunks_left_side_update_infos) {
-				Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
-				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
-				chunk.update_neighbour_count_left_side(info.data);
-			}
+		for (ChunkSideUpdateInfo& info : chunks_left_side_update_infos) {
+			Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
+			Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+			chunk.update_neighbour_count_left_side(info.data);
 		}
-#pragma omp task
+
 		{
-			for (ChunkSideUpdateInfo& info: chunks_right_side_update_infos) {
+			for (ChunkSideUpdateInfo& info : chunks_right_side_update_infos) {
 				Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
 				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
 				chunk.update_neighbour_count_right_side(info.data);
 			}
 		}
-#pragma omp task
+
 		{
-			for (ChunkSideUpdateInfo& info: chunks_top_side_update_infos) {
+			for (ChunkSideUpdateInfo& info : chunks_top_side_update_infos) {
 				Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
 				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
 				chunk.update_neighbour_count_top_side(info.data);
 			}
 		}
-#pragma omp task
+
 		{
-			for (ChunkSideUpdateInfo& info: chunks_bottom_side_update_infos) {
+			for (ChunkSideUpdateInfo& info : chunks_bottom_side_update_infos) {
 				Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
 				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
 				chunk.update_neighbour_count_bottom_side(info.data);
 			}
 		}
-#pragma omp task
+
 		{
-			for (Coordinate& chunk_coordinate: top_left_corner_update_infos) {
+			for (Coordinate& chunk_coordinate : top_left_corner_update_infos) {
 				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
 				chunk.update_neighbour_count_top_left_corner();
 			}
 		}
-#pragma omp task
+
 		{
-			for (Coordinate& chunk_coordinate: top_right_corner_update_infos) {
+			for (Coordinate& chunk_coordinate : top_right_corner_update_infos) {
 				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
 				chunk.update_neighbour_count_top_right_corner();
 			}
 		}
-#pragma omp task
+
 		{
-			for (Coordinate& chunk_coordinate: bottom_left_corner_update_infos) {
+			for (Coordinate& chunk_coordinate : bottom_left_corner_update_infos) {
 				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
 				chunk.update_neighbour_count_bottom_left_corner();
 			}
 		}
-#pragma omp task
+
+
+
 		{
-			for (Coordinate& chunk_coordinate: bottom_right_corner_update_infos) {
+			for (Coordinate& chunk_coordinate : bottom_right_corner_update_infos) {
 				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
 				chunk.update_neighbour_count_bottom_right_corner();
 			}
@@ -481,13 +489,15 @@ void Grid::update_cells_of_all_chunks() {
 		}
 		*/
 	} else {
-		for (auto it = chunk_map.begin(); it != chunk_map.end(); ++it) {
-#pragma omp task
-			{
-				Chunk& chunk = it->second;
+		std::for_each(
+			std::execution::par_unseq,
+			chunk_map.begin(),
+			chunk_map.end(),
+			[](auto&& it) {
+				Chunk& chunk = it.second;
 				chunk.update_cells();
 			}
-		}
+		);
 	}
 }
 
@@ -497,7 +507,89 @@ void Grid::remove_empty_chunks() {
 
 	// remove all chunks, which dont have alive cells.
 	boost::unordered::erase_if(chunk_map, [](const auto& item) {
-	                           return !item.second.has_alive_cells;
-	});
-
+		return !item.second.has_alive_cells;
+		});
 }
+
+
+	/*
+		std::for_each(
+			std::execution::par_unseq,
+			chunks_left_side_update_infos.begin(),
+			chunks_left_side_update_infos.end(),
+			[this](ChunkSideUpdateInfo& info) {
+			// todo should use auto&& it above!
+				Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_left_side(info.data);
+			}
+		);
+		std::for_each(
+			std::execution::par_unseq,
+			chunks_right_side_update_infos.begin(),
+			chunks_right_side_update_infos.end(),
+			[this](ChunkSideUpdateInfo& info) {
+				Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
+		Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+		chunk.update_neighbour_count_right_side(info.data);
+			}
+		);
+		std::for_each(
+			std::execution::par_unseq,
+			chunks_top_side_update_infos.begin(),
+			chunks_top_side_update_infos.end(),
+			[this](ChunkSideUpdateInfo& info) {
+				Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_top_side(info.data);
+			}
+		);
+		std::for_each(
+			std::execution::par_unseq,
+			chunks_bottom_side_update_infos.begin(),
+			chunks_bottom_side_update_infos.end(),
+			[this](ChunkSideUpdateInfo& info) {
+				Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_bottom_side(info.data);
+			}
+		);
+
+		std::for_each(
+			std::execution::par_unseq,
+			top_left_corner_update_infos.begin(),
+			top_left_corner_update_infos.end(),
+			[this](Coordinate& chunk_coordinate) {
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_top_left_corner();
+			}
+		);
+
+		std::for_each(
+			std::execution::par_unseq,
+			top_right_corner_update_infos.begin(),
+			top_right_corner_update_infos.end(),
+			[this](Coordinate& chunk_coordinate) {
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_top_right_corner();
+			}
+		);
+		std::for_each(
+			std::execution::par_unseq,
+			bottom_left_corner_update_infos.begin(),
+			bottom_left_corner_update_infos.end(),
+			[this](Coordinate& chunk_coordinate) {
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_bottom_left_corner();
+			}
+		);
+		std::for_each(
+			std::execution::par_unseq,
+			bottom_right_corner_update_infos.begin(),
+			bottom_right_corner_update_infos.end(),
+			[this](Coordinate& chunk_coordinate) {
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_bottom_right_corner();
+			}
+		);
+	*/

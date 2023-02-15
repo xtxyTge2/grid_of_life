@@ -7,6 +7,8 @@
 #include "ui_state.hpp"
 #include "opencl_context.hpp"
 #include "chunk.hpp"
+#include <algorithm>
+#include <execution>
 
 
 
