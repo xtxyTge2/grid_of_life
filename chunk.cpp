@@ -7,6 +7,17 @@ std::size_t hash_value(Coordinate const& c)
 	return 51 + boost::hash < int > ()(c.x) + 51 * boost::hash < int > ()(c.y);
 }
 
+Chunk::Chunk() :
+	grid_coordinate_row(0),
+grid_coordinate_column(0),
+chunk_origin_row(0),
+chunk_origin_column(0),
+has_alive_cells(false),
+cells_data({}),
+neighbour_count_data({}) 
+{
+	ZoneScoped;
+}
 
 Chunk::Chunk(const Coordinate& coord, Coordinate origin_coord, const std::vector<std::pair<int, int>>& alive_cells_coordinates) :
 	grid_coordinate_row(coord.x),
@@ -157,11 +168,11 @@ void Chunk::update_neighbour_count_inside() {
 	__m256i* cells_data_ptr = (__m256i*) &cells_data[0];
 	__m256i* neighbour_count_data_ptr = (__m256i*) &neighbour_count_data[0];
 
-
 	__m256i prev_row_neighbour_count = _mm256_setzero_si256();
 	__m256i current_row_neighbour_count = _mm256_setzero_si256();
 	__m256i next_row_neighbour_count = _mm256_setzero_si256();
-	for (int r = 0; r < Chunk::rows; r++) {
+	int r = 0;
+	while(r < Chunk::rows) {
 		__m256i current_row_cells_data = _mm256_load_si256(&cells_data_ptr[r]);
 		__m256i values_middle = _mm256_blendv_epi8(_mm256_setzero_si256(), _mm256_epi8_value_1, current_row_cells_data);
 
@@ -182,6 +193,8 @@ void Chunk::update_neighbour_count_inside() {
 		prev_row_neighbour_count = current_row_neighbour_count;
 		current_row_neighbour_count = next_row_neighbour_count;
 		next_row_neighbour_count = _mm256_setzero_si256();
+		
+		r++;
 	}
 	// store last row
 	_mm256_store_si256(&neighbour_count_data_ptr[rows - 1], prev_row_neighbour_count);
@@ -238,3 +251,5 @@ void Chunk::update_cells() {
 		has_alive_cells |= !_mm256_is_zero(new_row);
 	}
 }
+
+

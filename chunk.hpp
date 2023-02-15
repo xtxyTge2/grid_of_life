@@ -8,15 +8,17 @@
 #include <vector>
 #include <unordered_set>
 
+#include <boost/unordered/unordered_flat_map.hpp>
+#include <boost/unordered/unordered_flat_set.hpp>
 #include <boost/container_hash/hash.hpp>
 
 constexpr static int CHUNK_ROWS = 32;
 constexpr static int CHUNK_COLUMNS = 32;
 
-
 __m256i _mm256_custom_shift_left_epi256(__m256i a, const int imm8);
 __m256i _mm256_custom_shift_right_epi256(__m256i a, const int imm8);
 bool _mm256_is_zero(__m256i a);
+
 
 class Coordinate {
 public:
@@ -64,9 +66,10 @@ namespace std
 
 class Chunk {
 public:
-
 	constexpr static int rows = CHUNK_ROWS;
 	constexpr static int columns = CHUNK_COLUMNS;
+
+	Chunk();
 
 	Chunk(const Coordinate& coord, Coordinate origin_coord, const std::vector<std::pair<int, int>>& alive_cells_coordinates);
 

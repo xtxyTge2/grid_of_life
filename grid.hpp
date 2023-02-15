@@ -8,9 +8,6 @@
 #include "opencl_context.hpp"
 #include "chunk.hpp"
 
-#include <boost/unordered/unordered_flat_map.hpp>
-#include <boost/unordered/unordered_flat_set.hpp>
-
 
 
 
@@ -44,12 +41,12 @@ public:
 
 	void create_needed_neighbours_of_all_chunks();
 
-	void set_chunk_neighbour_info(std::shared_ptr<Chunk> chunk);
+	void set_chunk_neighbour_info(Chunk& chunk);
 	//--------------------------------------------------------------------------------
 	// data
 	int iteration;
 
-	boost::unordered_flat_map<Coordinate, std::shared_ptr<Chunk>> chunk_map;
+	boost::unordered_flat_map<Coordinate, Chunk> chunk_map;
 
 	std::vector<ChunkSideUpdateInfo> chunks_left_side_update_infos;
 	std::vector<ChunkSideUpdateInfo> chunks_right_side_update_infos;
