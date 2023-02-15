@@ -291,47 +291,42 @@ void Grid::set_chunk_neighbour_info(Chunk& chunk) {
 
 	// top side of chunk, so bottom side of neighbour chunk
 	bool has_to_update_top = false;
-	std::array<unsigned char, Chunk::columns> top_row;
 
-	std::copy_n(std::begin(cells_data), Chunk::columns, std::begin(top_row));
-	for (unsigned char value: top_row) {
+	for (int c = 0; c < Chunk::columns; c++) {
+		unsigned char value = cells_data[c];
 		if (value) {
 			has_to_update_top = true;
 			break;
 		}
 	}
 	if (has_to_update_top) {
-		Coordinate top_coord = Coordinate(chunk.grid_coordinate_row - 1, chunk.grid_coordinate_column);
+		const Coordinate& top_coord = Coordinate(chunk.grid_coordinate_row - 1, chunk.grid_coordinate_column);
 		if (!chunk_map.contains(top_coord)) {
 			coordinates_of_chunks_to_create.insert(top_coord);
 		}
-		ChunkSideUpdateInfo top_info;
-		top_info.data = top_row;
-		top_info.chunk_to_update_coordinate = top_coord;
-		chunks_bottom_side_update_infos.push_back(top_info);
+
+		ChunkSideUpdateInfo& top_info = chunks_bottom_side_update_infos.emplace_back(top_coord);
+		std::copy_n(std::begin(cells_data), Chunk::columns, std::begin(top_info.data));
 	}
 
 	// bottom side of chunk, so top side of neighbour chunk
 	bool has_to_update_bottom = false;
-	std::array<unsigned char, Chunk::columns> bottom_row;
-
-	std::copy_n(std::end(cells_data) - Chunk::columns , Chunk::columns, std::begin(bottom_row));
-	for (unsigned char value: bottom_row) {
+	constexpr static int bottom_row_start_index = (Chunk::rows - 1)*Chunk::rows;
+	for (int c = 0; c < Chunk::columns; c++) {
+		unsigned char value = cells_data[bottom_row_start_index + c];
 		if (value) {
 			has_to_update_bottom = true;
 			break;
 		}
 	}
 	if (has_to_update_bottom) {
-		Coordinate bottom_coord = Coordinate(chunk.grid_coordinate_row + 1, chunk.grid_coordinate_column);
+		const Coordinate& bottom_coord = Coordinate(chunk.grid_coordinate_row + 1, chunk.grid_coordinate_column);
 		if (!chunk_map.contains(bottom_coord)) {
 			coordinates_of_chunks_to_create.insert(bottom_coord);
 		}
 
-		ChunkSideUpdateInfo bottom_info;
-		bottom_info.data = bottom_row;
-		bottom_info.chunk_to_update_coordinate = bottom_coord;
-		chunks_top_side_update_infos.push_back(bottom_info);
+		ChunkSideUpdateInfo& bottom_info = chunks_top_side_update_infos.emplace_back(bottom_coord);
+		std::copy_n(std::end(cells_data) - Chunk::columns , Chunk::columns, std::begin(bottom_info.data));
 	}
 
 	// left side of chunk, so right side of neighbour chunk
@@ -345,15 +340,11 @@ void Grid::set_chunk_neighbour_info(Chunk& chunk) {
 		left_column[r] = value;
 	}
 	if (has_to_update_left) {
-		Coordinate left_coord = Coordinate(chunk.grid_coordinate_row, chunk.grid_coordinate_column - 1);
+		const Coordinate& left_coord = Coordinate(chunk.grid_coordinate_row, chunk.grid_coordinate_column - 1);
 		if (!chunk_map.contains(left_coord)) {
 			coordinates_of_chunks_to_create.insert(left_coord);
 		}
-
-		ChunkSideUpdateInfo left_info;
-		left_info.data = left_column;
-		left_info.chunk_to_update_coordinate = left_coord;
-		chunks_right_side_update_infos.push_back(left_info);
+		chunks_right_side_update_infos.emplace_back(left_column, left_coord);
 	}
 
 	// right side of chunk, so left side of neighbour chunk
@@ -367,19 +358,16 @@ void Grid::set_chunk_neighbour_info(Chunk& chunk) {
 		right_column[r] = value;
 	}
 	if (has_to_update_right) {
-		Coordinate right_coord = Coordinate(chunk.grid_coordinate_row, chunk.grid_coordinate_column + 1);
+		const Coordinate& right_coord = Coordinate(chunk.grid_coordinate_row, chunk.grid_coordinate_column + 1);
 		if (!chunk_map.contains(right_coord)) {
 			coordinates_of_chunks_to_create.insert(right_coord);
 		}
-		ChunkSideUpdateInfo right_info;
-		right_info.data = right_column;
-		right_info.chunk_to_update_coordinate = right_coord;
-		chunks_left_side_update_infos.push_back(right_info);
+		chunks_left_side_update_infos.emplace_back(right_column, right_coord);
 	}
 
 	//top left corner
 	if (cells_data[0]) {
-		Coordinate top_left_coord = Coordinate(chunk.grid_coordinate_row - 1, chunk.grid_coordinate_column - 1);
+		const Coordinate& top_left_coord = Coordinate(chunk.grid_coordinate_row - 1, chunk.grid_coordinate_column - 1);
 		if (!chunk_map.contains(top_left_coord)) {
 			coordinates_of_chunks_to_create.insert(top_left_coord);
 		}
@@ -388,7 +376,7 @@ void Grid::set_chunk_neighbour_info(Chunk& chunk) {
 	}
 	//top right corner
 	if (cells_data[Chunk::columns - 1]) {
-		Coordinate top_right_coord = Coordinate(chunk.grid_coordinate_row - 1, chunk.grid_coordinate_column + 1);
+		const Coordinate& top_right_coord = Coordinate(chunk.grid_coordinate_row - 1, chunk.grid_coordinate_column + 1);
 		if (!chunk_map.contains(top_right_coord)) {
 			coordinates_of_chunks_to_create.insert(top_right_coord);
 		}
@@ -397,7 +385,7 @@ void Grid::set_chunk_neighbour_info(Chunk& chunk) {
 	}
 	//bottom right corner
 	if (cells_data[(Chunk::rows - 1) * Chunk::rows + Chunk::columns - 1]) {
-		Coordinate bottom_right_coord = Coordinate(chunk.grid_coordinate_row + 1, chunk.grid_coordinate_column + 1);
+		const Coordinate& bottom_right_coord = Coordinate(chunk.grid_coordinate_row + 1, chunk.grid_coordinate_column + 1);
 		if (!chunk_map.contains(bottom_right_coord)) {
 			coordinates_of_chunks_to_create.insert(bottom_right_coord);
 		}
@@ -406,7 +394,7 @@ void Grid::set_chunk_neighbour_info(Chunk& chunk) {
 	}
 	//bottom left corner
 	if (cells_data[(Chunk::rows - 1) * Chunk::rows]) {
-		Coordinate bottom_left_coord = Coordinate(chunk.grid_coordinate_row + 1, chunk.grid_coordinate_column - 1);
+		const Coordinate& bottom_left_coord = Coordinate(chunk.grid_coordinate_row + 1, chunk.grid_coordinate_column - 1);
 		if (!chunk_map.contains(bottom_left_coord)) {
 			coordinates_of_chunks_to_create.insert(bottom_left_coord);
 		}

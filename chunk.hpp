@@ -111,6 +111,32 @@ public:
 
 // assume Chunk::rows == Chunk::columns!
 struct ChunkSideUpdateInfo {
+	
+	ChunkSideUpdateInfo(const Coordinate& c) :
+		data({}),
+	chunk_to_update_coordinate(c) 
+	{
+
+	};
+	
+	ChunkSideUpdateInfo(const std::array<unsigned char, Chunk::rows> & a, const Coordinate& c) :
+		data(a),
+	chunk_to_update_coordinate(c) 
+	{
+
+	};
+	
 	std::array<unsigned char, Chunk::rows> data;
 	Coordinate chunk_to_update_coordinate;
 };
+
+/*
+
+	Coordinate top_coord = Coordinate(chunk.grid_coordinate_row - 1, chunk.grid_coordinate_column);
+	ChunkSideUpdateInfo& top_info = chunks_bottom_side_update_infos.emplace_back( top_coord);
+	std::copy_n(std::begin(cells_data), Chunk::columns, std::begin(top_info.data));
+
+	if (!chunk_map.contains(top_coord)) {
+	coordinates_of_chunks_to_create.insert(top_coord);
+	}
+*/
