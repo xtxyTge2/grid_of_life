@@ -1,7 +1,5 @@
 #include "grid.hpp"
 
-using Eigen::Array;
-
 
 
 Grid_Manager::Grid_Manager()
@@ -147,19 +145,19 @@ void Grid::update_coordinates_for_chunk_borders() {
 	border_coordinates.clear();
 	for (auto& [chunk_coord, chunk]: chunk_map) {
 		for (int r = 0; r < Chunk::rows; r++) {
-			border_coordinates.push_back(std::make_pair(chunk.chunk_origin_row + r,chunk.chunk_origin_column - 1));
+			border_coordinates.push_back(std::make_pair(chunk.chunk_origin_row + r, chunk.chunk_origin_column - 1));
 			border_coordinates.push_back(std::make_pair(chunk.chunk_origin_row + r, chunk.chunk_origin_column + Chunk::columns));
 		}
 		for (int c = 0; c < Chunk::columns; c++) {
 			border_coordinates.push_back(std::make_pair(chunk.chunk_origin_row -1, chunk.chunk_origin_column + c));
-			border_coordinates.push_back(std::make_pair(chunk.chunk_origin_row + Chunk::rows, chunk.chunk_origin_column+ c));
+			border_coordinates.push_back(std::make_pair(chunk.chunk_origin_row + Chunk::rows, chunk.chunk_origin_column + c));
 		}
 	}
 }
 
 //--------------------------------------------------------------------------------
 Grid::Grid(std::shared_ptr<OpenCLContext> context) :
-iteration(0),
+	iteration(0),
 opencl_context(context)
 {
 	ZoneScoped;
@@ -225,7 +223,7 @@ void Grid::create_new_chunk_and_set_alive_cells(const Coordinate& coord, const s
 
 	const Coordinate& origin_coordinate = Coordinate(coord.x * Chunk::rows, coord.y * Chunk::columns);
 
-	Chunk chunk = Chunk(coord, origin_coordinate, coordinates); 
+	Chunk chunk = Chunk(coord, origin_coordinate, coordinates);
 
 	chunk_map.insert(std::make_pair(coord, chunk));
 }
@@ -276,11 +274,13 @@ void Grid::update_neighbour_count_and_set_info_of_all_chunks() {
 
 	coordinates_of_chunks_to_create.clear();
 
-	for (auto& [chunk_coord, chunk]: chunk_map) {
-		chunk.update_neighbour_count_inside();
-	}
-	for (auto& [chunk_coord, chunk]: chunk_map) {
-		set_chunk_neighbour_info(chunk);
+	for (auto it = chunk_map.begin(); it != chunk_map.end(); ++it) {
+#pragma omp task
+		{
+			Chunk& chunk = it->second;
+			chunk.update_neighbour_count_inside();
+			set_chunk_neighbour_info(chunk);
+		}
 	}
 }
 
@@ -405,49 +405,67 @@ void Grid::set_chunk_neighbour_info(Chunk& chunk) {
 
 void Grid::update_neighbours_of_all_chunks() {
 	ZoneScoped;
-
-	for (ChunkSideUpdateInfo& info: chunks_left_side_update_infos) {
-		Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
-		Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
-		chunk.update_neighbour_count_left_side(info.data);
-	}
-
-	for (ChunkSideUpdateInfo& info: chunks_right_side_update_infos) {
-		Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
-		Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
-		chunk.update_neighbour_count_right_side(info.data);
-	}
-
-	for (ChunkSideUpdateInfo& info: chunks_top_side_update_infos) {
-		Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
-		Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
-		chunk.update_neighbour_count_top_side(info.data);
-	}
-
-	for (ChunkSideUpdateInfo& info: chunks_bottom_side_update_infos) {
-		Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
-		Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
-		chunk.update_neighbour_count_bottom_side(info.data);
-	}
-
-	for (Coordinate& chunk_coordinate: top_left_corner_update_infos) {
-		Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
-		chunk.update_neighbour_count_top_left_corner();
-	}
-
-	for (Coordinate& chunk_coordinate: top_right_corner_update_infos) {
-		Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
-		chunk.update_neighbour_count_top_right_corner();
-	}
-
-	for (Coordinate& chunk_coordinate: bottom_left_corner_update_infos) {
-		Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
-		chunk.update_neighbour_count_bottom_left_corner();
-	}
-
-	for (Coordinate& chunk_coordinate: bottom_right_corner_update_infos) {
-		Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
-		chunk.update_neighbour_count_bottom_right_corner();
+	{
+#pragma omp task
+		{
+			for (ChunkSideUpdateInfo& info: chunks_left_side_update_infos) {
+				Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_left_side(info.data);
+			}
+		}
+#pragma omp task
+		{
+			for (ChunkSideUpdateInfo& info: chunks_right_side_update_infos) {
+				Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_right_side(info.data);
+			}
+		}
+#pragma omp task
+		{
+			for (ChunkSideUpdateInfo& info: chunks_top_side_update_infos) {
+				Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_top_side(info.data);
+			}
+		}
+#pragma omp task
+		{
+			for (ChunkSideUpdateInfo& info: chunks_bottom_side_update_infos) {
+				Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_bottom_side(info.data);
+			}
+		}
+#pragma omp task
+		{
+			for (Coordinate& chunk_coordinate: top_left_corner_update_infos) {
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_top_left_corner();
+			}
+		}
+#pragma omp task
+		{
+			for (Coordinate& chunk_coordinate: top_right_corner_update_infos) {
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_top_right_corner();
+			}
+		}
+#pragma omp task
+		{
+			for (Coordinate& chunk_coordinate: bottom_left_corner_update_infos) {
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_bottom_left_corner();
+			}
+		}
+#pragma omp task
+		{
+			for (Coordinate& chunk_coordinate: bottom_right_corner_update_infos) {
+				Chunk& chunk = chunk_map.find(chunk_coordinate)->second;
+				chunk.update_neighbour_count_bottom_right_corner();
+			}
+		}
 	}
 }
 
@@ -463,8 +481,12 @@ void Grid::update_cells_of_all_chunks() {
 		}
 		*/
 	} else {
-		for (auto& [chunk_coord, chunk]: chunk_map) {
-			chunk.update_cells();
+		for (auto it = chunk_map.begin(); it != chunk_map.end(); ++it) {
+#pragma omp task
+			{
+				Chunk& chunk = it->second;
+				chunk.update_cells();
+			}
 		}
 	}
 }
@@ -475,7 +497,7 @@ void Grid::remove_empty_chunks() {
 
 	// remove all chunks, which dont have alive cells.
 	boost::unordered::erase_if(chunk_map, [](const auto& item) {
-	         return !item.second.has_alive_cells;
+	                           return !item.second.has_alive_cells;
 	});
 
 }

@@ -2,15 +2,11 @@
 
 #include "Tracy.hpp"
 
-#include <omp.h>
+#include "omp.h"
 #include "cube.hpp"
 #include "ui_state.hpp"
 #include "opencl_context.hpp"
 #include "chunk.hpp"
-
-
-
-
 
 
 

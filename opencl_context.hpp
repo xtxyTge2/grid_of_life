@@ -1,14 +1,13 @@
 #pragma once
 #define CL_TARGET_OPENCL_VERSION 300
 
+#include <CL/cl.h>
 #include "Tracy.hpp"
 
-#include <CL/cl.h>
+
 #include <vector>
 #include <memory>
 #include <iostream>
-
-#include <Eigen/Core>
 
 #include "read.hpp"
 #include "chunk.hpp"
@@ -20,13 +19,11 @@ public:
 	void initialise(std::string source_path);
 
 	//void update_cells(Eigen::Array < unsigned int, Chunk::rows, Chunk::columns, Eigen::RowMajor >& neighbour_count, Eigen::Array < bool, Chunk::rows, Chunk::columns, Eigen::RowMajor >& cells);
-
-	bool success(cl_int errcode_ret);
 	
 	void initialise_cells_buffer();
 	
 	bool is_valid_context;
-
+	/*
  	cl_platform_id platform_id;
 	cl_device_id device_id;
 	cl_context context;
@@ -41,4 +38,5 @@ public:
 	cl_mem cells_input_buffer;
 	cl_uint* update_cells_kernel_result;
 	size_t update_cells_result_size;
+	*/
 };

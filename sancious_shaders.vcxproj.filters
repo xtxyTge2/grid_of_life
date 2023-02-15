@@ -21,7 +21,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="chunk.cpp">
+    <ClCompile Include="chunk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="read.cpp">
@@ -45,19 +45,19 @@
     <ClCompile Include="renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="cube_system.cpp">
+    <ClCompile Include="cube_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ui_state.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="grid.cpp">
+    <ClCompile Include="grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="world.cpp">
+    <ClCompile Include="world.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="opencl_context.cpp">
+    <ClCompile Include="opencl_context.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="3rdparty\imgui\imgui.cpp">
@@ -101,7 +101,7 @@
     <ClInclude Include="state.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-	<ClInclude Include="cube_system.hpp">
+    <ClInclude Include="cube_system.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="opengl.hpp">
@@ -119,16 +119,16 @@
     <ClInclude Include="ui_state.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-	<ClInclude Include="grid.hpp">
+    <ClInclude Include="grid.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-	<ClInclude Include="chunk.hpp">
+    <ClInclude Include="chunk.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-	<ClInclude Include="world.hpp">
+    <ClInclude Include="world.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-	<ClInclude Include="opencl_context.hpp">
+    <ClInclude Include="opencl_context.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="3rdparty\imgui\imconfig.h">
@@ -166,5 +166,8 @@
     <None Include="shader.vs">
       <Filter>Source Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\..\..\..\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\bin\libomp.dll" />
   </ItemGroup>
 </Project>

@@ -51,6 +51,7 @@ void Chunk::update_neighbour_count_left_side(const std::array<unsigned char, Chu
 		neighbour_count_data[Chunk::rows]++;
 	}
 
+
 	for (int r = 1; r < Chunk::rows - 1; r++) {
 		if (data[r]) {
 			neighbour_count_data[(r-1)*Chunk::rows]++;

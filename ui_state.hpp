@@ -29,7 +29,7 @@ struct Grid_UI_Controls_Info {
 
 	int min_number_of_grid_iterations_per_single_frame = 1;
 	int max_number_of_grid_iterations_per_single_frame = 1000;
-	int number_of_grid_iterations_per_single_frame = 1;
+	int number_of_grid_iterations_per_single_frame = 500;
 };
 
 //--------------------------------------------------------------------------------
