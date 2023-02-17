@@ -162,7 +162,7 @@ void Renderer::initialise_cube_rendering() {
 
 
 
-void Renderer::render_cubes(std::vector<glm::mat4>& cubes_model_data) {
+void Renderer::render_grid(std::vector<glm::mat4>& cubes_model_data) {
 	ZoneScoped;
 
 	glBindVertexArray(m_VAO);
@@ -200,6 +200,5 @@ void Renderer::render_world(std::shared_ptr<World> world, std::shared_ptr<Cube_S
 
 	set_projection_view_matrix_in_shader(world);
 
-
-	render_cubes(cube_system->cubes_model_data);
+	render_grid(cube_system->cubes_model_data);
 }

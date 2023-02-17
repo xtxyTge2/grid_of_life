@@ -118,20 +118,44 @@ void Grid_Manager::update(double dt, const Grid_UI_Controls_Info& ui_info) {
 void Grid::update_coordinates_for_alive_grid_cells() {
 	ZoneScoped;
 
-	grid_coordinates.clear();
-	for (auto& [chunk_coord, chunk]: chunk_map) {
-		// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
+	if (false) {
+		grid_coordinates.clear();
+		for (auto& [chunk_coord, chunk]: chunk_map) {
+			// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
 
-		// get chunk coordinates from alive grid cells
-		std::array<unsigned char, Chunk::rows*Chunk::columns>& cells_data = chunk.cells_data;
-		for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
-			int r = i / Chunk::rows;
-			int c = i % Chunk::columns;
-			if (cells_data[i]) {
-				grid_coordinates.push_back(std::make_pair(r + chunk.chunk_origin_row, c + chunk.chunk_origin_column));
+			// get chunk coordinates from alive grid cells
+			std::array<unsigned char, Chunk::rows*Chunk::columns>& cells_data = chunk.cells_data;
+			for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
+				int r = i / Chunk::rows;
+				int c = i % Chunk::columns;
+				if (cells_data[i]) {
+					grid_coordinates.push_back(std::make_pair(r + chunk.chunk_origin_row, c + chunk.chunk_origin_column));
+				}
 			}
 		}
+	} else {
+		grid_coordinates_concurrent = moodycamel::ConcurrentQueue < std::pair<int, int> >();
+
+		std::for_each(
+			std::execution::par_unseq,
+			chunk_map.begin(),
+			chunk_map.end(),
+			[this](auto&& it) {
+			Chunk& chunk = it.second;
+			std::array<unsigned char, Chunk::rows*Chunk::columns>& cells_data = chunk.cells_data;
+			for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
+				int r = i / Chunk::rows;
+				int c = i % Chunk::columns;
+				if (cells_data[i]) {
+					grid_coordinates_concurrent.enqueue(std::make_pair(r + chunk.chunk_origin_row, c + chunk.chunk_origin_column));
+				}
+			}
+		}
+		);
+
+		number_of_elements_enqueued = grid_coordinates_concurrent.size_approx();
 	}
+
 }
 
 void Grid::update_coordinates_for_chunk_borders() {
@@ -154,6 +178,19 @@ void Grid::update_coordinates_for_chunk_borders() {
 Grid::Grid(std::shared_ptr<OpenCLContext> context) :
 	iteration(0),
 number_of_chunks(0),
+chunk_map({}),
+chunks_left_side_update_infos({}),
+chunks_right_side_update_infos({}),
+chunks_top_side_update_infos({}),
+chunks_bottom_side_update_infos({}),
+top_left_corner_update_infos({}),
+top_right_corner_update_infos({}),
+bottom_left_corner_update_infos({}),
+bottom_right_corner_update_infos({}),
+coordinates_of_chunks_to_create({}),
+number_of_elements_enqueued(0),
+grid_coordinates({}),
+border_coordinates({}),
 opencl_context(context)
 {
 	ZoneScoped;

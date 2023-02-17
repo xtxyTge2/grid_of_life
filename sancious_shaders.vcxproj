@@ -164,17 +164,17 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\kala\code\sancious_shaders\3rdparty\moodycamel;C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\libs;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\kala\code\sancious_shaders\3rdparty\moodycamel;C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\libs;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracy|x64'">
-    <IncludePath>C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\kala\code\sancious_shaders\3rdparty\moodycamel;C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\libs;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>

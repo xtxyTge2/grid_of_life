@@ -9,7 +9,7 @@
 #include "chunk.hpp"
 #include <algorithm>
 #include <execution>
-
+#include "concurrentqueue.h"
 
 
 //--------------------------------------------------------------------------------
@@ -58,6 +58,9 @@ public:
 	std::vector<Coordinate> bottom_right_corner_update_infos;
 	
 	boost::unordered_flat_set<Coordinate> coordinates_of_chunks_to_create;
+
+	moodycamel::ConcurrentQueue < std::pair<int, int> > grid_coordinates_concurrent;
+	size_t number_of_elements_enqueued;
 
 	std::vector<std::pair<int, int>> grid_coordinates;
 	std::vector<std::pair<int, int>> border_coordinates;
