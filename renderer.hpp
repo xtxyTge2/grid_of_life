@@ -27,15 +27,15 @@ public:
 
 	void swap_backbuffer();
 
-	void render_grid_cubes(std::shared_ptr<Cube_System> cube_system, glm::mat4 projection_view_matrix);
-
-	void render_border_cubes(std::shared_ptr<Cube_System> cube_system, glm::mat4 projection_view_matrix);
+	void render_cubes(std::vector<glm::mat4>& cubes_model_data);
 
 	void initialise(GLFWwindow* window);
 
 	void initialise_cube_rendering();
 
-	void render_cube_system(std::shared_ptr<Cube_System> cube_system, glm::mat4 projection_view_matrix);
+	void set_projection_view_matrix_in_shader(std::shared_ptr<World> world);
+
+	std::vector<glm::mat4> compute_cube_mvp_data(std::shared_ptr<Cube_System> cube_system, glm::mat4 projection_view_matrix);
 
 	void update_shader_program(glm::mat4 model, glm::mat4 view, glm::mat4 projection);
 
@@ -50,6 +50,8 @@ public:
 
 	GLuint m_VAO;
 	GLuint m_VBO;
+
+	GLuint cubes_instances_VBO;
 
 	std::unique_ptr<Texture_Catalog> texture_catalog;
 

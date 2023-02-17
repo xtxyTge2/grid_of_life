@@ -43,6 +43,7 @@ public:
 	//--------------------------------------------------------------------------------
 	// data
 	int iteration;
+	int number_of_chunks;
 
 	boost::unordered_flat_map<Coordinate, Chunk> chunk_map;
 

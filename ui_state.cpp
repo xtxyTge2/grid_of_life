@@ -106,8 +106,7 @@ void UI_State::setup_ui_for_current_frame(const Grid_Info& grid_info) {
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
 		ImGui::Text("Grid iteration: %d", grid_info.iteration);
-		ImGui::Text("Grid rows: %d, columns: %d", grid_info.rows, grid_info.columns);
-		ImGui::Text("Origin row: %d, Origin column: %d", grid_info.origin_row, grid_info.origin_column);
+		ImGui::Text("Number of chunks: %d", grid_info.number_of_chunks);
 
 		ImGuiSliderFlags slider_flags = ImGuiSliderFlags_AlwaysClamp;
 		slider_flags |= ImGuiSliderFlags_NoInput;

@@ -1,7 +1,5 @@
 #include "grid.hpp"
 
-
-
 Grid_Manager::Grid_Manager()
 : grid_execution_state({})
 {
@@ -20,10 +18,7 @@ void Grid_Manager::update_grid_info() {
 	ZoneScoped;
 
 	grid_info->iteration = grid->iteration;
-	grid_info->rows = 0;
-	grid_info->columns = 0;
-	grid_info->origin_row = 0;
-	grid_info->origin_column = 0;
+	grid_info->number_of_chunks = grid->number_of_chunks;
 }
 
 //--------------------------------------------------------------------------------
@@ -158,6 +153,7 @@ void Grid::update_coordinates_for_chunk_borders() {
 //--------------------------------------------------------------------------------
 Grid::Grid(std::shared_ptr<OpenCLContext> context) :
 	iteration(0),
+number_of_chunks(0),
 opencl_context(context)
 {
 	ZoneScoped;
@@ -196,7 +192,17 @@ opencl_context(context)
 		{ base_row + 1, base_column - 5 },
 		{ base_row, base_column }
 	};
-	create_new_chunk_and_set_alive_cells(Coordinate(0, 0), initial_coordinates);
+	
+	std::vector<Coordinate> chunk_coordinates;
+	for (int r = -20; r < 20; r++) {
+		for (int c = -20; c < 20; c++) {
+			create_new_chunk_and_set_alive_cells(Coordinate(r, c), initial_coordinates);
+		}
+	}
+
+	//create_new_chunk_and_set_alive_cells(Coordinate(0, 0), initial_coordinates);
+
+
 
 
 	update_coordinates_for_alive_grid_cells();
@@ -243,7 +249,7 @@ void Grid::update() {
 void Grid::next_iteration() {
 	ZoneScoped;
 
-	iteration++;
+
 
 	update_neighbour_count_and_set_info_of_all_chunks();
 
@@ -256,6 +262,9 @@ void Grid::next_iteration() {
 	update_cells_of_all_chunks();
 	
 	remove_empty_chunks();
+
+	iteration++;
+	number_of_chunks = static_cast<int>(chunk_map.size());
 }
 
 
@@ -274,6 +283,7 @@ void Grid::update_neighbour_count_and_set_info_of_all_chunks() {
 
 	coordinates_of_chunks_to_create.clear();
 
+	
 	std::for_each(
 		std::execution::par_unseq,
 		chunk_map.begin(),

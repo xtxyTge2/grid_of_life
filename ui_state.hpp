@@ -28,18 +28,13 @@ struct Grid_UI_Controls_Info {
 	bool run_grid_at_max_possible_speed = true;
 
 	int min_number_of_grid_iterations_per_single_frame = 1;
-	int max_number_of_grid_iterations_per_single_frame = 1000;
-	int number_of_grid_iterations_per_single_frame = 500;
+	int max_number_of_grid_iterations_per_single_frame = 10000;
+	int number_of_grid_iterations_per_single_frame = 1;
 };
 
 //--------------------------------------------------------------------------------
 struct Grid_Info {
-	int rows;
-	int columns;
-
-	int origin_row; 
-	int origin_column;
-
+	int number_of_chunks;
 	int iteration;
 };
 

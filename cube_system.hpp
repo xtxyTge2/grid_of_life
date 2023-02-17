@@ -21,10 +21,12 @@ public:
 	std::shared_ptr<Grid_Manager> grid_manager;
 
 	int current_number_of_grid_cubes;
-	constexpr static size_t MAX_NUMBER_OF_GRID_CUBES = 50000;
+	constexpr static size_t MAX_NUMBER_OF_GRID_CUBES = 500000;
 	std::array<Cube, MAX_NUMBER_OF_GRID_CUBES> grid_cubes;
 
 	int current_number_of_border_cubes;
-	constexpr static size_t MAX_NUMBER_OF_BORDER_CUBES = 50000;
+	constexpr static size_t MAX_NUMBER_OF_BORDER_CUBES = 500000;
 	std::array<Cube, MAX_NUMBER_OF_BORDER_CUBES> border_cubes;
+
+	std::vector<glm::mat4> cubes_model_data;
 };

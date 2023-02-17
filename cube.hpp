@@ -8,6 +8,10 @@
 class Cube {
 public:
 	Cube();
+
+	const glm::mat4 compute_model_matrix_no_rotation() const;
+	
+	const glm::mat4 compute_model_matrix_with_rotation() const;
 	//--------------------------------------------------------------------------------
 	// data
 	glm::vec3 m_position;

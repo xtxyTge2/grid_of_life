@@ -121,20 +121,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracy|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>false</EnableASAN>
@@ -164,18 +164,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\kala\code\sancious_shaders\3rdparty\opencl_sdk\OpenCL-SDK\install\include;C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\kala\code\sancious_shaders\3rdparty\opencl_sdk\OpenCL-SDK\install\lib;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\libs;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\kala\code\sancious_shaders\3rdparty\opencl_sdk\OpenCL-SDK\install\include;C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\kala\code\sancious_shaders\3rdparty\opencl_sdk\OpenCL-SDK\install\lib;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\libs;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracy|x64'">
-    <IncludePath>C:\Users\kala\code\sancious_shaders\3rdparty\opencl_sdk\OpenCL-SDK\install\include;C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\kala\code\sancious_shaders\3rdparty\opencl_sdk\OpenCL-SDK\install\lib;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\libs;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
