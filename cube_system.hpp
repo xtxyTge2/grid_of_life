@@ -3,7 +3,7 @@
 #include "Tracy.hpp"
 
 #include "world.hpp"
-
+#include <concurrent_queue.h>
 
 class Cube_System {
 public:
@@ -16,17 +16,25 @@ public:
 	void create_border_cubes_for_grid();
 
 	void create_grid_cubes_for_grid();
+
+	void compute_coordinates_of_alive_grid_cells();
+
+	void create_cubes_from_coordinates();
 	//--------------------------------------------------------------------------------
 	// data
 	std::shared_ptr<Grid_Manager> grid_manager;
 
-	int current_number_of_grid_cubes;
-	constexpr static size_t MAX_NUMBER_OF_GRID_CUBES = 500000;
-	std::array<Cube, MAX_NUMBER_OF_GRID_CUBES> grid_cubes;
+	
+	constexpr static size_t EXPECTED_MAX_NUMBER_OF_GRID_CUBES = 500000;
+	std::vector<Cube> grid_cubes;
 
-	int current_number_of_border_cubes;
-	constexpr static size_t MAX_NUMBER_OF_BORDER_CUBES = 500000;
-	std::array<Cube, MAX_NUMBER_OF_BORDER_CUBES> border_cubes;
+	constexpr static size_t EXPECTED_MAX_NUMBER_OF_BORDER_CUBES = 500000;
+	std::vector<Cube> border_cubes;
 
 	std::vector<glm::mat4> cubes_model_data;
+
+	moodycamel::ConcurrentQueue<std::pair<int, int>> grid_coordinates;
+
+	std::atomic<bool> t1_done;
+	std::atomic<size_t> total_number_of_elements_enqueued;
 };

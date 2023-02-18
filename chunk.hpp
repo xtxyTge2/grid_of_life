@@ -111,21 +111,6 @@ public:
 
 // assume Chunk::rows == Chunk::columns!
 struct ChunkSideUpdateInfo {
-	
-	ChunkSideUpdateInfo(const Coordinate& c) :
-		data({}),
-	chunk_to_update_coordinate(c) 
-	{
-
-	};
-	
-	ChunkSideUpdateInfo(const std::array<unsigned char, Chunk::rows> & a, const Coordinate& c) :
-		data(a),
-	chunk_to_update_coordinate(c) 
-	{
-
-	};
-	
 	std::array<unsigned char, Chunk::rows> data;
 	Coordinate chunk_to_update_coordinate;
 };

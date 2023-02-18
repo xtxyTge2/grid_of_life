@@ -8,6 +8,13 @@ Cube::Cube() :
 	
 }
 
+Cube::Cube(glm::vec3 pos, float angle) :
+	m_position(pos),
+m_angle(angle)
+{
+	
+}
+
 const glm::mat4 Cube::compute_model_matrix_no_rotation() const {
 	ZoneScoped;
 

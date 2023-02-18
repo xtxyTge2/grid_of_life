@@ -117,17 +117,6 @@ Grid::Grid(std::shared_ptr<OpenCLContext> context) :
 	iteration(0),
 number_of_chunks(0),
 chunk_map({}),
-chunks_left_side_update_infos({}),
-chunks_right_side_update_infos({}),
-chunks_top_side_update_infos({}),
-chunks_bottom_side_update_infos({}),
-top_left_corner_update_infos({}),
-top_right_corner_update_infos({}),
-bottom_left_corner_update_infos({}),
-bottom_right_corner_update_infos({}),
-coordinates_of_chunks_to_create({}),
-grid_coordinates({}),
-border_coordinates({}),
 opencl_context(context)
 {
 	ZoneScoped;
@@ -252,23 +241,23 @@ void Grid::update_neighbour_count_and_set_info_of_all_chunks() {
 
 	coordinates_of_chunks_to_create.clear();
 
-	
-	std::for_each(
-		std::execution::par_unseq,
-		chunk_map.begin(),
-		chunk_map.end(),
-		[](auto&& it) {
-		Chunk& chunk = it.second;
-		chunk.update_neighbour_count_inside();
-	}
-	);
-
-	// cant use pragma omp parallel below, since we insert into a vector and that is not thread safe.
-	for (auto it = chunk_map.begin(); it != chunk_map.end(); ++it) {
-		{
-			Chunk& chunk = it->second;
-			set_chunk_neighbour_info(chunk);
+	{
+		ZoneScopedN("update neighbour count inside of all chunks");
+		concurrency::parallel_for_each(
+			std::begin(chunk_map),
+			std::end(chunk_map),
+			[](auto&& it) {
+			Chunk& chunk = it.second;
+			chunk.update_neighbour_count_inside();
 		}
+		);
+	}
+	{
+		ZoneScopedN("set chunk neighbour info of all chunks");
+		concurrency::parallel_for_each(std::begin(chunk_map), std::end(chunk_map), [this](auto&& it) {
+		                               Chunk& chunk = it.second;
+									   set_chunk_neighbour_info(chunk);
+		});
 	}
 }
 
@@ -292,9 +281,11 @@ void Grid::set_chunk_neighbour_info(Chunk& chunk) {
 		if (!chunk_map.contains(top_coord)) {
 			coordinates_of_chunks_to_create.insert(top_coord);
 		}
-
-		ChunkSideUpdateInfo& top_info = chunks_bottom_side_update_infos.emplace_back(top_coord);
+		ChunkSideUpdateInfo top_info;
+		top_info.chunk_to_update_coordinate = top_coord;
 		std::copy_n(std::begin(cells_data), Chunk::columns, std::begin(top_info.data));
+
+		chunks_bottom_side_update_infos.push_back(top_info);
 	}
 
 	// bottom side of chunk, so top side of neighbour chunk
@@ -312,9 +303,11 @@ void Grid::set_chunk_neighbour_info(Chunk& chunk) {
 		if (!chunk_map.contains(bottom_coord)) {
 			coordinates_of_chunks_to_create.insert(bottom_coord);
 		}
-
-		ChunkSideUpdateInfo& bottom_info = chunks_top_side_update_infos.emplace_back(bottom_coord);
+		ChunkSideUpdateInfo bottom_info;
+		bottom_info.chunk_to_update_coordinate = bottom_coord;
 		std::copy_n(std::end(cells_data) - Chunk::columns , Chunk::columns, std::begin(bottom_info.data));
+
+		chunks_top_side_update_infos.push_back(bottom_info);
 	}
 
 	// left side of chunk, so right side of neighbour chunk
@@ -332,7 +325,10 @@ void Grid::set_chunk_neighbour_info(Chunk& chunk) {
 		if (!chunk_map.contains(left_coord)) {
 			coordinates_of_chunks_to_create.insert(left_coord);
 		}
-		chunks_right_side_update_infos.emplace_back(left_column, left_coord);
+		ChunkSideUpdateInfo left_info;
+		left_info.chunk_to_update_coordinate = left_coord;
+		left_info.data = left_column;
+		chunks_right_side_update_infos.push_back(left_info);
 	}
 
 	// right side of chunk, so left side of neighbour chunk
@@ -350,7 +346,10 @@ void Grid::set_chunk_neighbour_info(Chunk& chunk) {
 		if (!chunk_map.contains(right_coord)) {
 			coordinates_of_chunks_to_create.insert(right_coord);
 		}
-		chunks_left_side_update_infos.emplace_back(right_column, right_coord);
+		ChunkSideUpdateInfo right_info;
+		right_info.chunk_to_update_coordinate = right_coord;
+		right_info.data = right_column;
+		chunks_left_side_update_infos.push_back(right_info);
 	}
 
 	//top left corner

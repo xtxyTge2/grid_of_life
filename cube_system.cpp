@@ -1,97 +1,109 @@
 #include "cube_system.hpp"
+#include <boost/unordered/unordered_flat_map.hpp>
 
-Cube_System::Cube_System() : 
-	grid_manager(nullptr), 
-	current_number_of_grid_cubes(0), 
-	current_number_of_border_cubes(0) 
+Cube_System::Cube_System() :
+	t1_done(false),
+	total_number_of_elements_enqueued(0),
+	grid_manager(nullptr),
+	grid_cubes({}),
+border_cubes({})
 {
-
 }
 
 void Cube_System::initialise(std::shared_ptr<Grid_Manager> manager) {
 	grid_manager = manager;
-	cubes_model_data.reserve(MAX_NUMBER_OF_BORDER_CUBES + MAX_NUMBER_OF_BORDER_CUBES);
+	/*
+	grid_cubes.reserve(EXPECTED_MAX_NUMBER_OF_BORDER_CUBES);
+	border_cubes.reserve(EXPECTED_MAX_NUMBER_OF_BORDER_CUBES);
+	cubes_model_data.reserve(EXPECTED_MAX_NUMBER_OF_BORDER_CUBES + EXPECTED_MAX_NUMBER_OF_BORDER_CUBES);
+		*/
 }
 
+
+void Cube_System::compute_coordinates_of_alive_grid_cells() {
+	ZoneScoped;
+	size_t internal_number_elements_enqueued = 0;
+	
+	concurrency::concurrent_vector<size_t> number_of_alive_cells_vector;
+	concurrency::parallel_for_each(
+		std::begin(grid_manager->grid->chunk_map),
+		std::end(grid_manager->grid->chunk_map),
+		[&number_of_alive_cells_vector, this](auto&& it) {
+			Chunk& chunk = it.second;
+			size_t number_of_alive_cells_current_chunk = 0;
+
+			for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
+				int r = i / Chunk::rows;
+				int c = i % Chunk::columns;
+				if (chunk.cells_data[i]) {
+					std::pair<int, int> value = std::make_pair(r + chunk.chunk_origin_row, c + chunk.chunk_origin_column);
+					
+					grid_coordinates.enqueue(value);
+					number_of_alive_cells_current_chunk++;
+				}
+			}
+			number_of_alive_cells_vector.push_back(number_of_alive_cells_current_chunk);
+		}
+	);
+	
+
+	// calculate how many elements in total we have enqueued, store this in an internal variable first. Saving us atomic updates atm.
+	for (size_t value: number_of_alive_cells_vector) {
+		internal_number_elements_enqueued += value;
+	}
+
+
+	// ORDER MATTERS HERE!
+	// save some atomic writes by only updating it once at the point where we actually need it.
+	total_number_of_elements_enqueued = internal_number_elements_enqueued;
+	// first update the number of elements enqueued, then set t1_done to true. This ensures that the second thread gets the correct number of elements enqueued, since he only reads it after t1_done is true.
+	// never forget to set thread to done here!
+	t1_done = true;
+
+}
+
+void Cube_System::create_cubes_from_coordinates() {
+	ZoneScoped;
+	size_t number_elements_dequeued = 0;
+
+	// run until thread t1 is done
+	while (!t1_done) {
+		std::pair<int, int> coord_pair;
+		bool success = grid_coordinates.try_dequeue(coord_pair);
+			
+		if (success) {
+			number_elements_dequeued++;
+			float x = (float) coord_pair.first;
+			float y = (float) coord_pair.second;
+			grid_cubes.emplace_back(glm::vec3(y, -x, -3.0f), 0.0f);
+		}
+	}
+	// only get here once thread t1 is done. By this point the atomic variable total_number_of_elements_enqueued is set correctly by thread 1. (it gets updated before t1_done is set to true, so no possible race condition between atomic variables updating.)
+	while (number_elements_dequeued < total_number_of_elements_enqueued) {
+		std::pair<int, int> coord_pair; 
+		bool success = grid_coordinates.try_dequeue(coord_pair);
+			
+		if (success) {
+			number_elements_dequeued++;
+			float x = (float) coord_pair.first;
+			float y = (float) coord_pair.second;
+			grid_cubes.emplace_back(glm::vec3(y, -x, -3.0f), 0.0f);
+		}
+	}
+}
 
 void Cube_System::create_grid_cubes_for_grid() {
 	ZoneScoped;
 
-	if (true) {
-		std::vector<std::pair<int, int>> coordinates;
-		
-		for (auto& [chunk_coord, chunk]: grid_manager->grid->chunk_map) {
-			// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
-
-			// get chunk coordinates from alive grid cells
-			std::array<unsigned char, Chunk::rows*Chunk::columns>& cells_data = chunk.cells_data;
-			for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
-				int r = i / Chunk::rows;
-				int c = i % Chunk::columns;
-				if (cells_data[i]) {
-					coordinates.push_back(std::make_pair(r + chunk.chunk_origin_row, c + chunk.chunk_origin_column));
-				}
-			}
-		}
+	// clear this before we do anything else! dont want old coordinates showing up.
+	grid_coordinates = moodycamel::ConcurrentQueue<std::pair<int, int>>();
+	total_number_of_elements_enqueued = 0;
+	t1_done = false;
+	std::thread t1(&Cube_System::compute_coordinates_of_alive_grid_cells, this);
+	std::thread t2(&Cube_System::create_cubes_from_coordinates, this);
 	
-		if (coordinates.size() > MAX_NUMBER_OF_GRID_CUBES) {
-			std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_GRID_CUBES << " grid cubes. Tried to create " << coordinates.size() << " grid cubes.\n";
-			return;
-		}
-
-		current_number_of_grid_cubes = 0;
-		for (auto& [x, y]: coordinates) {
-			Cube& current_cube = grid_cubes[current_number_of_grid_cubes];
-			current_number_of_grid_cubes++;
-			// note the switch in y and x coordinates here!
-			current_cube.m_position = glm::vec3((float) y, (float) -x, -3.0f);
-			current_cube.m_angle = 0.0f;
-			// TODO reset cube here.
-		}
-	} else {
-		/*
-		grid_coordinates_concurrent = moodycamel::ConcurrentQueue < std::pair<int, int> >();
-
-		std::for_each(
-			std::execution::par_unseq,
-			chunk_map.begin(),
-			chunk_map.end(),
-			[this](auto&& it) {
-			Chunk& chunk = it.second;
-			std::array<unsigned char, Chunk::rows*Chunk::columns>& cells_data = chunk.cells_data;
-			for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
-				int r = i / Chunk::rows;
-				int c = i % Chunk::columns;
-				if (cells_data[i]) {
-					grid_coordinates_concurrent.enqueue(std::make_pair(r + chunk.chunk_origin_row, c + chunk.chunk_origin_column));
-				}
-			}
-		}
-		);
-
-		number_of_elements_enqueued = grid_coordinates_concurrent.size_approx();
-
-
-
-		moodycamel::ConcurrentQueue < std::pair<int, int>>&  grid_coordinates_concurrent = grid_manager->grid->grid_coordinates_concurrent;
-		size_t number_elements_dequeued = 0;
-		while (number_elements_dequeued < grid_manager->grid->number_of_elements_enqueued) {
-			std::pair<int, int> coord_pair; 
-			bool success_dequeue = grid_coordinates_concurrent.try_dequeue(coord_pair);
-			if (success_dequeue) {
-				int x = coord_pair.first;
-				int y = coord_pair.second;
-	
-				Cube& current_cube = grid_cubes[current_number_of_grid_cubes];
-				current_number_of_grid_cubes++;
-				// note the switch in y and x coordinates here!
-				current_cube.m_position = glm::vec3((float) y, (float) -x, -3.0f);
-				current_cube.m_angle = 0.0f;
-				number_elements_dequeued++;
-			}
-		}
-		*/
-	}
+	t1.join();
+	t2.join();
 }
 
 void Cube_System::create_border_cubes_for_grid() {
@@ -109,18 +121,8 @@ void Cube_System::create_border_cubes_for_grid() {
 		}
 	}
 
-	if (coordinates.size() > MAX_NUMBER_OF_BORDER_CUBES) {
-		std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_BORDER_CUBES << " border cubes. Tried to create " << coordinates.size() << " border cubes.\n";
-		return;
-	}
-
-	current_number_of_border_cubes = 0;
 	for (auto& [x, y]: coordinates) {
-		Cube& current_cube = border_cubes[current_number_of_border_cubes];
-		current_number_of_border_cubes++;
-		// note the switch in y and x coordinates here!
-		current_cube.m_position = glm::vec3((float) y, (float) -x, -3.0f);
-		current_cube.m_angle = 50.0f;
+		border_cubes.emplace_back(glm::vec3((float) y, (float) -x, -3.0f), 50.0f);
 	}
 }
 
@@ -130,12 +132,12 @@ void Cube_System::update() {
 	
 	bool has_to_update_cubes_model_data = false;
 	if (grid_manager->grid_execution_state.updated_grid_coordinates) {
-		current_number_of_grid_cubes = 0;
+		grid_cubes.clear();
 		create_grid_cubes_for_grid();
 		has_to_update_cubes_model_data = true;
-	} 
-	if(grid_manager->grid_execution_state.updated_border_coordinates) {
-		current_number_of_border_cubes = 0;
+	}
+	if (grid_manager->grid_execution_state.updated_border_coordinates) {
+		border_cubes.clear();
 		has_to_update_cubes_model_data = true;
 		if (grid_manager->grid_execution_state.show_chunk_borders) {
 			create_border_cubes_for_grid();
@@ -143,16 +145,25 @@ void Cube_System::update() {
 	}
 
 	if (has_to_update_cubes_model_data) {
-		cubes_model_data.clear();
-		for (int i = 0; i < current_number_of_grid_cubes; i++) {
-			const Cube& current_cube = grid_cubes[i];
-			const glm::mat4 model_matrix = current_cube.compute_model_matrix_no_rotation();
-			cubes_model_data.push_back(model_matrix);
-		}
-		for (int i = 0; i < current_number_of_border_cubes; i++) {
-			const Cube& current_cube = border_cubes[i];
-			const glm::mat4 model_matrix = current_cube.compute_model_matrix_with_rotation();
-			cubes_model_data.push_back(model_matrix);
+		/*
+		concurrency::concurrent_vector<glm::mat4> cubes_model_data_concurrent_vector;
+		cubes_model_data_concurrent_vector.reserve(current_number_of_grid_cubes + current_number_of_border_cubes);
+		concurrency::parallel_for(
+			std::begin(
+		);
+		*/
+		{
+			ZoneScopedN("compute mvp data for all cubes");
+
+			cubes_model_data.clear();
+			for (const Cube& cube: grid_cubes) {
+				const glm::mat4 model_matrix = cube.compute_model_matrix_no_rotation();
+				cubes_model_data.push_back(model_matrix);
+			}
+			for (const Cube& cube: border_cubes) {
+				const glm::mat4 model_matrix = cube.compute_model_matrix_with_rotation();
+				cubes_model_data.push_back(model_matrix);
+			}
 		}
 	}
 }
