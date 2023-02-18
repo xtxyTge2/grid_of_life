@@ -102,76 +102,14 @@ void Grid_Manager::update(double dt, const Grid_UI_Controls_Info& ui_info) {
 
 	// only update coordinates of alive grid cells if we are in the first iteration or if the grid changed.
 	if (grid->iteration == 0 || grid_changed) {
-		grid->update_coordinates_for_alive_grid_cells();
 		grid_execution_state.updated_grid_coordinates = true;
 	}
 
 	if (grid->iteration == 0 || (grid_execution_state.show_chunk_borders && grid_changed) || grid_execution_state.have_to_update_chunk_borders) {
-		grid->update_coordinates_for_chunk_borders();
 		grid_execution_state.updated_border_coordinates = true;
 	}
 	// @Cleanup, factor this into a grid_info->update() call?
 	update_grid_info();
-}
-
-
-void Grid::update_coordinates_for_alive_grid_cells() {
-	ZoneScoped;
-
-	if (false) {
-		grid_coordinates.clear();
-		for (auto& [chunk_coord, chunk]: chunk_map) {
-			// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
-
-			// get chunk coordinates from alive grid cells
-			std::array<unsigned char, Chunk::rows*Chunk::columns>& cells_data = chunk.cells_data;
-			for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
-				int r = i / Chunk::rows;
-				int c = i % Chunk::columns;
-				if (cells_data[i]) {
-					grid_coordinates.push_back(std::make_pair(r + chunk.chunk_origin_row, c + chunk.chunk_origin_column));
-				}
-			}
-		}
-	} else {
-		grid_coordinates_concurrent = moodycamel::ConcurrentQueue < std::pair<int, int> >();
-
-		std::for_each(
-			std::execution::par_unseq,
-			chunk_map.begin(),
-			chunk_map.end(),
-			[this](auto&& it) {
-			Chunk& chunk = it.second;
-			std::array<unsigned char, Chunk::rows*Chunk::columns>& cells_data = chunk.cells_data;
-			for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
-				int r = i / Chunk::rows;
-				int c = i % Chunk::columns;
-				if (cells_data[i]) {
-					grid_coordinates_concurrent.enqueue(std::make_pair(r + chunk.chunk_origin_row, c + chunk.chunk_origin_column));
-				}
-			}
-		}
-		);
-
-		number_of_elements_enqueued = grid_coordinates_concurrent.size_approx();
-	}
-
-}
-
-void Grid::update_coordinates_for_chunk_borders() {
-	ZoneScoped;
-
-	border_coordinates.clear();
-	for (auto& [chunk_coord, chunk]: chunk_map) {
-		for (int r = 0; r < Chunk::rows; r++) {
-			border_coordinates.push_back(std::make_pair(chunk.chunk_origin_row + r, chunk.chunk_origin_column - 1));
-			border_coordinates.push_back(std::make_pair(chunk.chunk_origin_row + r, chunk.chunk_origin_column + Chunk::columns));
-		}
-		for (int c = 0; c < Chunk::columns; c++) {
-			border_coordinates.push_back(std::make_pair(chunk.chunk_origin_row -1, chunk.chunk_origin_column + c));
-			border_coordinates.push_back(std::make_pair(chunk.chunk_origin_row + Chunk::rows, chunk.chunk_origin_column + c));
-		}
-	}
 }
 
 //--------------------------------------------------------------------------------
@@ -188,7 +126,6 @@ top_right_corner_update_infos({}),
 bottom_left_corner_update_infos({}),
 bottom_right_corner_update_infos({}),
 coordinates_of_chunks_to_create({}),
-number_of_elements_enqueued(0),
 grid_coordinates({}),
 border_coordinates({}),
 opencl_context(context)
@@ -241,9 +178,6 @@ opencl_context(context)
 
 
 
-
-	update_coordinates_for_alive_grid_cells();
-
 	/*
 	{
 		int chunk_origin_test_row = -2;
@@ -285,8 +219,6 @@ void Grid::update() {
 
 void Grid::next_iteration() {
 	ZoneScoped;
-
-
 
 	update_neighbour_count_and_set_info_of_all_chunks();
 

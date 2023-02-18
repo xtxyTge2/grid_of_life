@@ -19,10 +19,6 @@ public:
 
 	void create_new_chunk_and_set_alive_cells(const Coordinate& coord, const std::vector<std::pair<int, int>>& coordinates);
 
-	void update_coordinates_for_alive_grid_cells();
-
-	void update_coordinates_for_chunk_borders();
-
 	void update_cells_of_all_chunks();
 
 	void remove_empty_chunks();
@@ -58,9 +54,6 @@ public:
 	std::vector<Coordinate> bottom_right_corner_update_infos;
 	
 	boost::unordered_flat_set<Coordinate> coordinates_of_chunks_to_create;
-
-	moodycamel::ConcurrentQueue < std::pair<int, int> > grid_coordinates_concurrent;
-	size_t number_of_elements_enqueued;
 
 	std::vector<std::pair<int, int>> grid_coordinates;
 	std::vector<std::pair<int, int>> border_coordinates;

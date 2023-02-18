@@ -17,8 +17,22 @@ void Cube_System::initialise(std::shared_ptr<Grid_Manager> manager) {
 void Cube_System::create_grid_cubes_for_grid() {
 	ZoneScoped;
 
-	if (false) {
-		std::vector<std::pair<int, int>> coordinates = grid_manager->grid->grid_coordinates;
+	if (true) {
+		std::vector<std::pair<int, int>> coordinates;
+		
+		for (auto& [chunk_coord, chunk]: grid_manager->grid->chunk_map) {
+			// transform local chunk coordinates of alive grid cells into world coordinates and add them to our vector of world coordinates
+
+			// get chunk coordinates from alive grid cells
+			std::array<unsigned char, Chunk::rows*Chunk::columns>& cells_data = chunk.cells_data;
+			for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
+				int r = i / Chunk::rows;
+				int c = i % Chunk::columns;
+				if (cells_data[i]) {
+					coordinates.push_back(std::make_pair(r + chunk.chunk_origin_row, c + chunk.chunk_origin_column));
+				}
+			}
+		}
 	
 		if (coordinates.size() > MAX_NUMBER_OF_GRID_CUBES) {
 			std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_GRID_CUBES << " grid cubes. Tried to create " << coordinates.size() << " grid cubes.\n";
@@ -35,6 +49,30 @@ void Cube_System::create_grid_cubes_for_grid() {
 			// TODO reset cube here.
 		}
 	} else {
+		/*
+		grid_coordinates_concurrent = moodycamel::ConcurrentQueue < std::pair<int, int> >();
+
+		std::for_each(
+			std::execution::par_unseq,
+			chunk_map.begin(),
+			chunk_map.end(),
+			[this](auto&& it) {
+			Chunk& chunk = it.second;
+			std::array<unsigned char, Chunk::rows*Chunk::columns>& cells_data = chunk.cells_data;
+			for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
+				int r = i / Chunk::rows;
+				int c = i % Chunk::columns;
+				if (cells_data[i]) {
+					grid_coordinates_concurrent.enqueue(std::make_pair(r + chunk.chunk_origin_row, c + chunk.chunk_origin_column));
+				}
+			}
+		}
+		);
+
+		number_of_elements_enqueued = grid_coordinates_concurrent.size_approx();
+
+
+
 		moodycamel::ConcurrentQueue < std::pair<int, int>>&  grid_coordinates_concurrent = grid_manager->grid->grid_coordinates_concurrent;
 		size_t number_elements_dequeued = 0;
 		while (number_elements_dequeued < grid_manager->grid->number_of_elements_enqueued) {
@@ -52,12 +90,25 @@ void Cube_System::create_grid_cubes_for_grid() {
 				number_elements_dequeued++;
 			}
 		}
+		*/
 	}
 }
 
 void Cube_System::create_border_cubes_for_grid() {
 	ZoneScoped;
-	std::vector<std::pair<int, int>> coordinates = grid_manager->grid->border_coordinates;
+
+	std::vector<std::pair<int, int>> coordinates;
+	for (auto& [chunk_coord, chunk]: grid_manager->grid->chunk_map) {
+		for (int r = 0; r < Chunk::rows; r++) {
+			coordinates.push_back(std::make_pair(chunk.chunk_origin_row + r, chunk.chunk_origin_column - 1));
+			coordinates.push_back(std::make_pair(chunk.chunk_origin_row + r, chunk.chunk_origin_column + Chunk::columns));
+		}
+		for (int c = 0; c < Chunk::columns; c++) {
+			coordinates.push_back(std::make_pair(chunk.chunk_origin_row -1, chunk.chunk_origin_column + c));
+			coordinates.push_back(std::make_pair(chunk.chunk_origin_row + Chunk::rows, chunk.chunk_origin_column + c));
+		}
+	}
+
 	if (coordinates.size() > MAX_NUMBER_OF_BORDER_CUBES) {
 		std::cout << "Error. Cant create more than " << MAX_NUMBER_OF_BORDER_CUBES << " border cubes. Tried to create " << coordinates.size() << " border cubes.\n";
 		return;
