@@ -44,7 +44,8 @@ public:
 	int iteration;
 	int number_of_chunks;
 
-	boost::unordered_flat_map<Coordinate, Chunk> chunk_map;
+	boost::unordered_flat_map<Coordinate, std::size_t> chunk_map;
+	std::vector<Chunk> chunks;
 
 	concurrency::concurrent_vector<ChunkSideUpdateInfo> chunks_left_side_update_infos;
 	concurrency::concurrent_vector<ChunkSideUpdateInfo> chunks_right_side_update_infos;

@@ -35,6 +35,7 @@ public:
 
 	moodycamel::ConcurrentQueue<std::pair<int, int>> grid_coordinates;
 
+
 	std::atomic<bool> t1_done;
 	std::atomic<size_t> total_number_of_elements_enqueued;
 };

@@ -19,7 +19,7 @@ void World::initialise(GLFWwindow* window) {
 	m_mouse->initialise(0.0f, 0.0f);
 
 	m_camera = std::make_unique < Camera > ();
-	m_camera->position = glm::vec3(Chunk::rows / 2, Chunk::columns / 2, 1000.0f);
+	m_camera->position = glm::vec3(Chunk::rows / 2, Chunk::columns / 2, 1250.0f);
 
 	// left/right/x-axis direction vector
 	m_camera->orientation_vector_matrix[0] = glm::vec3(1.0f, 0.0f, 0.0f);

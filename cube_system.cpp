@@ -26,10 +26,10 @@ void Cube_System::compute_coordinates_of_alive_grid_cells() {
 	
 	concurrency::concurrent_vector<size_t> number_of_alive_cells_vector;
 	concurrency::parallel_for_each(
-		std::begin(grid_manager->grid->chunk_map),
-		std::end(grid_manager->grid->chunk_map),
+		std::begin(grid_manager->grid->chunks),
+		std::end(grid_manager->grid->chunks),
 		[&number_of_alive_cells_vector, this](auto&& it) {
-			Chunk& chunk = it.second;
+			Chunk& chunk = it;
 			size_t number_of_alive_cells_current_chunk = 0;
 
 			for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
@@ -110,7 +110,7 @@ void Cube_System::create_border_cubes_for_grid() {
 	ZoneScoped;
 
 	std::vector<std::pair<int, int>> coordinates;
-	for (auto& [chunk_coord, chunk]: grid_manager->grid->chunk_map) {
+	for (Chunk& chunk: grid_manager->grid->chunks) {
 		for (int r = 0; r < Chunk::rows; r++) {
 			coordinates.push_back(std::make_pair(chunk.chunk_origin_row + r, chunk.chunk_origin_column - 1));
 			coordinates.push_back(std::make_pair(chunk.chunk_origin_row + r, chunk.chunk_origin_column + Chunk::columns));
