@@ -39,6 +39,7 @@ public:
 	void create_needed_neighbours_of_all_chunks();
 
 	void set_chunk_neighbour_info(Chunk& chunk);
+
 	//--------------------------------------------------------------------------------
 	// data
 	int iteration;
