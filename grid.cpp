@@ -225,6 +225,45 @@ void Grid::next_iteration() {
 
 	iteration++;
 	number_of_chunks = static_cast<int>(chunk_map.size());
+	assert(chunk_map.size() == chunks.size());
+}
+
+std::vector<std::pair<std::size_t, std::size_t>> Grid::get_partition_data_for_chunks(unsigned int number_of_workers, bool allow_small_task_sizes) {
+	ZoneScoped;
+
+	constexpr static std::size_t MINIMUM_NUMBER_OF_CHUNKS_PER_THREAD = 500;
+	
+	assert(chunks.size() == number_of_chunks);
+
+	std::vector<std::pair<std::size_t, std::size_t>> partition;
+	if (number_of_chunks <= MINIMUM_NUMBER_OF_CHUNKS_PER_THREAD || number_of_workers == 1) {
+		partition = { { 0, number_of_chunks - 1 } };
+	} else {
+		std::size_t chunks_per_thread = number_of_chunks / number_of_workers;
+		if (!allow_small_task_sizes && chunks_per_thread < MINIMUM_NUMBER_OF_CHUNKS_PER_THREAD) {
+			// dont schedule any task with less than these amount of chunks per task if you dont allow small task sizes
+			chunks_per_thread = MINIMUM_NUMBER_OF_CHUNKS_PER_THREAD;
+		}
+
+		std::size_t number_of_tasks = number_of_chunks / chunks_per_thread;
+		std::size_t remaining_chunks = number_of_chunks % chunks_per_thread;
+		
+		std::size_t start_index = 0;
+		std::size_t end_index = chunks_per_thread - 1;
+		for (int i = 0; i < number_of_tasks; i++) {
+			if (i == number_of_tasks - 1) {
+				// the last worker gets the remaining chunks as well.
+				end_index += remaining_chunks;
+			}
+			partition.push_back(std::make_pair(start_index, end_index));
+
+			start_index += chunks_per_thread;
+			end_index += chunks_per_thread;
+		}
+
+		assert(partition.back().second == chunks.size() - 1);
+	}
+	return partition;
 }
 
 

@@ -2,8 +2,7 @@
 
 Cube_System::Cube_System() :
 	grid_manager(nullptr),
-border_cubes({}),
-number_of_threads(4)
+border_cubes({})
 {
 }
 
@@ -12,124 +11,86 @@ void Cube_System::initialise(std::shared_ptr<Grid_Manager> manager) {
 	
 	border_cubes.reserve(EXPECTED_MAX_NUMBER_OF_BORDER_CUBES);
 	cubes_model_data.reserve(EXPECTED_MAX_NUMBER_OF_BORDER_CUBES + EXPECTED_MAX_NUMBER_OF_BORDER_CUBES);
+	model_matrix_queue = moodycamel::ConcurrentQueue < glm::mat4 > (cubes_model_data.capacity());
 }
 
-std::size_t Cube_System::add_grid_coordinates_to_queue(std::pair<int, int> start_end_index_pair) {
+
+void Cube_System::model_queue_producer(std::pair<std::size_t, std::size_t> start_end_index) {
 	ZoneScoped;
 
-	size_t number_elements_enqueued = 0;
-	int start_index = start_end_index_pair.first;
-	int end_index = start_end_index_pair.second;
-	for (int chunk_index = start_index; chunk_index < end_index; chunk_index++) {
-		Chunk& chunk = grid_manager->grid->chunks[chunk_index];
+	std::array<glm::mat4, Chunk::rows * Chunk::columns> local_data;
+
+	std::size_t start_index = start_end_index.first;
+	std::size_t end_index = start_end_index.second;
+	
+	for (std::size_t idx = start_index; idx < end_index; ++idx) {
+		Chunk& chunk = grid_manager->grid->chunks[idx];
+		std::size_t count = 0;
 		for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
-			int r = i / Chunk::rows;
-			int c = i % Chunk::columns;
 			if (chunk.cells_data[i]) {
-				std::pair<int, int> value = std::make_pair(r + chunk.chunk_origin_row, c + chunk.chunk_origin_column);
-					
-				grid_coordinates_queue.enqueue(value);
-				number_elements_enqueued++;
+				int r = i / Chunk::rows;
+				int c = i % Chunk::columns;
+				
+				r += chunk.chunk_origin_row;
+				c += chunk.chunk_origin_column;
+
+				float x = static_cast<float>(r);
+				float y = static_cast<float>(c);
+				glm::vec3 cube_position = glm::vec3(y, -x, -3.0f);
+
+				glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), cube_position);
+				local_data[count++] = model_matrix;
 			}
 		}
-	}
-	return number_elements_enqueued;
-}
-
-
-size_t Cube_System::add_all_coordinates_of_alive_grid_cells_to_queue() {
-	auto& chunks = grid_manager->grid->chunks;
-	// clear this before we do anything else! dont want old coordinates showing up.
-	grid_coordinates_queue = moodycamel::ConcurrentQueue<std::pair<int, int>>();
-
-	size_t chunks_per_thread = grid_manager->grid->number_of_chunks / number_of_threads;
-	std::vector<std::pair<int, int>> chunk_block_start_end_indices = get_work_group_start_end_indices_pairs(chunks_per_thread, chunks.size());
-
-	std::vector<std::future < size_t> > working_thread_results;
-	for (auto& index_pair: chunk_block_start_end_indices) {
-		working_thread_results.emplace_back(std::async(std::launch::async, &Cube_System::add_grid_coordinates_to_queue, this, index_pair));
-	}
-		
-	for (auto& r: working_thread_results) {
-		r.wait();
-	}
-
-	size_t total_number_of_elements_enqueued = 0;
-	for (auto& r: working_thread_results) {
-		total_number_of_elements_enqueued += r.get();
-	}
-
-	return total_number_of_elements_enqueued;
-}
-
-
-void Cube_System::create_cubes_for_all_coordinates_in_queue(size_t number_of_coords) {
-	size_t elements_per_thread = number_of_coords / number_of_threads;
-	std::vector<std::future<void>> working_group_threads;
-	for (int i = 0; i < number_of_threads; i++) {
-		working_group_threads.emplace_back(std::async(std::launch::async,
-		                                              &Cube_System::create_cubes_from_coordinates, this, elements_per_thread));
-	}
-		
-	for (auto& r: working_group_threads) {
-		r.wait();
+		// std::make_move_iterator?
+		model_matrix_queue.enqueue_bulk(local_data.begin(), count);
 	}
 }
 
-void Cube_System::create_cubes_for_alive_grid_cells() {
+void Cube_System::model_queue_busy_wait_consumer(std::stop_source stop_source) {
 	ZoneScoped;
 
-	size_t number_of_coords = add_all_coordinates_of_alive_grid_cells_to_queue();
+	std::stop_token stoken = stop_source.get_token();
+
+	constexpr int local_array_size = 4 * Chunk::rows * Chunk::columns;
+	std::array<glm::mat4, local_array_size> local_matrix_data;
+	while (!stoken.stop_requested()) {
+		std::size_t number_dequeued = model_matrix_queue.try_dequeue_bulk(local_matrix_data.begin(), local_matrix_data.size());
+		if (number_dequeued > 0) {
+			cubes_model_data.insert(std::end(cubes_model_data), std::begin(local_matrix_data), std::begin(local_matrix_data) + number_dequeued);
+		}
+	}
 	
-	create_cubes_for_all_coordinates_in_queue(number_of_coords);
-}
-
-void Cube_System::update_model_matrix_queue_partially(size_t work_items) {
-	ZoneScoped;
-
-	size_t dequeued_items = 0;
-
-	while (dequeued_items < work_items) {
-		Cube cube;
-		bool success = cubes_queue.try_dequeue(cube);
-		if (success) {
-			dequeued_items++;
-
-			const glm::mat4 model_matrix = cube.compute_model_matrix_no_rotation();
-			model_matrix_queue.enqueue(model_matrix);
-		}
+	std::size_t number_dequeued = model_matrix_queue.try_dequeue_bulk(local_matrix_data.begin(), local_matrix_data.size());
+	while (number_dequeued > 0) {
+		cubes_model_data.insert(std::end(cubes_model_data), std::begin(local_matrix_data), std::begin(local_matrix_data) + number_dequeued);
+		number_dequeued = model_matrix_queue.try_dequeue_bulk(local_matrix_data.begin(), local_matrix_data.size());
 	}
 }
 
-void Cube_System::update_model_matrix_queue() {
-	ZoneScoped;
-	size_t number_of_cubes = cubes_queue.size_approx();
 
-	size_t work_items_per_thread = number_of_cubes / number_of_threads;
-
-	std::vector<std::future<void>> work_threads;
-	for (int i = 0; i < number_of_threads; i++) {
-		work_threads.emplace_back(std::async(std::launch::async,
-		                                     &Cube_System::update_model_matrix_queue_partially, this, work_items_per_thread));
-	}
-}
-
-void Cube_System::create_cubes_from_coordinates(size_t number_of_needed_cubes) {
+void Cube_System::update_model_matrix_data() {
 	ZoneScoped;
 
-	size_t number_of_created_cubes = 0;
-	while (number_of_created_cubes < number_of_needed_cubes) {
-		std::pair<int, int> coord_pair;
-		bool success = grid_coordinates_queue.try_dequeue(coord_pair);
-		if (success) {
-			number_of_created_cubes++;
+	
+	std::vector<std::pair<std::size_t, std::size_t>> chunks_partition = grid_manager->grid->get_partition_data_for_chunks(2, false);
+		
+	std::stop_source consumer_thread_stop_source;
 
-			float x = static_cast<float>(coord_pair.first);
-			float y = static_cast<float>(coord_pair.second);
-			Cube cube = Cube(glm::vec3(y, -x, -3.0f), 0.0f);
-			cubes_queue.enqueue(cube);
-		}
+	// schedule the single consumer thread before all the producers, so it hopefully wont get scheduled at the very last
+	std::jthread consumer_thread = std::jthread(&Cube_System::model_queue_busy_wait_consumer, this, consumer_thread_stop_source);
+
+	std::vector<std::jthread> producers;
+	for (int i = 0; i < chunks_partition.size(); i++) {
+		producers.emplace_back(&Cube_System::model_queue_producer, this, chunks_partition[i]);
 	}
+
+	for (auto& t: producers) {
+		t.join();
+	}
+	// once all producer threads finish we tell wait consumer thread to break out from its busy wait loop. At that point we know that nothing is being added to the queue and the consumer can safely process the remaining elements.
+	consumer_thread_stop_source.request_stop();
+	
 }
 
 void Cube_System::create_border_cubes_for_grid() {
@@ -156,50 +117,17 @@ void Cube_System::create_border_cubes_for_grid() {
 void Cube_System::update() {
 	ZoneScoped;
 	
-	bool has_to_update_cubes_model_data = false;
 	if (grid_manager->grid_execution_state.updated_grid_coordinates) {
-		create_cubes_for_alive_grid_cells();
-		has_to_update_cubes_model_data = true;
+		cubes_model_data.clear();
+		update_model_matrix_data();
 	}
 	if (grid_manager->grid_execution_state.updated_border_coordinates) {
 		border_cubes.clear();
-		has_to_update_cubes_model_data = true;
 		if (grid_manager->grid_execution_state.show_chunk_borders) {
 			create_border_cubes_for_grid();
-		}
-	}
-
-	if (has_to_update_cubes_model_data) {
-		/*
-		concurrency::concurrent_vector<glm::mat4> cubes_model_data_concurrent_vector;
-		cubes_model_data_concurrent_vector.reserve(current_number_of_grid_cubes + current_number_of_border_cubes);
-		concurrency::parallel_for(
-			std::begin(
-		);
-		*/
-		{
-			ZoneScopedN("update cubes_model_data vector");
-			update_model_matrix_queue();
-
-			cubes_model_data.clear();
-			size_t queue_size = model_matrix_queue.size_approx();
-			size_t dequeued_matrices = 0;
-			while (dequeued_matrices < queue_size) {
-				glm::mat4 matrix;
-				bool success = model_matrix_queue.try_dequeue(matrix);
-				if (success) {
-					dequeued_matrices++;
-					cubes_model_data.push_back(matrix);
-				}
-			}
-			
-			
-			{
-				ZoneScopedN("compute mvp data for border cubes");
-				for (const Cube& cube: border_cubes) {
-					const glm::mat4 model_matrix = cube.compute_model_matrix_with_rotation();
-					cubes_model_data.push_back(model_matrix);
-				}
+			for (const Cube& cube: border_cubes) {
+				const glm::mat4 model_matrix = cube.compute_model_matrix_with_rotation();
+				cubes_model_data.push_back(model_matrix);
 			}
 		}
 	}

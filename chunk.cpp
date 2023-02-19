@@ -36,6 +36,7 @@ neighbour_count_data({})
 	}
 }
 
+
 Coordinate Chunk::transform_to_world_coordinate(Coordinate chunk_coord) {
 	ZoneScoped;
 

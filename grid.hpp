@@ -40,10 +40,12 @@ public:
 
 	void set_chunk_neighbour_info(Chunk& chunk);
 
+	std::vector < std::pair<std::size_t, std::size_t> > get_partition_data_for_chunks(unsigned int number_of_workers, bool allow_small_task_sizes);
 	//--------------------------------------------------------------------------------
 	// data
-	int iteration;
-	int number_of_chunks;
+	std::size_t iteration;
+
+	std::size_t number_of_chunks;
 
 	boost::unordered_flat_map<Coordinate, std::size_t> chunk_map;
 	std::vector<Chunk> chunks;
