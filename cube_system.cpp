@@ -72,7 +72,8 @@ void Cube_System::model_queue_busy_wait_consumer(std::stop_source stop_source) {
 void Cube_System::update_model_matrix_data() {
 	ZoneScoped;
 
-	
+	assert(model_matrix_queue.size_approx() == 0);
+
 	std::vector<std::pair<std::size_t, std::size_t>> chunks_partition = grid_manager->grid->get_partition_data_for_chunks(2, false);
 		
 	std::stop_source consumer_thread_stop_source;
@@ -90,7 +91,9 @@ void Cube_System::update_model_matrix_data() {
 	}
 	// once all producer threads finish we tell wait consumer thread to break out from its busy wait loop. At that point we know that nothing is being added to the queue and the consumer can safely process the remaining elements.
 	consumer_thread_stop_source.request_stop();
-	
+	consumer_thread.join();
+
+	assert(model_matrix_queue.size_approx() == 0);
 }
 
 void Cube_System::create_border_cubes_for_grid() {
@@ -131,23 +134,4 @@ void Cube_System::update() {
 			}
 		}
 	}
-}
-
-
-std::vector<std::pair<int, int>> get_work_group_start_end_indices_pairs(size_t desired_work_group_size, size_t total_number_of_elements) {
-	// create work groups the threads will work on
-
-	// for 2385 blocks we expect to create the pairs (0, 499), (500, 999), (1000, 1499), (1500, 1999), (2000, 2384).
-	std::vector<std::pair<int, int>> work_group_indices_pairs;
-	int block_size = static_cast<int>(desired_work_group_size);
-	int number_of_blocks = static_cast<int>(total_number_of_elements / desired_work_group_size);
-	int remaining_blocks = static_cast<int>(total_number_of_elements % desired_work_group_size);
-
-	for (int i = 0; i < number_of_blocks; i++) {
-		work_group_indices_pairs.emplace_back(i*block_size, (i + 1)*block_size);
-	}
-	// add last block
-	work_group_indices_pairs.emplace_back((number_of_blocks + 1) * block_size, (number_of_blocks + 1) * block_size + remaining_blocks);
-
-	return work_group_indices_pairs;
 }

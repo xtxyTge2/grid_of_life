@@ -15,6 +15,9 @@
 #include <concurrent_vector.h>
 #include <concurrent_unordered_set.h>
 
+// moodycamel concurrent queue
+#include <concurrent_queue.h>
+
 //--------------------------------------------------------------------------------
 class Grid {
 public:
@@ -23,6 +26,8 @@ public:
 	void create_new_chunk_and_set_alive_cells(const Coordinate& coord, const std::vector<std::pair<int, int>>& coordinates);
 
 	void update_cells_of_all_chunks();
+
+	void update_neighbour_count_inside_for_chunk_index_range(std::pair<std::size_t, std::size_t> start_end_index_pair);
 
 	void remove_empty_chunks();
 
@@ -63,6 +68,8 @@ public:
 	concurrency::concurrent_unordered_set<Coordinate> coordinates_of_chunks_to_create;
 
 	std::shared_ptr<OpenCLContext> opencl_context;
+
+	moodycamel::ConcurrentQueue<std::size_t> updated_chunks_id_queue;
 };
 
 
