@@ -1,49 +1,47 @@
 #include "cube_system.hpp"
 
 Cube_System::Cube_System() :
-	grid_manager(nullptr),
-border_cubes({})
+	grid_manager(nullptr)
 {
 }
 
 void Cube_System::initialise(std::shared_ptr<Grid_Manager> manager) {
 	grid_manager = manager;
 	
-	border_cubes.reserve(EXPECTED_MAX_NUMBER_OF_BORDER_CUBES);
 	cubes_model_data.reserve(EXPECTED_MAX_NUMBER_OF_BORDER_CUBES + EXPECTED_MAX_NUMBER_OF_BORDER_CUBES);
-	model_matrix_queue = moodycamel::ConcurrentQueue < glm::mat4 > (cubes_model_data.capacity());
+	model_translations_queue = moodycamel::ConcurrentQueue < glm::vec3 > (cubes_model_data.capacity());
 }
 
 
-void Cube_System::model_queue_producer(std::pair<std::size_t, std::size_t> start_end_index) {
+void Cube_System::model_translation_producer(std::pair<std::size_t, std::size_t> start_end_index) {
 	ZoneScoped;
-
-	std::array<glm::mat4, Chunk::rows * Chunk::columns> local_data;
-
+	
+	std::array<std::pair<int, int>, Chunk::rows * Chunk::columns> local_data;
 	std::size_t start_index = start_end_index.first;
 	std::size_t end_index = start_end_index.second;
 	
 	for (std::size_t idx = start_index; idx < end_index; ++idx) {
+		unsigned int count = 0;
+		
 		Chunk& chunk = grid_manager->grid->chunks[idx];
-		std::size_t count = 0;
-		for (int i = 0; i < Chunk::rows * Chunk::columns; i++) {
-			if (chunk.cells_data[i]) {
-				int r = i / Chunk::rows;
-				int c = i % Chunk::columns;
-				
-				r += chunk.chunk_origin_row;
-				c += chunk.chunk_origin_column;
-
-				float x = static_cast<float>(r);
-				float y = static_cast<float>(c);
-				glm::vec3 cube_position = glm::vec3(y, -x, -3.0f);
-
-				glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), cube_position);
-				local_data[count++] = model_matrix;
+		for (int r = 0; r < Chunk::rows; r++) {
+			for (int c = 0; c < Chunk::columns; c++) {
+				if (chunk.cells_data[r * Chunk::rows + c]) {
+					int x = c + chunk.chunk_origin_column;
+					int y = -(r + chunk.chunk_origin_row);
+					local_data[count++] = std::make_pair(x, y);
+				}
 			}
 		}
-		// std::make_move_iterator?
-		model_matrix_queue.enqueue_bulk(local_data.begin(), count);
+		
+		std::array<glm::vec3, Chunk::rows * Chunk::columns> translation_data;
+		for (int i = 0; i < count; i++) {
+			std::pair<int, int> xy_position = local_data[i];
+			float x = static_cast<float>(xy_position.first);
+			float y = static_cast<float>(xy_position.second);
+			translation_data[i] = glm::vec3(x, y, -3.0f);
+		}
+		model_translations_queue.enqueue_bulk(translation_data.begin(), count);
 	}
 }
 
@@ -52,29 +50,29 @@ void Cube_System::model_queue_busy_wait_consumer(std::stop_source stop_source) {
 
 	std::stop_token stoken = stop_source.get_token();
 
-	constexpr int local_array_size = 4 * Chunk::rows * Chunk::columns;
-	std::array<glm::mat4, local_array_size> local_matrix_data;
+	constexpr int local_array_size = 64 * Chunk::rows * Chunk::columns;
+	std::array<glm::vec3, local_array_size> local_matrix_data;
 	while (!stoken.stop_requested()) {
-		std::size_t number_dequeued = model_matrix_queue.try_dequeue_bulk(local_matrix_data.begin(), local_matrix_data.size());
+		std::size_t number_dequeued = model_translations_queue.try_dequeue_bulk(local_matrix_data.begin(), local_matrix_data.size());
 		if (number_dequeued > 0) {
 			cubes_model_data.insert(std::end(cubes_model_data), std::begin(local_matrix_data), std::begin(local_matrix_data) + number_dequeued);
 		}
 	}
 	
-	std::size_t number_dequeued = model_matrix_queue.try_dequeue_bulk(local_matrix_data.begin(), local_matrix_data.size());
+	std::size_t number_dequeued = model_translations_queue.try_dequeue_bulk(local_matrix_data.begin(), local_matrix_data.size());
 	while (number_dequeued > 0) {
 		cubes_model_data.insert(std::end(cubes_model_data), std::begin(local_matrix_data), std::begin(local_matrix_data) + number_dequeued);
-		number_dequeued = model_matrix_queue.try_dequeue_bulk(local_matrix_data.begin(), local_matrix_data.size());
+		number_dequeued = model_translations_queue.try_dequeue_bulk(local_matrix_data.begin(), local_matrix_data.size());
 	}
 }
 
 
-void Cube_System::update_model_matrix_data() {
+void Cube_System::update_model_translations_data() {
 	ZoneScoped;
 
-	assert(model_matrix_queue.size_approx() == 0);
+	assert(model_translations_queue.size_approx() == 0);
 
-	std::vector<std::pair<std::size_t, std::size_t>> chunks_partition = grid_manager->grid->get_partition_data_for_chunks(2, false);
+	std::vector<std::pair<std::size_t, std::size_t>> chunks_partition = grid_manager->grid->get_partition_data_for_chunks(1, false);
 		
 	std::stop_source consumer_thread_stop_source;
 
@@ -83,7 +81,7 @@ void Cube_System::update_model_matrix_data() {
 
 	std::vector<std::jthread> producers;
 	for (int i = 0; i < chunks_partition.size(); i++) {
-		producers.emplace_back(&Cube_System::model_queue_producer, this, chunks_partition[i]);
+		producers.emplace_back(&Cube_System::model_translation_producer, this, chunks_partition[i]);
 	}
 
 	for (auto& t: producers) {
@@ -93,7 +91,7 @@ void Cube_System::update_model_matrix_data() {
 	consumer_thread_stop_source.request_stop();
 	consumer_thread.join();
 
-	assert(model_matrix_queue.size_approx() == 0);
+	assert(model_translations_queue.size_approx() == 0);
 }
 
 void Cube_System::create_border_cubes_for_grid() {
@@ -110,9 +108,8 @@ void Cube_System::create_border_cubes_for_grid() {
 			coordinates.push_back(std::make_pair(chunk.chunk_origin_row + Chunk::rows, chunk.chunk_origin_column + c));
 		}
 	}
-
 	for (auto& [x, y]: coordinates) {
-		border_cubes.emplace_back(glm::vec3((float) y, (float) -x, -3.0f), 50.0f);
+		cubes_model_data.push_back(glm::vec3((float) y, (float) -x, -3.0f));
 	}
 }
 
@@ -122,16 +119,11 @@ void Cube_System::update() {
 	
 	if (grid_manager->grid_execution_state.updated_grid_coordinates) {
 		cubes_model_data.clear();
-		update_model_matrix_data();
+		update_model_translations_data();
 	}
 	if (grid_manager->grid_execution_state.updated_border_coordinates) {
-		border_cubes.clear();
 		if (grid_manager->grid_execution_state.show_chunk_borders) {
 			create_border_cubes_for_grid();
-			for (const Cube& cube: border_cubes) {
-				const glm::mat4 model_matrix = cube.compute_model_matrix_with_rotation();
-				cubes_model_data.push_back(model_matrix);
-			}
 		}
 	}
 }

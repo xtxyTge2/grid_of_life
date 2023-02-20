@@ -27,7 +27,7 @@ public:
 
 	void swap_backbuffer();
 
-	void render_grid(std::vector<glm::mat4>& cubes_model_data);
+	void render_grid(std::vector<glm::vec3>& cubes_model_data);
 
 	void initialise(GLFWwindow* window);
 

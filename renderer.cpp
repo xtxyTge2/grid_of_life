@@ -142,18 +142,9 @@ void Renderer::initialise_cube_rendering() {
 	// define buffer which holds the 4x4 mvp matrices of each rendered grid cube. Have to send each individual matrix row as a vec4 of floats.
 	glBindBuffer(GL_ARRAY_BUFFER, cubes_instances_VBO);
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *) 0);
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *) (1 * sizeof(glm::vec4)));
-	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *) (2 * sizeof(glm::vec4)));
-	glEnableVertexAttribArray(5);
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *) (3 * sizeof(glm::vec4)));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
 
 	glVertexAttribDivisor(2, 1);
-	glVertexAttribDivisor(3, 1);
-	glVertexAttribDivisor(4, 1);
-	glVertexAttribDivisor(5, 1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -162,7 +153,7 @@ void Renderer::initialise_cube_rendering() {
 
 
 
-void Renderer::render_grid(std::vector<glm::mat4>& cubes_model_data) {
+void Renderer::render_grid(std::vector<glm::vec3>& cubes_model_data) {
 	ZoneScoped;
 
 	glBindVertexArray(m_VAO);
@@ -170,7 +161,7 @@ void Renderer::render_grid(std::vector<glm::mat4>& cubes_model_data) {
 
 	// send the mvp matrices to the corresponding buffer
 	glBindBuffer(GL_ARRAY_BUFFER, cubes_instances_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * cubes_model_data.size(), (const void *) cubes_model_data.data(), GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * cubes_model_data.size(), (const void *) cubes_model_data.data(), GL_STREAM_DRAW);
 
 	// draw all cubes.
 	glDrawArraysInstanced(GL_TRIANGLES, 0, 36, static_cast<GLsizei>(cubes_model_data.size()));

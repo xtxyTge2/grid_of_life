@@ -43,7 +43,7 @@ public:
 
 	void create_needed_neighbours_of_all_chunks();
 
-	void set_chunk_neighbour_info(Chunk& chunk);
+	void set_chunk_neighbour_info(std::size_t chunk_id);
 
 	std::vector < std::pair<std::size_t, std::size_t> > get_partition_data_for_chunks(unsigned int number_of_workers, bool allow_small_task_sizes);
 	//--------------------------------------------------------------------------------
