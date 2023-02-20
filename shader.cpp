@@ -44,6 +44,7 @@ void Shader_Program::link_and_cleanup() {
 	glAttachShader(id, fragment_shader->id);
 	glLinkProgram(id);
 
+	/*
 	// check shader program linking status
 	int success;
 	char info_log[512];
@@ -53,7 +54,7 @@ void Shader_Program::link_and_cleanup() {
 		glGetProgramInfoLog(id, 512, NULL, info_log);
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << info_log << std::endl;
 	}
-
+	*/
 	// shaders got linked and are not used anymore
 	glDeleteShader(vertex_shader->id);
 	glDeleteShader(fragment_shader->id);
@@ -69,7 +70,7 @@ void Shader_Program::use() {
 void Shader_Program::set_uniform_int(const std::string& name, int value) {
 	ZoneScoped;
 	int location = glGetUniformLocation(id, name.c_str());
-	glUniform1i(location, (int)value);
+	glUniform1i(static_cast<GLint>(location), static_cast<GLint>(value));
 }
 
 //--------------------------------------------------------------------------------
