@@ -15,22 +15,131 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="opengl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="world.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_state.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="state.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="read.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="opencl_context.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grid.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cube_system.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cube.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="chunk.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imconfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imgui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imgui_impl_glfw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imgui_impl_opengl3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imgui_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imstb_rectpack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imstb_textedit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imstb_truetype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="coordinate.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="glfw3.dll">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="chunk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="coordinate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cube_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opencl_context.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="read.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="camera.cpp">
+    <ClCompile Include="shader_program.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="state.cpp">
@@ -39,25 +148,10 @@
     <ClCompile Include="texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cube.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cube_system.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ui_state.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="grid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="world.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="opencl_context.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="3rdparty\imgui\imgui.cpp">
@@ -81,93 +175,5 @@
     <ClCompile Include="3rdparty\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3rdparty\tracy\TracyClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="read.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="shader.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="state.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cube_system.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="opengl.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="texture.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cube.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ui_state.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="grid.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="chunk.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="world.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="opencl_context.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\imgui\imconfig.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\imgui\imgui.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\imgui\imgui_impl_glfw.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\imgui\imgui_impl_opengl3.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\imgui\imgui_impl_opengl3_loader.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\imgui\imgui_internal.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\imgui\imstb_rectpack.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\imgui\imstb_textedit.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\imgui\imstb_truetype.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="shader.fs">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="shader.vs">
-      <Filter>Source Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="..\..\..\..\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\bin\libomp.dll" />
   </ItemGroup>
 </Project>

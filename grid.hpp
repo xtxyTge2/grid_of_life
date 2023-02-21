@@ -3,20 +3,17 @@
 #include "Tracy.hpp"
 
 #include "omp.h"
-#include "cube.hpp"
 #include "ui_state.hpp"
 #include "opencl_context.hpp"
 #include "chunk.hpp"
-#include <algorithm>
-#include <execution>
-#include "concurrentqueue.h"
 
 #include <ppl.h>
 #include <concurrent_vector.h>
 #include <concurrent_unordered_set.h>
+#include "coordinate.hpp"
 
 // moodycamel concurrent queue
-#include <concurrent_queue.h>
+#include <moodycamel/concurrentqueue.h>
 
 //--------------------------------------------------------------------------------
 class Grid {

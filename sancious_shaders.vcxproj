@@ -17,83 +17,11 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Tracy|Win32">
-      <Configuration>Tracy</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Tracy|x64">
-      <Configuration>Tracy</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="3rdparty\imgui\imgui.cpp" />
-    <ClCompile Include="3rdparty\imgui\imgui_demo.cpp" />
-    <ClCompile Include="3rdparty\imgui\imgui_draw.cpp" />
-    <ClCompile Include="3rdparty\imgui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="3rdparty\imgui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="3rdparty\imgui\imgui_tables.cpp" />
-    <ClCompile Include="3rdparty\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="3rdparty\tracy\TracyClient.cpp" />
-    <ClCompile Include="camera.cpp" />
-    <ClCompile Include="world.cpp" />
-    <ClCompile Include="chunk.cpp" />
-    <ClCompile Include="glad.c" />
-    <ClCompile Include="cube_system.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="read.cpp" />
-    <ClCompile Include="shader.cpp" />
-    <ClCompile Include="state.cpp" />
-    <ClCompile Include="texture.cpp" />
-    <ClCompile Include="cube.cpp" />
-    <ClCompile Include="renderer.cpp" />
-    <ClCompile Include="ui_state.cpp" />
-    <ClCompile Include="grid.cpp" />
-    <ClCompile Include="opencl_context.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="3rdparty\imgui\imconfig.h" />
-    <ClInclude Include="3rdparty\imgui\imgui.h" />
-    <ClInclude Include="3rdparty\imgui\imgui_impl_glfw.h" />
-    <ClInclude Include="3rdparty\imgui\imgui_impl_opengl3.h" />
-    <ClInclude Include="3rdparty\imgui\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="3rdparty\imgui\imgui_internal.h" />
-    <ClInclude Include="3rdparty\imgui\imstb_rectpack.h" />
-    <ClInclude Include="3rdparty\imgui\imstb_textedit.h" />
-    <ClInclude Include="3rdparty\imgui\imstb_truetype.h" />
-    <ClInclude Include="camera.hpp" />
-    <ClInclude Include="world.hpp" />
-    <ClInclude Include="read.hpp" />
-    <ClInclude Include="chunk.hpp" />
-    <ClInclude Include="shader.hpp" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="state.hpp" />
-    <ClInclude Include="texture.hpp" />
-    <ClInclude Include="opengl.hpp" />
-    <ClInclude Include="cube_system.hpp" />
-    <ClInclude Include="cube.hpp" />
-    <ClInclude Include="renderer.hpp" />
-    <ClInclude Include="ui_state.hpp" />
-    <ClInclude Include="grid.hpp" />
-    <ClInclude Include="opencl_context.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="..\..\..\..\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\bin\libomp.dll">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracy|x64'">false</ExcludedFromBuild>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Tracy|x64'">true</DeploymentContent>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
-    </CopyFileToFolders>
-    <None Include="shader.fs" />
-    <None Include="shader.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{a615f3b9-0312-49a9-807a-20171ddf9a43}</ProjectGuid>
+    <ProjectGuid>{e1268d12-8c5c-44b8-9617-86c844b6f876}</ProjectGuid>
     <RootNamespace>sanciousshaders</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -105,13 +33,6 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracy|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
@@ -131,14 +52,6 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracy|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <EnableASAN>false</EnableASAN>
-  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -150,40 +63,26 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Tracy|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Tracy|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\kala\code\sancious_shaders\3rdparty\moodycamel;C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\libs;$(LibraryPath)</LibraryPath>
-    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\3rdparty-libraries\glfw-3.3.8\include;C:\Users\kala\code\tree_roots\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\tree_roots\sancious_shaders\3rdparty\glm;C:\Users\kala\code\tree_roots\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\tree_roots\sancious_shaders\3rdparty\;C:\Users\kala\code\tree_roots\sancious_shaders\3rdparty\tracy\tracy;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\kala\code\3rdparty-libraries\glfw-3.3.8\lib-vc2022;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\kala\code\sancious_shaders\3rdparty\moodycamel;C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\libs;$(LibraryPath)</LibraryPath>
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracy|x64'">
-    <IncludePath>C:\Users\kala\code\sancious_shaders\3rdparty\moodycamel;C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\sancious_shaders\3rdparty\tracy\tracy;C:\Users\kala\code\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\sancious_shaders\3rdparty\glm;C:\Users\kala\code\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;C:\Users\kala\code\sancious_shaders\3rdparty\GLFW\libs;$(LibraryPath)</LibraryPath>
-    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Users\kala\code\3rdparty-libraries\boost_1_81_0;C:\Users\kala\code\3rdparty-libraries\glfw-3.3.8\include;C:\Users\kala\code\tree_roots\sancious_shaders\3rdparty\glad\include;C:\Users\kala\code\tree_roots\sancious_shaders\3rdparty\glm;C:\Users\kala\code\tree_roots\sancious_shaders\3rdparty\imgui;C:\Users\kala\code\tree_roots\sancious_shaders\3rdparty\;C:\Users\kala\code\tree_roots\sancious_shaders\3rdparty\tracy\tracy;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\kala\code\3rdparty-libraries\glfw-3.3.8\lib-vc2022;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>
-      </PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -207,100 +106,111 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracy|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>TRACY_ENABLE</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <PreprocessorDefinitions>;OPENGL_DEBUG;</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <StructMemberAlignment>Default</StructMemberAlignment>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
-      <AdditionalOptions>/Ob3 /openmp %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;libomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libomp.lib;glfw3dll.lib</AdditionalDependencies>
+      <AdditionalOptions>/VERBOSE %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>C:\Users\kala\code\3rdparty-libraries\glfw-3.3.8\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>;OPENGL_DEBUG;</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OmitFramePointers>true</OmitFramePointers>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <StructMemberAlignment>Default</StructMemberAlignment>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <AdditionalOptions>/Ob3 /openmp %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;libomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracy|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>TRACY_ENABLE;OPENGL_DEBUG;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <StructMemberAlignment>Default</StructMemberAlignment>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <AssemblerOutput>NoListing</AssemblerOutput>
-      <ExceptionHandling>Sync</ExceptionHandling>
-      <FloatingPointModel>Fast</FloatingPointModel>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
-      <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
-      <AdditionalOptions>/Ob3 /openmp %(AdditionalOptions)</AdditionalOptions>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;libomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libomp.lib;glfw3dll.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\kala\code\3rdparty-libraries\glfw-3.3.8\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="3rdparty\imgui\imconfig.h" />
+    <ClInclude Include="3rdparty\imgui\imgui.h" />
+    <ClInclude Include="3rdparty\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="3rdparty\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="3rdparty\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="3rdparty\imgui\imgui_internal.h" />
+    <ClInclude Include="3rdparty\imgui\imstb_rectpack.h" />
+    <ClInclude Include="3rdparty\imgui\imstb_textedit.h" />
+    <ClInclude Include="3rdparty\imgui\imstb_truetype.h" />
+    <ClInclude Include="camera.hpp" />
+    <ClInclude Include="chunk.hpp" />
+    <ClInclude Include="coordinate.hpp" />
+    <ClInclude Include="cube.hpp" />
+    <ClInclude Include="cube_system.hpp" />
+    <ClInclude Include="grid.hpp" />
+    <ClInclude Include="opencl_context.hpp" />
+    <ClInclude Include="opengl.hpp" />
+    <ClInclude Include="read.hpp" />
+    <ClInclude Include="renderer.hpp" />
+    <ClInclude Include="shader.hpp" />
+    <ClInclude Include="state.hpp" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="texture.hpp" />
+    <ClInclude Include="ui_state.hpp" />
+    <ClInclude Include="world.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="glfw3.dll" />
+    <None Include="shader.fs" />
+    <None Include="shader.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="3rdparty\imgui\imgui.cpp" />
+    <ClCompile Include="3rdparty\imgui\imgui_demo.cpp" />
+    <ClCompile Include="3rdparty\imgui\imgui_draw.cpp" />
+    <ClCompile Include="3rdparty\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="3rdparty\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="3rdparty\imgui\imgui_tables.cpp" />
+    <ClCompile Include="3rdparty\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="chunk.cpp" />
+    <ClCompile Include="coordinate.cpp" />
+    <ClCompile Include="cube.cpp" />
+    <ClCompile Include="cube_system.cpp" />
+    <ClCompile Include="glad.c" />
+    <ClCompile Include="grid.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="opencl_context.cpp" />
+    <ClCompile Include="read.cpp" />
+    <ClCompile Include="renderer.cpp" />
+    <ClCompile Include="shader.cpp" />
+    <ClCompile Include="shader_program.cpp" />
+    <ClCompile Include="state.cpp" />
+    <ClCompile Include="texture.cpp" />
+    <ClCompile Include="ui_state.cpp" />
+    <ClCompile Include="world.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

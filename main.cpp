@@ -1,18 +1,8 @@
 #include "Tracy.hpp"
 
-
-// memory leak detection on windows
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-
-#ifdef _DEBUG
-#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
-// Replace _NORMAL_BLOCK with _CLIENT_BLOCK if you want the
-// allocations to be of _CLIENT_BLOCK type#
-#else
-#define DBG_NEW new
-#endif
+#include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 
 //#define EIGEN_NO_DEBUG
 
@@ -21,13 +11,14 @@
 
 //--------------------------------------------------------------------------------
 #include <iostream>
-#include <vector>
+//#include <vector>
 
-#include "renderer.hpp"
+//#include "renderer.hpp"
 
-#include "opengl.hpp"
+//#include "opengl.hpp"
 #include "state.hpp"
-#include "texture.hpp"
+
+int main(int argc, char** argv);
 
 //--------------------------------------------------------------------------------
 void set_input_callbacks(GLFWwindow*);
@@ -56,16 +47,10 @@ GLFWwindow* init_glfw_glad_and_create_window(int window_width, int window_height
 	std::cout << "Hello, Sailor!" << std::endl;
 	glfwInit();
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-#ifdef DEBUG_OPENGL
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);	
-#else
-	
-#endif
 	
 
 	GLFWwindow* window = glfwCreateWindow(window_width, window_height, "GridOfLife3D", NULL, NULL);
@@ -85,16 +70,12 @@ GLFWwindow* init_glfw_glad_and_create_window(int window_width, int window_height
 		system("pause");
 		return nullptr;
 	}
-#ifdef DEBUG_OPENGL
-	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(GLDebugMessageCallback, NULL);
-#endif
 
 	// vsync off
 	// glfwSwapInterval(0);
 	return window;
 }
-
+/*
 // Callback function for printing debug statements
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
                                      GLenum severity, GLsizei length,
@@ -193,7 +174,7 @@ void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
 	std::cout << id << " : " << _type << " of " << _severity << " severity, raised from " << _source <<
 		": " << msg << "\n";
 }
-
+*/
 //--------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	ZoneScoped;
@@ -223,13 +204,6 @@ int main(int argc, char** argv) {
 	
 	glfwTerminate();
 
-	// delete unique ptr to state, so after this state gets freed. Do this to see memory leaks below.
-	g_state.reset();
-
-#ifdef _DEBUG
-	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG); 
-	_CrtDumpMemoryLeaks();
-#endif
 	return 0;
 }
 

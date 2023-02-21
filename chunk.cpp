@@ -1,12 +1,6 @@
 #include "chunk.hpp"
 
 
-std::size_t hash_value(Coordinate const& c)
-{
-	ZoneScoped;
-	return 51 + boost::hash < int > ()(c.x) + 51 * boost::hash < int > ()(c.y);
-}
-
 Chunk::Chunk() :
 	grid_coordinate_row(0),
 grid_coordinate_column(0),

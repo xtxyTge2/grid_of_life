@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.4.33122.133
+VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sancious_shaders", "sancious_shaders.vcxproj", "{A615F3B9-0312-49A9-807A-20171DDF9A43}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sancious_shaders", "sancious_shaders.vcxproj", "{E1268D12-8C5C-44B8-9617-86C844B6F876}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,27 +11,21 @@ Global
 		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-		Tracy|x64 = Tracy|x64
-		Tracy|x86 = Tracy|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A615F3B9-0312-49A9-807A-20171DDF9A43}.Debug|x64.ActiveCfg = Debug|x64
-		{A615F3B9-0312-49A9-807A-20171DDF9A43}.Debug|x64.Build.0 = Debug|x64
-		{A615F3B9-0312-49A9-807A-20171DDF9A43}.Debug|x86.ActiveCfg = Debug|Win32
-		{A615F3B9-0312-49A9-807A-20171DDF9A43}.Debug|x86.Build.0 = Debug|Win32
-		{A615F3B9-0312-49A9-807A-20171DDF9A43}.Release|x64.ActiveCfg = Release|x64
-		{A615F3B9-0312-49A9-807A-20171DDF9A43}.Release|x64.Build.0 = Release|x64
-		{A615F3B9-0312-49A9-807A-20171DDF9A43}.Release|x86.ActiveCfg = Release|Win32
-		{A615F3B9-0312-49A9-807A-20171DDF9A43}.Release|x86.Build.0 = Release|Win32
-		{A615F3B9-0312-49A9-807A-20171DDF9A43}.Tracy|x64.ActiveCfg = Tracy|x64
-		{A615F3B9-0312-49A9-807A-20171DDF9A43}.Tracy|x64.Build.0 = Tracy|x64
-		{A615F3B9-0312-49A9-807A-20171DDF9A43}.Tracy|x86.ActiveCfg = Tracy|Win32
-		{A615F3B9-0312-49A9-807A-20171DDF9A43}.Tracy|x86.Build.0 = Tracy|Win32
+		{E1268D12-8C5C-44B8-9617-86C844B6F876}.Debug|x64.ActiveCfg = Debug|x64
+		{E1268D12-8C5C-44B8-9617-86C844B6F876}.Debug|x64.Build.0 = Debug|x64
+		{E1268D12-8C5C-44B8-9617-86C844B6F876}.Debug|x86.ActiveCfg = Debug|Win32
+		{E1268D12-8C5C-44B8-9617-86C844B6F876}.Debug|x86.Build.0 = Debug|Win32
+		{E1268D12-8C5C-44B8-9617-86C844B6F876}.Release|x64.ActiveCfg = Release|x64
+		{E1268D12-8C5C-44B8-9617-86C844B6F876}.Release|x64.Build.0 = Release|x64
+		{E1268D12-8C5C-44B8-9617-86C844B6F876}.Release|x86.ActiveCfg = Release|Win32
+		{E1268D12-8C5C-44B8-9617-86C844B6F876}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0DEAB892-68FA-4CA0-B031-1F84B96119DD}
+		SolutionGuid = {F8270015-053C-41F9-B09D-7F53CEACBD4B}
 	EndGlobalSection
 EndGlobal

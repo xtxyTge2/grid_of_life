@@ -11,7 +11,6 @@
 #include <iostream>
 
 #include "read.hpp"
-#include "chunk.hpp"
 
 class OpenCLContext {
 public:

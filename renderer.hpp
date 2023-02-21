@@ -2,20 +2,14 @@
 
 //--------------------------------------------------------------------------------
 #include "Tracy.hpp"
+#include "opengl.hpp"
 
 #include <vector>
 #include <memory>
 #include <unordered_map>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include "shader.hpp"
-
+#include "world.hpp"
 #include "cube_system.hpp"
 #include "ui_state.hpp"
 

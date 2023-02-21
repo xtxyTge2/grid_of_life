@@ -35,7 +35,7 @@ void Cube_System::model_translation_producer(std::pair<std::size_t, std::size_t>
 		}
 		
 		std::array<glm::vec3, Chunk::rows * Chunk::columns> translation_data;
-		for (int i = 0; i < count; i++) {
+		for (std::size_t i = 0; i < count; i++) {
 			std::pair<int, int> xy_position = local_data[i];
 			float x = static_cast<float>(xy_position.first);
 			float y = static_cast<float>(xy_position.second);

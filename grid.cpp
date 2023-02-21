@@ -17,8 +17,8 @@ Grid_Manager::Grid_Manager()
 void Grid_Manager::update_grid_info() {
 	ZoneScoped;
 
-	grid_info->iteration = grid->iteration;
-	grid_info->number_of_chunks = grid->number_of_chunks;
+	grid_info->iteration = static_cast<int>(grid->iteration);
+	grid_info->number_of_chunks = static_cast<int>(grid->number_of_chunks);
 }
 
 //--------------------------------------------------------------------------------

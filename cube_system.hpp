@@ -2,12 +2,9 @@
 
 #include "Tracy.hpp"
 
-#include "world.hpp"
+#include <glm/glm.hpp>
+#include "grid.hpp"
 
-#include <immintrin.h>
-
-// moodycamel concurrent queue
-#include <concurrent_queue.h>
 
 std::vector<std::pair<int, int>> get_work_group_start_end_indices_pairs(size_t desired_work_group_size, size_t total_number_of_elements);
 
