@@ -1,0 +1,10 @@
+^C:\USERS\KALA\CODE\SAVE_IS_SAFE\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/kala/code/save_is_safe -BC:/Users/kala/code/save_is_safe/build --check-stamp-file C:/Users/kala/code/save_is_safe/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

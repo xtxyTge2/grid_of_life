@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ALL_BUILD", "ALL_BUILD.vcxproj", "{2EA9B8D0-3D9F-3376-8873-8C9085362D66}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DA71FEE1-E8FF-33AF-8596-9BB62449B712} = {DA71FEE1-E8FF-33AF-8596-9BB62449B712}
+		{B4506F8C-4E3D-38B9-9C6F-B782CC461AD3} = {B4506F8C-4E3D-38B9-9C6F-B782CC461AD3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZERO_CHECK", "ZERO_CHECK.vcxproj", "{DA71FEE1-E8FF-33AF-8596-9BB62449B712}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sancious_shaders", "sancious_shaders.vcxproj", "{B4506F8C-4E3D-38B9-9C6F-B782CC461AD3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DA71FEE1-E8FF-33AF-8596-9BB62449B712} = {DA71FEE1-E8FF-33AF-8596-9BB62449B712}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2EA9B8D0-3D9F-3376-8873-8C9085362D66}.Debug|x64.ActiveCfg = Debug|x64
+		{2EA9B8D0-3D9F-3376-8873-8C9085362D66}.Release|x64.ActiveCfg = Release|x64
+		{DA71FEE1-E8FF-33AF-8596-9BB62449B712}.Debug|x64.ActiveCfg = Debug|x64
+		{DA71FEE1-E8FF-33AF-8596-9BB62449B712}.Debug|x64.Build.0 = Debug|x64
+		{DA71FEE1-E8FF-33AF-8596-9BB62449B712}.Release|x64.ActiveCfg = Release|x64
+		{DA71FEE1-E8FF-33AF-8596-9BB62449B712}.Release|x64.Build.0 = Release|x64
+		{B4506F8C-4E3D-38B9-9C6F-B782CC461AD3}.Debug|x64.ActiveCfg = Debug|x64
+		{B4506F8C-4E3D-38B9-9C6F-B782CC461AD3}.Debug|x64.Build.0 = Debug|x64
+		{B4506F8C-4E3D-38B9-9C6F-B782CC461AD3}.Release|x64.ActiveCfg = Release|x64
+		{B4506F8C-4E3D-38B9-9C6F-B782CC461AD3}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {89A4F3F7-2E17-3DEE-8602-F356D8EA01FA}
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

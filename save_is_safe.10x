@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<N10X>
+	<Workspace>
+		<IncludeFilter>*.*,</IncludeFilter>
+		<ExcludeFilter>*.obj,*.lib,*.pch,*.dll,*.pdb,.vs,Debug,Release,x64,obj,*.user,Intermediate,build/,build,.git/,3rdparty,</ExcludeFilter>
+		<SyncFiles>true</SyncFiles>
+		<Recursive>true</Recursive>
+		<ShowEmptyFolders>true</ShowEmptyFolders>
+		<IsVirtual>false</IsVirtual>
+		<IsFolder>false</IsFolder>
+		<BuildCommand>cmake -B build &amp;&amp; cmake --build build --config=$(Configuration) &amp;&amp; &amp;quot;$(RootWorkspaceDirectory)/build/$(Configuration)/sancious_shaders.exe&amp;quot;</BuildCommand>
+		<RebuildCommand>rd /s /q &amp;quot;$(RootWorkspaceDirectory)/build&amp;quot; &amp; mkdir build &amp;&amp; cmake -B build &amp;&amp; cmake --build build  --config=$(Configuration) &amp;&amp; &amp;quot;$(RootWorkspaceDirectory)/build/$(Configuration)/sancious_shaders.exe&amp;quot;</RebuildCommand>
+		<BuildFileCommand></BuildFileCommand>
+		<CleanCommand>rd /s /q &amp;quot;$(RootWorkspaceDirectory)/build&amp;quot; &amp; mkdir build</CleanCommand>
+		<BuildWorkingDirectory></BuildWorkingDirectory>
+		<CancelBuild></CancelBuild>
+		<RunCommand>build/$(Configuration)/sancious_shaders.exe</RunCommand>
+		<DebugCommand></DebugCommand>
+		<ExePathCommand></ExePathCommand>
+		<DebugSln>$(RootWorkspaceDirectory)/build/sancious_shaders.sln</DebugSln>
+		<UseVisualStudioEnvBat>false</UseVisualStudioEnvBat>
+		<Configurations>
+			<Configuration>Debug</Configuration>
+			<Configuration>Release</Configuration>
+		</Configurations>
+		<Platforms>
+			<Platform>x64</Platform>
+		</Platforms>
+		<AdditionalIncludePaths></AdditionalIncludePaths>
+		<Defines></Defines>
+		<ConfigProperties>
+			<ConfigAndPlatform>
+				<Name>Debug:x64</Name>
+				<Defines></Defines>
+				<ForceIncludes></ForceIncludes>
+			</ConfigAndPlatform>
+			<ConfigAndPlatform>
+				<Name>Release:x64</Name>
+				<Defines></Defines>
+				<ForceIncludes></ForceIncludes>
+			</ConfigAndPlatform>
+			<ConfigAndPlatform>
+				<Name>Tracy:x64</Name>
+				<Defines></Defines>
+				<ForceIncludes></ForceIncludes>
+			</ConfigAndPlatform>
+			<Config>
+				<Name>Debug</Name>
+				<Defines></Defines>
+			</Config>
+			<Config>
+				<Name>Release</Name>
+				<Defines></Defines>
+			</Config>
+			<Config>
+				<Name>Tracy</Name>
+				<Defines></Defines>
+			</Config>
+			<Platform>
+				<Name>x64</Name>
+				<Defines></Defines>
+			</Platform>
+		</ConfigProperties>
+		<Children></Children>
+	</Workspace>
+</N10X>
