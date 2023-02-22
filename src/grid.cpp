@@ -303,6 +303,7 @@ void Grid::update_neighbour_count_and_set_info_of_all_chunks() {
 	bottom_right_corner_update_infos.shrink_to_fit();
 
 	coordinates_of_chunks_to_create.clear();
+	/*
 	{	
 
 		auto chunks_partition = get_partition_data_for_chunks(4, false);
@@ -310,6 +311,11 @@ void Grid::update_neighbour_count_and_set_info_of_all_chunks() {
 			std::jthread t(&Grid::update_neighbour_count_inside_for_chunk_index_range, this, it);
 		}
 	}
+	*/
+	for (std::size_t chunk_id = 0; chunk_id < chunks.size(); chunk_id++) {
+		chunks[chunk_id].update_neighbour_count_inside();
+	}
+
 	for (std::size_t chunk_id = 0; chunk_id < chunks.size(); chunk_id++) {
 		set_chunk_neighbour_info(chunk_id);
 	}
