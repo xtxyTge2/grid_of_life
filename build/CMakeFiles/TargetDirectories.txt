@@ -1,3 +1,0 @@
-C:/Users/kala/code/save_is_safe/build/CMakeFiles/sancious_shaders.dir
-C:/Users/kala/code/save_is_safe/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/kala/code/save_is_safe/build/CMakeFiles/ZERO_CHECK.dir
