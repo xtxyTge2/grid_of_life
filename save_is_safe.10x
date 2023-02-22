@@ -8,8 +8,8 @@
 		<ShowEmptyFolders>true</ShowEmptyFolders>
 		<IsVirtual>false</IsVirtual>
 		<IsFolder>false</IsFolder>
-		<BuildCommand>cmake -B build &amp;&amp; cmake --build build --config=$(Configuration) &amp;&amp; &amp;quot;$(RootWorkspaceDirectory)/build/$(Configuration)/sancious_shaders.exe&amp;quot;</BuildCommand>
-		<RebuildCommand>rd /s /q &amp;quot;$(RootWorkspaceDirectory)/build&amp;quot; &amp; mkdir build &amp;&amp; cmake -B build &amp;&amp; cmake --build build  --config=$(Configuration) &amp;&amp; &amp;quot;$(RootWorkspaceDirectory)/build/$(Configuration)/sancious_shaders.exe&amp;quot;</RebuildCommand>
+		<BuildCommand>cmake -B build &amp;&amp; cmake --build build --config=$(Configuration)</BuildCommand>
+		<RebuildCommand>rd /s /q &amp;quot;$(RootWorkspaceDirectory)/build&amp;quot; &amp; mkdir build &amp;&amp; cmake -B build &amp;&amp; cmake --build build  --config=$(Configuration)</RebuildCommand>
 		<BuildFileCommand></BuildFileCommand>
 		<CleanCommand>rd /s /q &amp;quot;$(RootWorkspaceDirectory)/build&amp;quot; &amp; mkdir build</CleanCommand>
 		<BuildWorkingDirectory></BuildWorkingDirectory>
