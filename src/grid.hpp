@@ -65,8 +65,6 @@ public:
 	concurrency::concurrent_unordered_set<Coordinate> coordinates_of_chunks_to_create;
 
 	std::shared_ptr<OpenCLContext> opencl_context;
-
-	moodycamel::ConcurrentQueue<std::size_t> updated_chunks_id_queue;
 };
 
 

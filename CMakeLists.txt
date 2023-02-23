@@ -110,7 +110,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE 3rdparty/boost_1_81_0)
 # MSVC runtime library
 ################################################################################
 
-if(MSVC)
+if(MSVC OR CLANG)
 	set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY MultiThreadedDebugDLL)
 endif()
 
@@ -118,7 +118,7 @@ endif()
 # Compile definitions
 ################################################################################
 
-if(MSVC)
+if(MSVC OR CLANG)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE
     	"$<$<CONFIG:Debug>:"
     	    "_DEBUG"
@@ -128,13 +128,6 @@ if(MSVC)
 			"TRACY_ENABLE"
     	    ""
     	">"
-		"$<$<CONFIG:Tracy>:"
-    	    "NDEBUG;"
-    	    "TRACY_ENABLE"
-    	">"
-    	"_CONSOLE;"
-    	"UNICODE;"
-    	"_UNICODE"
 	)
 endif()
 
@@ -142,7 +135,7 @@ endif()
 # Compile and link options
 ################################################################################
 
-if(MSVC)
+if(MSVC OR CLANG)
     target_compile_options(${PROJECT_NAME} PRIVATE
         $<$<CONFIG:Release>:
             /Ob2;

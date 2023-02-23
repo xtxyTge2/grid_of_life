@@ -1,21 +1,12 @@
 #include "Tracy.hpp"
 
-#include <glad/glad.h>
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
-//#define EIGEN_NO_DEBUG
-
 // General remark for tracy: Set the /Zi compiler flag in visual studio, or otherwise there will be a vs
 // studio bug/feature regarding macro expansions. Otherwise the macros of Tracy, e.g. ZoneScoped, FrameMark wont work.
 
 //--------------------------------------------------------------------------------
 #include <iostream>
-//#include <vector>
 
-//#include "renderer.hpp"
-
-//#include "opengl.hpp"
+#include "opengl.hpp"
 #include "state.hpp"
 
 int main(int argc, char** argv);

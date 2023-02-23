@@ -21,7 +21,7 @@ public:
 
 	void swap_backbuffer();
 
-	void render_grid(std::vector<glm::vec3>& cubes_model_data);
+	void render_grid(std::shared_ptr<Cube_System> cube_system);
 
 	void initialise(GLFWwindow* window);
 

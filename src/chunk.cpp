@@ -8,7 +8,9 @@ chunk_origin_row(0),
 chunk_origin_column(0),
 has_alive_cells(false),
 cells_data({}),
-neighbour_count_data({})
+neighbour_count_data({}),
+coordinates_of_alive_cells({}),
+number_of_alive_cells(0)
 {
 	ZoneScoped;
 }
@@ -20,7 +22,9 @@ chunk_origin_row(origin_coord.x),
 chunk_origin_column(origin_coord.y),
 has_alive_cells(false),
 cells_data({}),
-neighbour_count_data({})
+neighbour_count_data({}),
+coordinates_of_alive_cells({}),
+number_of_alive_cells(0)
 {
 	ZoneScoped;
 
@@ -248,4 +252,19 @@ void Chunk::update_cells() {
 	}
 }
 
+
+void Chunk::update_coordinates_of_alive_cells() {
+	ZoneScoped; 
+
+	number_of_alive_cells = 0;
+	for (int r = 0; r < Chunk::rows; ++r) {
+		for (int c = 0; c < Chunk::columns; ++c) {
+			if (cells_data[r * Chunk::rows + c]) {
+				int x = c + chunk_origin_column;
+				int y = -(r + chunk_origin_row);
+				coordinates_of_alive_cells[number_of_alive_cells++] = std::make_pair(x, y);
+			}
+		}
+	}
+}
 

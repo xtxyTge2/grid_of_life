@@ -50,6 +50,8 @@ public:
 
 	Coordinate transform_to_world_coordinate(Coordinate chunk_coord);
 
+	void update_coordinates_of_alive_cells();
+	
 	int grid_coordinate_row;
 	int grid_coordinate_column;
 
@@ -62,6 +64,9 @@ public:
 	// assume that the data is aligned by 32!
 	alignas(32) std::array<unsigned char, rows*columns> cells_data;
 	alignas(32) std::array<unsigned char, rows*columns> neighbour_count_data;
+
+	std::array<std::pair<int, int>, Chunk::rows*Chunk::columns> coordinates_of_alive_cells;
+	unsigned int number_of_alive_cells;
 };
 
 // assume Chunk::rows == Chunk::columns!

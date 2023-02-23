@@ -17,10 +17,6 @@ public:
 
 	void update();
 
-	void model_translation_producer(std::pair<std::size_t, std::size_t> start_end_index);
-
-	void model_queue_busy_wait_consumer(std::stop_source stop_source);
-
 	void create_border_cubes_for_grid();
 
 	void update_model_translations_data();
@@ -28,11 +24,9 @@ public:
 	// data
 	std::shared_ptr<Grid_Manager> grid_manager;
 
-	constexpr static size_t EXPECTED_MAX_NUMBER_OF_GRID_CUBES = 500000;
+	constexpr static size_t MAX_NUMBER_OF_CUBES = 1000000;
 
-	constexpr static size_t EXPECTED_MAX_NUMBER_OF_BORDER_CUBES = 500000;
+	std::array<glm::vec3, MAX_NUMBER_OF_CUBES> cubes_translation_data;
 
-	moodycamel::ConcurrentQueue<glm::vec3> model_translations_queue;
-
-	std::vector<glm::vec3> cubes_model_data;
+	std::size_t number_of_translation_data;
 };

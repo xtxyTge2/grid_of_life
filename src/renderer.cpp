@@ -59,6 +59,7 @@ void Renderer::render_frame(std::shared_ptr<World> world, std::shared_ptr<Cube_S
 
 	// world
 	render_world(world, cube_system);
+
 	// ui
 	render_ui();
 
@@ -153,18 +154,21 @@ void Renderer::initialise_cube_rendering() {
 
 
 
-void Renderer::render_grid(std::vector<glm::vec3>& cubes_model_data) {
+void Renderer::render_grid(std::shared_ptr<Cube_System> cube_system) {
 	ZoneScoped;
 
 	glBindVertexArray(m_VAO);
 	m_shader_program->use();
 
 	// send the mvp matrices to the corresponding buffer
+	std::size_t number_of_cubes = cube_system->number_of_translation_data;
+	std::size_t data_size = sizeof(glm::vec3) * number_of_cubes;
+	const void * data = reinterpret_cast<const void *>(cube_system->cubes_translation_data.data());
 	glBindBuffer(GL_ARRAY_BUFFER, cubes_instances_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * cubes_model_data.size(), (const void *) cubes_model_data.data(), GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, data_size, data, GL_STREAM_DRAW);
 
 	// draw all cubes.
-	glDrawArraysInstanced(GL_TRIANGLES, 0, 36, static_cast<GLsizei>(cubes_model_data.size()));
+	glDrawArraysInstanced(GL_TRIANGLES, 0, 36, static_cast<GLsizei>(number_of_cubes));
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
 	glBindVertexArray(0);
@@ -191,5 +195,5 @@ void Renderer::render_world(std::shared_ptr<World> world, std::shared_ptr<Cube_S
 
 	set_projection_view_matrix_in_shader(world);
 
-	render_grid(cube_system->cubes_model_data);
+	render_grid(cube_system);
 }
