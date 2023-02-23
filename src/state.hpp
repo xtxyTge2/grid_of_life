@@ -10,7 +10,6 @@
 
 #include "opengl.hpp"
 #include "camera.hpp"
-#include "shader_program.hpp"
 #include "read.hpp"
 #include "texture.hpp"
 #include "cube.hpp"

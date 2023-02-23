@@ -45,7 +45,6 @@ set(Header_Files
     "src/read.hpp"
     "src/renderer.hpp"
     "src/shader.hpp"
-    "src/shader_program.hpp"
     "src/state.hpp"
     "src/stb_image.h"
     "src/texture.hpp"
@@ -76,7 +75,6 @@ set(Source_Files
     "src/read.cpp"
     "src/renderer.cpp"
     "src/shader.cpp"
-    "src/shader_program.cpp"
     "src/state.cpp"
     "src/texture.cpp"
     "src/ui_state.cpp"
@@ -144,8 +142,13 @@ if(MSVC OR CLANG)
             /arch:AVX2;
             /Oy;
             /Gy;
-            /Ot;
-            /fp:fast
+            /fp:fast;
+			/Qpar
+			/Qpar-report:2
+			/openmp;
+			/Ox
+			/O3
+			-mavx2
         >
         /permissive-;
         /sdl;
@@ -179,6 +182,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE "${ADDITIONAL_LIBRARY_DEPENDENCIES
 if(WIN32)
     target_link_directories(${PROJECT_NAME} PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/glfw-3.3.8/lib-vc2022"
+    )
+	target_link_directories(${PROJECT_NAME} PRIVATE
+        "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/lib"
     )
 endif()
 

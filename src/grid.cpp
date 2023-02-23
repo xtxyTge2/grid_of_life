@@ -156,8 +156,10 @@ opencl_context(context)
 	};
 	
 	std::vector<Coordinate> chunk_coordinates;
-	for (int r = -20; r < 20; r++) {
-		for (int c = -20; c < 20; c++) {
+
+	int length = 40;
+	for (int r = -length; r < length; r++) {
+		for (int c = -length; c < length; c++) {
 			create_new_chunk_and_set_alive_cells(Coordinate(r, c), initial_coordinates);
 		}
 	}
@@ -200,7 +202,9 @@ void Grid::next_iteration() {
 	update_neighbour_count_and_set_info_of_all_chunks();
 
 	for (Coordinate coord: coordinates_of_chunks_to_create) {
-		create_new_chunk(coord);
+		if (!chunk_map.contains(coord)) {
+			create_new_chunk(coord);
+		}
 	}
 
 	update_neighbours_of_all_chunks();
@@ -311,8 +315,9 @@ void Grid::set_chunk_neighbour_info(std::size_t chunk_id) {
 	if (has_to_update_top) {
 		const Coordinate& top_coord = Coordinate(chunk.grid_coordinate_row - 1, chunk.grid_coordinate_column);
 		if (!chunk_map.contains(top_coord)) {
-			coordinates_of_chunks_to_create.insert(top_coord);
+			coordinates_of_chunks_to_create.push_back(top_coord);
 		}
+		
 		ChunkSideUpdateInfo top_info;
 		top_info.chunk_to_update_coordinate = top_coord;
 		std::copy_n(std::begin(cells_data), Chunk::columns, std::begin(top_info.data));
@@ -333,7 +338,7 @@ void Grid::set_chunk_neighbour_info(std::size_t chunk_id) {
 	if (has_to_update_bottom) {
 		const Coordinate& bottom_coord = Coordinate(chunk.grid_coordinate_row + 1, chunk.grid_coordinate_column);
 		if (!chunk_map.contains(bottom_coord)) {
-			coordinates_of_chunks_to_create.insert(bottom_coord);
+			coordinates_of_chunks_to_create.push_back(bottom_coord);
 		}
 		ChunkSideUpdateInfo bottom_info;
 		bottom_info.chunk_to_update_coordinate = bottom_coord;
@@ -355,7 +360,7 @@ void Grid::set_chunk_neighbour_info(std::size_t chunk_id) {
 	if (has_to_update_left) {
 		const Coordinate& left_coord = Coordinate(chunk.grid_coordinate_row, chunk.grid_coordinate_column - 1);
 		if (!chunk_map.contains(left_coord)) {
-			coordinates_of_chunks_to_create.insert(left_coord);
+			coordinates_of_chunks_to_create.push_back(left_coord);
 		}
 		ChunkSideUpdateInfo left_info;
 		left_info.chunk_to_update_coordinate = left_coord;
@@ -376,7 +381,7 @@ void Grid::set_chunk_neighbour_info(std::size_t chunk_id) {
 	if (has_to_update_right) {
 		const Coordinate& right_coord = Coordinate(chunk.grid_coordinate_row, chunk.grid_coordinate_column + 1);
 		if (!chunk_map.contains(right_coord)) {
-			coordinates_of_chunks_to_create.insert(right_coord);
+			coordinates_of_chunks_to_create.push_back(right_coord);
 		}
 		ChunkSideUpdateInfo right_info;
 		right_info.chunk_to_update_coordinate = right_coord;
@@ -388,16 +393,15 @@ void Grid::set_chunk_neighbour_info(std::size_t chunk_id) {
 	if (cells_data[0]) {
 		const Coordinate& top_left_coord = Coordinate(chunk.grid_coordinate_row - 1, chunk.grid_coordinate_column - 1);
 		if (!chunk_map.contains(top_left_coord)) {
-			coordinates_of_chunks_to_create.insert(top_left_coord);
+			coordinates_of_chunks_to_create.push_back(top_left_coord);
 		}
-		
 		bottom_right_corner_update_infos.push_back(top_left_coord);
 	}
 	//top right corner
 	if (cells_data[Chunk::columns - 1]) {
 		const Coordinate& top_right_coord = Coordinate(chunk.grid_coordinate_row - 1, chunk.grid_coordinate_column + 1);
 		if (!chunk_map.contains(top_right_coord)) {
-			coordinates_of_chunks_to_create.insert(top_right_coord);
+			coordinates_of_chunks_to_create.push_back(top_right_coord);
 		}
 		
 		bottom_left_corner_update_infos.push_back(top_right_coord);
@@ -406,7 +410,7 @@ void Grid::set_chunk_neighbour_info(std::size_t chunk_id) {
 	if (cells_data[(Chunk::rows - 1) * Chunk::rows + Chunk::columns - 1]) {
 		const Coordinate& bottom_right_coord = Coordinate(chunk.grid_coordinate_row + 1, chunk.grid_coordinate_column + 1);
 		if (!chunk_map.contains(bottom_right_coord)) {
-			coordinates_of_chunks_to_create.insert(bottom_right_coord);
+			coordinates_of_chunks_to_create.push_back(bottom_right_coord);
 		}
 		
 		top_left_corner_update_infos.push_back(bottom_right_coord);
@@ -415,9 +419,8 @@ void Grid::set_chunk_neighbour_info(std::size_t chunk_id) {
 	if (cells_data[(Chunk::rows - 1) * Chunk::rows]) {
 		const Coordinate& bottom_left_coord = Coordinate(chunk.grid_coordinate_row + 1, chunk.grid_coordinate_column - 1);
 		if (!chunk_map.contains(bottom_left_coord)) {
-			coordinates_of_chunks_to_create.insert(bottom_left_coord);
+			coordinates_of_chunks_to_create.push_back(bottom_left_coord);
 		}
-		
 		top_right_corner_update_infos.push_back(bottom_left_coord);
 	}
 }

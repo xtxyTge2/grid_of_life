@@ -255,11 +255,25 @@ void Chunk::update_cells() {
 
 void Chunk::update_coordinates_of_alive_cells() {
 	ZoneScoped; 
+	if (false) {
+		number_of_alive_cells = 0;
+		for (int r = 0; r < Chunk::rows; ++r) {
+			for (int c = 0; c < Chunk::columns; ++c) {
+				if (cells_data[r * Chunk::rows + c]) {
+					int x = c + chunk_origin_column;
+					int y = -(r + chunk_origin_row);
+					coordinates_of_alive_cells[number_of_alive_cells++] = std::make_pair(x, y);
+				}
+			}
+		}
+	} else {
+		number_of_alive_cells = 0;
+#pragma clang loop vectorize(enable) interleave(enable)
+		for (int i = 0; i < cells_data.size(); ++i) {
+			if (cells_data[i]) {
+				int r = i / Chunk::rows;
+				int c = i % Chunk::columns;
 
-	number_of_alive_cells = 0;
-	for (int r = 0; r < Chunk::rows; ++r) {
-		for (int c = 0; c < Chunk::columns; ++c) {
-			if (cells_data[r * Chunk::rows + c]) {
 				int x = c + chunk_origin_column;
 				int y = -(r + chunk_origin_row);
 				coordinates_of_alive_cells[number_of_alive_cells++] = std::make_pair(x, y);

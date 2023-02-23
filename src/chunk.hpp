@@ -65,7 +65,7 @@ public:
 	alignas(32) std::array<unsigned char, rows*columns> cells_data;
 	alignas(32) std::array<unsigned char, rows*columns> neighbour_count_data;
 
-	std::array<std::pair<int, int>, Chunk::rows*Chunk::columns> coordinates_of_alive_cells;
+	alignas(32) std::array<std::pair<int, int>, Chunk::rows*Chunk::columns> coordinates_of_alive_cells;
 	unsigned int number_of_alive_cells;
 };
 

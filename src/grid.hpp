@@ -62,7 +62,7 @@ public:
 	concurrency::concurrent_vector<Coordinate> bottom_left_corner_update_infos;
 	concurrency::concurrent_vector<Coordinate> bottom_right_corner_update_infos;
 	
-	concurrency::concurrent_unordered_set<Coordinate> coordinates_of_chunks_to_create;
+	concurrency::concurrent_vector<Coordinate> coordinates_of_chunks_to_create;
 
 	std::shared_ptr<OpenCLContext> opencl_context;
 };
