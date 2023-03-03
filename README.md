@@ -15,4 +15,14 @@ Overall, this project was a great way to gain experience with modern C++ and Ope
 
 # Third party libraries
 
+GLM  
+GLAD  
+GLFW  
+BOOST (only used unordered::unordered_flat_map)
+
 # References
+
+OpenGL  
+https://learnopengl.com/  
+OpenGL Programming Guide: The Official Guide to Learning Opengl, Version 4.5 with Spir-V
+       
