@@ -43,6 +43,8 @@ public:
 
 	void framebuffer_size_callback(int width, int height);
 
+	void scroll_callback(double xoffset, double yoffset);
+
 	bool should_quit();
 	//--------------------------------------------------------------------------------
 	// data

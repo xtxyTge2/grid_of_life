@@ -27,7 +27,8 @@ float clip(float value, float lower, float higher) {
 Camera::Camera() :
 	position(glm::vec3(0.0f, 0.0f, 0.0f)),
 	orientation_vector_matrix(glm::mat3(1.0f)),
-	m_speed(0.0f)
+	m_speed(0.0f),
+	fov(50.0f)
 {}
 
 //--------------------------------------------------------------------------------
@@ -41,7 +42,7 @@ glm::mat4 Camera::get_view_matrix() {
 //--------------------------------------------------------------------------------
 glm::mat4 Camera::get_projection_matrix(int viewport_width, int viewport_height) {
 	ZoneScoped;
-	return glm::perspective(glm::radians(50.0f), ((float)viewport_width) / ((float) viewport_height), 0.3f, 10000.0f);
+	return glm::perspective(glm::radians(fov), ((float)viewport_width) / ((float) viewport_height), 0.3f, 10000.0f);
 }
 
 //--------------------------------------------------------------------------------
@@ -68,6 +69,11 @@ void Camera::move(Camera_Move_Direction direction) {
 			break;
 	}
 }
+
+void Camera::add_offset_and_clip_fov(float yoffset) {
+	fov = clip(fov + yoffset, 1.0f, 110.0f);
+}
+
 
 //--------------------------------------------------------------------------------
 Mouse::Mouse() :

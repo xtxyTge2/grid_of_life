@@ -39,6 +39,7 @@ void World::initialise(GLFWwindow* window) {
 //--------------------------------------------------------------------------------
 void World::update(double dt, const Grid_UI_Controls_Info& grid_ui_controls_info) {
 	ZoneScoped;
+
 	grid_manager->update(dt, grid_ui_controls_info);
 
 	process_input(dt);

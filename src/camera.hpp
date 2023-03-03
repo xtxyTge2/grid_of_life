@@ -21,6 +21,8 @@ public:
 
 	void initialise();
 
+	void add_offset_and_clip_fov(float yoffset);
+
 	void move(Camera_Move_Direction);
 
 	glm::mat4 get_view_matrix();
@@ -30,6 +32,7 @@ public:
 	glm::vec3 position;
 	glm::mat3 orientation_vector_matrix;
 	float m_speed;
+	float fov;
 };
 
 //--------------------------------------------------------------------------------

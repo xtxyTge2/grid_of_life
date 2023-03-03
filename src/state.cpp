@@ -71,6 +71,12 @@ void State::framebuffer_size_callback(int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
+void State::scroll_callback(double xoffset, double yoffset) {
+	ZoneScoped;
+
+	world->m_camera->add_offset_and_clip_fov(static_cast<float>(-yoffset));
+}
+
 
 bool State::should_quit() {
 	ZoneScoped;

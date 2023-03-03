@@ -14,6 +14,8 @@ int main(int argc, char** argv);
 //--------------------------------------------------------------------------------
 void set_input_callbacks(GLFWwindow*);
 void framebuffer_size_callback(GLFWwindow*, int, int);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
 void GLAPIENTRY GLDebugMessageCallback( GLenum source,
 	                GLenum type,
 	                GLuint id,
@@ -30,6 +32,7 @@ std::unique_ptr<State> g_state = std::make_unique<State>();
 //--------------------------------------------------------------------------------
 void set_input_callbacks(GLFWwindow* window) {
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 }
 
 //--------------------------------------------------------------------------------
@@ -42,11 +45,7 @@ GLFWwindow* init_glfw_glad_and_create_window(int window_width, int window_height
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	
-
 	GLFWwindow* window = glfwCreateWindow(window_width, window_height, "GridOfLife3D", NULL, NULL);
-
-	set_input_callbacks(window);
 
 	if (window == nullptr) {
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -54,6 +53,8 @@ GLFWwindow* init_glfw_glad_and_create_window(int window_width, int window_height
 		system("pause");
 		return nullptr;
 	}
+
+	set_input_callbacks(window);
 
 	glfwMakeContextCurrent(window);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -170,8 +171,18 @@ void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	ZoneScoped;
 
+	// pass to our state, we check that we are not in debug window
 	if (window == g_state->window) {
 		g_state->framebuffer_size_callback(width, height);
+	}
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+	ZoneScoped;
+
+	// pass to our state, we check that we are not in debug window
+	if (window == g_state->window) {
+		g_state->scroll_callback(xoffset, yoffset);
 	}
 }
 
