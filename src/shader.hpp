@@ -1,6 +1,6 @@
 #pragma once
 //--------------------------------------------------------------------------------
-#include "Tracy.hpp"
+#include <Tracy/Tracy.hpp>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>

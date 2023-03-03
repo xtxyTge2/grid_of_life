@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Tracy.hpp"
+#include <Tracy/Tracy.hpp>
 
 #include "omp.h"
 #include "ui_state.hpp"
@@ -12,8 +12,6 @@
 #include <concurrent_unordered_set.h>
 #include "coordinate.hpp"
 
-// moodycamel concurrent queue
-#include <moodycamel/concurrentqueue.h>
 
 //--------------------------------------------------------------------------------
 class Grid {
@@ -25,6 +23,8 @@ public:
 	void update_cells_of_all_chunks();
 
 	void update_neighbour_count_inside_for_chunk_index_range(std::pair<std::size_t, std::size_t> start_end_index_pair);
+
+	void update_coordinates_of_alive_cells_for_all_chunks();
 
 	void remove_empty_chunks();
 
@@ -74,7 +74,7 @@ struct Grid_Execution_State {
 	int number_of_iterations_per_single_frame = 1;
 	bool updated_grid_coordinates = false;
 	bool updated_border_coordinates = false;
-	bool is_running = true;
+	bool is_running = false;
 	bool run_manual_next_iteration = false;
 	float time_since_last_iteration = 0.0f;
 	float grid_speed = 1.0f;

@@ -1,133 +1,127 @@
-cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16.0)
 
-set(CMAKE_SYSTEM_VERSION 10.0 CACHE STRING "" FORCE)
+project(grid_of_life)
 
-project(sancious_shaders C CXX)
 
-################################################################################
-# Global configuration types
 ################################################################################
 set(CMAKE_CONFIGURATION_TYPES
     "Debug"
     "Release"
 )
 
-################################################################################
-# Global compiler options
+
 ################################################################################
 
-set(CMAKE_C_FLAGS "")
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++20")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
+
+
+set(PROJECT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src")
+set(PROJECT_LIBRARIES_DIR "${CMAKE_SOURCE_DIR}/3rdparty")
+
+# GLM
+set(GLM_DIR "${PROJECT_LIBRARIES_DIR}/glm")
+add_subdirectory(${GLM_DIR} EXCLUDE_FROM_ALL)
+
+
+# GLFW
+set(GLFW_DIR "${PROJECT_LIBRARIES_DIR}/glfw")
+set(GLFW_INCLUDE_DIR "${GLFW_DIR}/include")
+add_subdirectory(${GLFW_DIR} EXCLUDE_FROM_ALL)
+
+# Dear Imgui
+set(IMGUI_DIR  "${PROJECT_LIBRARIES_DIR}/imgui")
+file(GLOB IMGUI_SOURCES
+   "${IMGUI_DIR}/*.cpp"
+   "${IMGUI_DIR}/backends/imgui_impl_glfw.cpp"
+   "${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp"
+)
+add_library(imgui ${IMGUI_SOURCES})
+target_include_directories(
+   imgui
+   PUBLIC
+      ${IMGUI_DIR}
+      "${IMGUI_DIR}/backends"
+	  ${GLFW_INCLUDE_DIR}
+)
+
+
+# glad - opengl loader
+set(GLAD_DIR "${PROJECT_LIBRARIES_DIR}/glad")
+set(GLAD_SOURCES_DIR "${GLAD_DIR}/src")
+set(GLAD_INCLUDE_DIR "${GLAD_DIR}/include")
+file(GLOB GLAD_SOURCES "${GLAD_SOURCES_DIR}/glad.c")
+add_library(glad ${GLAD_SOURCES})
+target_include_directories(glad PRIVATE ${GLAD_INCLUDE_DIR})
+
+# boost library
+set(BOOST_DIR "${PROJECT_LIBRARIES_DIR}/boost_1_81_0")
+
+# stb: header only lib
+set(STB_DIR "${PROJECT_LIBRARIES_DIR}/stb")
+
+# - Tracy
+option(TRACY_ENABLE "" ON)
+option(TRACY_ON_DEMAND "" ON)
+add_subdirectory("${PROJECT_LIBRARIES_DIR}/tracy")
 
 ################################################################################
 # Source groups
 ################################################################################
-set(Header_Files
-    "3rdparty/imgui/imconfig.h"
-    "3rdparty/imgui/imgui.h"
-    "3rdparty/imgui/imgui_impl_glfw.h"
-    "3rdparty/imgui/imgui_impl_opengl3.h"
-    "3rdparty/imgui/imgui_impl_opengl3_loader.h"
-    "3rdparty/imgui/imgui_internal.h"
-    "3rdparty/imgui/imstb_rectpack.h"
-    "3rdparty/imgui/imstb_textedit.h"
-    "3rdparty/imgui/imstb_truetype.h"
-    "src/camera.hpp"
-    "src/chunk.hpp"
-    "src/coordinate.hpp"
-    "src/cube.hpp"
-    "src/cube_system.hpp"
-    "src/grid.hpp"
-    "src/opencl_context.hpp"
-    "src/opengl.hpp"
-    "src/read.hpp"
-    "src/renderer.hpp"
-    "src/shader.hpp"
-    "src/state.hpp"
-    "src/stb_image.h"
-    "src/texture.hpp"
-    "src/ui_state.hpp"
-    "src/world.hpp"
-)
-source_group("Header Files" FILES ${Header_Files})
 
-set(Source_Files
-    "3rdparty/imgui/imgui.cpp"
-    "3rdparty/imgui/imgui_demo.cpp"
-    "3rdparty/imgui/imgui_draw.cpp"
-    "3rdparty/imgui/imgui_impl_glfw.cpp"
-    "3rdparty/imgui/imgui_impl_opengl3.cpp"
-    "3rdparty/imgui/imgui_tables.cpp"
-    "3rdparty/imgui/imgui_widgets.cpp"
-	"3rdparty/tracy/TracyClient.cpp"
-    "src/camera.cpp"
-    "src/chunk.cpp"
-    "src/coordinate.cpp"
-    "src/cube.cpp"
-    "src/cube_system.cpp"
-    "src/glad.c"
-    "src/grid.cpp"
-    "src/main.cpp"
-    "src/opencl_context.cpp"
-    "src/opencl_grid.c"
-    "src/read.cpp"
-    "src/renderer.cpp"
-    "src/shader.cpp"
-    "src/state.cpp"
-    "src/texture.cpp"
-    "src/ui_state.cpp"
-    "src/world.cpp"
-)
-source_group("Source Files" FILES ${Source_Files})
-
-set(ALL_FILES
-    ${Header_Files}
-    ${Source_Files}
+add_executable(${PROJECT_NAME}
+    "${PROJECT_SOURCE_DIR}/camera.cpp"
+    "${PROJECT_SOURCE_DIR}/chunk.cpp"
+    "${PROJECT_SOURCE_DIR}/coordinate.cpp"
+    "${PROJECT_SOURCE_DIR}/cube.cpp"
+    "${PROJECT_SOURCE_DIR}/cube_system.cpp"
+    "${PROJECT_SOURCE_DIR}/grid.cpp"
+    "${PROJECT_SOURCE_DIR}/main.cpp"
+    "${PROJECT_SOURCE_DIR}/opencl_context.cpp"
+    "${PROJECT_SOURCE_DIR}/opencl_grid.c"
+    "${PROJECT_SOURCE_DIR}/read.cpp"
+    "${PROJECT_SOURCE_DIR}/renderer.cpp"
+    "${PROJECT_SOURCE_DIR}/shader.cpp"
+    "${PROJECT_SOURCE_DIR}/state.cpp"
+    "${PROJECT_SOURCE_DIR}/texture.cpp"
+    "${PROJECT_SOURCE_DIR}/ui_state.cpp"
+    "${PROJECT_SOURCE_DIR}/world.cpp"
 )
 
 ################################################################################
 # Target
 ################################################################################
-add_executable(${PROJECT_NAME} ${ALL_FILES})
 
-set(ROOT_NAMESPACE sanciousshaders)
+target_include_directories(
+   ${PROJECT_NAME}
+   PUBLIC
+	  ${GLAD_INCLUDE_DIR}
+	  ${BOOST_DIR}
+	  ${GLM_DIR}
+	  ${STB_DIR}
+	PRIVATE
+      ${PROJECT_SOURCE_DIR}
+)
 
-target_include_directories(${PROJECT_NAME} PRIVATE 3rdparty/tracy/tracy)
-target_include_directories(${PROJECT_NAME} PRIVATE 3rdparty/moodycamel)
-target_include_directories(${PROJECT_NAME} PRIVATE 3rdparty/imgui)
-target_include_directories(${PROJECT_NAME} PRIVATE 3rdparty/glm)
-target_include_directories(${PROJECT_NAME} PRIVATE 3rdparty/glfw-3.3.8/include)
-target_include_directories(${PROJECT_NAME} PRIVATE 3rdparty/glad/include)
-target_include_directories(${PROJECT_NAME} PRIVATE 3rdparty/glad/include)
-target_include_directories(${PROJECT_NAME} PRIVATE 3rdparty/boost_1_81_0)
-
-
-################################################################################
-# MSVC runtime library
-################################################################################
-
-if(MSVC OR CLANG)
-	set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY MultiThreadedDebugDLL)
-endif()
+#if(MSVC OR CLANG)
+#	set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY MultiThreadedDebugDLL)
+#endif()
 
 ################################################################################
 # Compile definitions
 ################################################################################
 
-if(MSVC OR CLANG)
-	target_compile_definitions(${PROJECT_NAME} PRIVATE
-    	"$<$<CONFIG:Debug>:"
-    	    "_DEBUG"
-    	">"
-    	"$<$<CONFIG:Release>:"
-    	    "NDEBUG;"
-			"TRACY_ENABLE"
-    	    ""
-    	">"
-	)
-endif()
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    "$<$<CONFIG:Debug>:"
+    	   "_DEBUG"
+    ">"
+    "$<$<CONFIG:Release>:"
+    	   "NDEBUG;"
+		"TRACY_ENABLE"  
+    ">"
+)
 
 ################################################################################
 # Compile and link options
@@ -148,8 +142,8 @@ if(MSVC OR CLANG)
 			/openmp;
 			/Ox
 			/O3
-			-mavx2
         >
+		-mavx2
         /permissive-;
         /sdl;
         /W3;
@@ -170,32 +164,18 @@ endif()
 # Dependencies
 ################################################################################
 
-if(WIN32)
-    set(ADDITIONAL_LIBRARY_DEPENDENCIES
-        "libomp"
-        "glfw3dll"
-    )
-endif()
+target_link_libraries(${PROJECT_NAME} PUBLIC 
+	libomp 
+	glfw 
+	imgui
+	glad
+	Tracy::TracyClient
+)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
 
-if(WIN32)
-    target_link_directories(${PROJECT_NAME} PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/glfw-3.3.8/lib-vc2022"
-    )
-	target_link_directories(${PROJECT_NAME} PRIVATE
-        "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/lib"
-    )
-endif()
-
+# install instructions -> copy data and shader files into build folder
 add_custom_command(
   TARGET ${PROJECT_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory 
     ${CMAKE_CURRENT_SOURCE_DIR}/dependencies
     $<TARGET_FILE_DIR:${PROJECT_NAME}>/dependencies)
-
-add_custom_command(
-  TARGET ${PROJECT_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/glfw-3.3.8/lib-vc2022/glfw3.dll
-    $<TARGET_FILE_DIR:${PROJECT_NAME}>)

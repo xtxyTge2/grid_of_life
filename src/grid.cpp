@@ -164,7 +164,7 @@ opencl_context(context)
 		}
 	}
 	
-	//create_new_chunk_and_set_alive_cells(Coordinate(0, 0), initial_coordinates);
+	update_coordinates_of_alive_cells_for_all_chunks();
 }
 
 
@@ -177,8 +177,6 @@ void Grid::create_new_chunk_and_set_alive_cells(const Coordinate& coord, const s
 	chunks.emplace_back(coord, origin_coordinate, coordinates);
 
 	chunk_map.insert(std::make_pair(coord, chunk_index));
-
-	number_of_chunks++;
 }
 
 void Grid::create_new_chunk(const Coordinate& coord) {
@@ -212,19 +210,24 @@ void Grid::next_iteration() {
 	update_cells_of_all_chunks();
 	
 	remove_empty_chunks();
-	{
-		ZoneScopedN("coordinate updates.");
-		concurrency::parallel_for(static_cast<std::size_t>(0),
-		                          static_cast<std::size_t>(chunks.size()),
-		                          static_cast<std::size_t>(1),
-		                          [this](auto&& it) {
-		                          chunks[it].update_coordinates_of_alive_cells();
-		},
-		concurrency::static_partitioner());
-	}
+	
+	update_coordinates_of_alive_cells_for_all_chunks();
+	
 	iteration++;
-	number_of_chunks = static_cast<int>(chunk_map.size());
+	
 	assert(chunk_map.size() == chunks.size());
+}
+
+void Grid::update_coordinates_of_alive_cells_for_all_chunks() {
+	ZoneScoped;
+
+	concurrency::parallel_for(static_cast<std::size_t>(0),
+	                          static_cast<std::size_t>(chunks.size()),
+	                          static_cast<std::size_t>(1),
+	                          [this](auto&& it) {
+	                          chunks[it].update_coordinates_of_alive_cells();
+	},
+	concurrency::static_partitioner());
 }
 
 std::vector<std::pair<std::size_t, std::size_t>> Grid::get_partition_data_for_chunks(unsigned int number_of_workers, bool allow_small_task_sizes) {

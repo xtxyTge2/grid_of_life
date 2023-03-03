@@ -1,11 +1,13 @@
 #pragma once
 
 //--------------------------------------------------------------------------------
-#include "Tracy.hpp"
+#include <Tracy/Tracy.hpp>
 
+
+#include <GLFW/glfw3.h>
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
 #include "imgui_internal.h"
 
 enum Grid_UI_Control_Button_Events {
