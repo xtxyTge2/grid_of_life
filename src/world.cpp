@@ -43,29 +43,29 @@ void World::update(double dt, const Grid_UI_Controls_Info& grid_ui_controls_info
 	grid_manager->update(dt, grid_ui_controls_info);
 
 	process_input(dt);
+
+	m_camera->update(dt);
 }
 
 //--------------------------------------------------------------------------------
 void World::process_input(double dt) {
 	ZoneScoped;
-	m_camera->m_speed = 50.0f * (float) dt;
-
+	
 	if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(m_window, true);
 	}
 	
-	Camera_Move_Direction direction = Camera_Move_Direction::UNDEFINED;
+	m_camera->direction = Camera_Move_Direction::NO_DIRECTION;
 	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS) {
-		direction = Camera_Move_Direction::FORWARD;
+		m_camera->direction = Camera_Move_Direction::FORWARD;
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS) {
-		direction = Camera_Move_Direction::BACKWARD;
+		m_camera->direction = Camera_Move_Direction::BACKWARD;
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS) {
-		direction = Camera_Move_Direction::LEFT;
+		m_camera->direction = Camera_Move_Direction::LEFT;
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) {
-		direction = Camera_Move_Direction::RIGHT;
+		m_camera->direction = Camera_Move_Direction::RIGHT;
 	}
-	m_camera->move(direction);
 }

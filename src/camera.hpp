@@ -7,7 +7,7 @@
 
 //--------------------------------------------------------------------------------
 enum class Camera_Move_Direction {
-	UNDEFINED,
+	NO_DIRECTION,
 	FORWARD,
 	BACKWARD,
 	LEFT,
@@ -19,11 +19,13 @@ class Camera {
 public:
 	Camera();
 
+	void update(double dt);
+
 	void initialise();
 
 	void add_offset_and_clip_fov(float yoffset);
 
-	void move(Camera_Move_Direction);
+	void move_in_current_direction();
 
 	glm::mat4 get_view_matrix();
 
@@ -33,6 +35,7 @@ public:
 	glm::mat3 orientation_vector_matrix;
 	float m_speed;
 	float fov;
+	Camera_Move_Direction direction;
 };
 
 //--------------------------------------------------------------------------------
