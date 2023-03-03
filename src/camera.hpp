@@ -2,8 +2,8 @@
 
 //--------------------------------------------------------------------------------
 #include "Tracy.hpp"
-
 #include "opengl.hpp"
+#include <cmath>
 
 //--------------------------------------------------------------------------------
 enum class Camera_Move_Direction {
@@ -11,7 +11,8 @@ enum class Camera_Move_Direction {
 	FORWARD,
 	BACKWARD,
 	LEFT,
-	RIGHT
+	RIGHT,
+	ROTATE_AROUND_Y_AXIS
 };
 
 //--------------------------------------------------------------------------------
@@ -25,15 +26,21 @@ public:
 
 	void add_offset_and_clip_fov(float yoffset);
 
-	void move_in_current_direction();
+	void move_in_current_direction(double dt);
+
+	void rotate_around_y_axis(double dt);
 
 	glm::mat4 get_view_matrix();
 
 	glm::mat4 get_projection_matrix(int viewport_width, int viewport_height);
 	//--------------------------------------------------------------------------------
 	glm::vec3 position;
-	glm::mat3 orientation_vector_matrix;
-	float m_speed;
+	glm::vec3 target_position;
+
+	glm::vec3 left_direction_vector;
+	glm::vec3 up_direction_vector;
+	glm::vec3 front_direction_vector;
+
 	float fov;
 	Camera_Move_Direction direction;
 };

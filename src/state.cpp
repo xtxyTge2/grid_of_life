@@ -81,5 +81,5 @@ void State::scroll_callback(double xoffset, double yoffset) {
 bool State::should_quit() {
 	ZoneScoped;
 	//assert(window);
-	return glfwWindowShouldClose(window) || world->grid_manager->grid->iteration > 300;
+	return glfwWindowShouldClose(window);
 }

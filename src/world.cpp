@@ -21,17 +21,8 @@ void World::initialise(GLFWwindow* window) {
 	m_camera = std::make_unique < Camera > ();
 	m_camera->position = glm::vec3(Chunk::rows / 2, Chunk::columns / 2, 1250.0f);
 
-	// left/right/x-axis direction vector
-	m_camera->orientation_vector_matrix[0] = glm::vec3(1.0f, 0.0f, 0.0f);
-	
-	// up/down/y-axis direction vector
-	m_camera->orientation_vector_matrix[1] = glm::vec3(0.0f, 1.0f, 0.0f);
-	
-	// front/back/z-axis direction vector
-	m_camera->orientation_vector_matrix[2] = glm::vec3(0.0f, 0.0f, -1.0f);
-	
-	m_camera->m_speed = 50.0f;
-	
+	m_camera->target_position = glm::vec3(0.0f);
+
 	grid_manager = std::make_shared<Grid_Manager>();
 }
 
@@ -51,11 +42,10 @@ void World::update(double dt, const Grid_UI_Controls_Info& grid_ui_controls_info
 void World::process_input(double dt) {
 	ZoneScoped;
 	
+
 	if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(m_window, true);
 	}
-	
-	m_camera->direction = Camera_Move_Direction::NO_DIRECTION;
 	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS) {
 		m_camera->direction = Camera_Move_Direction::FORWARD;
 	}
@@ -67,5 +57,17 @@ void World::process_input(double dt) {
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) {
 		m_camera->direction = Camera_Move_Direction::RIGHT;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_R) == GLFW_PRESS) {
+		m_camera->direction = Camera_Move_Direction::ROTATE_AROUND_Y_AXIS;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS) {
+		m_camera->direction = Camera_Move_Direction::NO_DIRECTION;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+		// reset camera with spacebar
+		m_camera->direction = Camera_Move_Direction::NO_DIRECTION;
+		m_camera->position = glm::vec3(Chunk::rows / 2, Chunk::columns / 2, 1250.0f);
+		m_camera->target_position = glm::vec3(0.0f);
 	}
 }
