@@ -1,13 +1,18 @@
-# grid_of_life
-A project aiming to replicate Conway's Game of Life in a simple 3D-World written in C++, using OpenGL for rendering.
+## Grid of Life
+This is an educational project with a focus on learning modern C++ and OpenGL while having fun experimenting with various techniques to improve (or atleast be aware of) performance. It involved implementing [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) in a 3D environment using OpenGL and C++. 
 
-The aim of this project is to have a hands-on project, with enough scope to learn to write C++. A particular focus is applied to making sure that the simulation/program runs fast. In parallel we learn to apply common data layout and optimization techniques.
+The application was made platform-independent by utilizing a GLFW graphics backend and a Dear ImGui user interface with a CMake build environment. The implementation tries to focus on efficiency and performance with the use of multithreading, instancing for rendering, Boost C++ libraries ([boost::unordered_flat_map](https://www.boost.org/doc/libs/1_81_0/libs/unordered/doc/html/unordered.html#unordered_flat_map)), and runtime analysis through the [Tracy Profiler](https://github.com/wolfpld/tracy). Additionally, the simulation was accelerated through the use of hardware-dependent SIMD AVX2 intrinsics or OpenCL Compute Shaders. 
+
+Overall, this project was a great way to gain experience with modern C++ and OpenGL while exploring various performance optimization techniques.
+
+[Demo video](https://github.com/xtxyTge2/grid_of_life)
+
+# Features
 
 
-We implemented the simulation and added a simple UI for controlling it in the application using the Dear-ImGui library. We also have simple camera movement. 
 
-#Feature Roadmap:
-	- add mouse navigation to the camera, add more camera controls (speed/reset/focus on grid etc).
-	- chunk system: instead of one giant matrix, which represents the grid, we split the grid up into smaller matrices/chunks and operate on them individually and then sync them up on their borders
+# Building
 
+# Third party libraries
 
+# References
