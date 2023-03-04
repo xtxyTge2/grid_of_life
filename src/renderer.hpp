@@ -50,6 +50,6 @@ public:
 	std::unique_ptr<Texture_Catalog> texture_catalog;
 
 	std::unique_ptr<Shader_Program> m_shader_program;
-	const std::string m_vertex_shader_path = "dependencies/shaders/shader.vertex_shader";
-	const std::string m_fragment_shader_path = "dependencies/shaders/shader.fragment_shader";
+	const std::string m_vertex_shader_path = "shaders/shader.vertex_shader";
+	const std::string m_fragment_shader_path = "shaders/shader.fragment_shader";
 };

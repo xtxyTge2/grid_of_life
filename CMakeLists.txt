@@ -56,7 +56,7 @@ add_library(glad ${GLAD_SOURCES})
 target_include_directories(glad PRIVATE ${GLAD_INCLUDE_DIR})
 
 # boost library
-set(BOOST_DIR "${PROJECT_LIBRARIES_DIR}/boost_unordered_flat_map_extract")
+set(BOOST_DIR "${PROJECT_LIBRARIES_DIR}/boost_minimal")
 
 # stb: header only lib
 set(STB_DIR "${PROJECT_LIBRARIES_DIR}/stb")
@@ -177,5 +177,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 add_custom_command(
   TARGET ${PROJECT_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory 
-    ${CMAKE_CURRENT_SOURCE_DIR}/dependencies
-    $<TARGET_FILE_DIR:${PROJECT_NAME}>/dependencies)
+    ${CMAKE_CURRENT_SOURCE_DIR}/assets
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets)
+
+add_custom_command(
+  TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory 
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders)

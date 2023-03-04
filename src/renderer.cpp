@@ -32,8 +32,8 @@ void Renderer::initialise(GLFWwindow* window) {
 
 	//--------------------------------------------------------------------------------
 	std::vector<std::string> texture_file_paths = {
-		"dependencies/data/textures/awesomeface.png",
-		"dependencies/data/textures/container.jpg"
+		"assets/textures/awesomeface.png",
+		"assets/textures/container.jpg"
 	};
 
 	texture_catalog = std::make_unique < Texture_Catalog > ();
