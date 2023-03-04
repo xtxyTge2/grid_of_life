@@ -131,6 +131,8 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 # Compile and link options
 ################################################################################
 
+target_compile_options(${PROJECT_NAME} PRIVATE "-mavx2")
+
 if(MSVC OR CLANG)
     target_compile_options(${PROJECT_NAME} PRIVATE
         $<$<CONFIG:Release>:
@@ -147,7 +149,6 @@ if(MSVC OR CLANG)
 			/Ox
 			/O3
         >
-		-mavx2
         /permissive-;
         /sdl;
         /W3;

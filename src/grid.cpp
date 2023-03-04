@@ -221,13 +221,9 @@ void Grid::next_iteration() {
 void Grid::update_coordinates_of_alive_cells_for_all_chunks() {
 	ZoneScoped;
 
-	concurrency::parallel_for(static_cast<std::size_t>(0),
-	                          static_cast<std::size_t>(chunks.size()),
-	                          static_cast<std::size_t>(1),
-	                          [this](auto&& it) {
-	                          chunks[it].update_coordinates_of_alive_cells();
-	},
-	concurrency::static_partitioner());
+	for(std::size_t idx = 0; idx < chunks.size(); idx++) {
+		chunks[idx].update_coordinates_of_alive_cells();
+	}
 }
 
 std::vector<std::pair<std::size_t, std::size_t>> Grid::get_partition_data_for_chunks(unsigned int number_of_workers, bool allow_small_task_sizes) {
@@ -290,14 +286,10 @@ void Grid::update_neighbour_count_and_set_info_of_all_chunks() {
 
 	coordinates_of_chunks_to_create.clear();
 
-	concurrency::parallel_for(static_cast<std::size_t>(0),
-	                          static_cast<std::size_t>(chunks.size()),
-	                          static_cast<std::size_t>(1),
-	                          [this](auto&& it) {
-	                          chunks[it].update_neighbour_count_inside();
-							  set_chunk_neighbour_info(it);
-	},
-	concurrency::static_partitioner());
+	for (std::size_t idx = 0; idx < chunks.size(); idx++) {
+		chunks[idx].update_neighbour_count_inside();
+		set_chunk_neighbour_info(idx);
+	}
 }
 
 void Grid::set_chunk_neighbour_info(std::size_t chunk_id) {
@@ -431,131 +423,62 @@ void Grid::set_chunk_neighbour_info(std::size_t chunk_id) {
 void Grid::update_neighbours_of_all_chunks() {
 	ZoneScoped;
 	
-	concurrency::parallel_for(
-		static_cast<std::size_t>(0),
-		static_cast<std::size_t>(chunks_left_side_update_infos.size()),
-		static_cast<std::size_t>(1),
-		[this](auto&& it) {
-		ChunkSideUpdateInfo& info = chunks_left_side_update_infos[it];
+	for (ChunkSideUpdateInfo& info: chunks_left_side_update_infos) {
 		Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
 		std::size_t chunk_index = chunk_map.find(chunk_coordinate)->second;
 		Chunk& chunk = chunks[chunk_index];
 		chunk.update_neighbour_count_left_side(info.data);
-	},
-	concurrency::static_partitioner()
-	);
-
-	concurrency::parallel_for(
-		static_cast<std::size_t>(0),
-		static_cast<std::size_t>(chunks_right_side_update_infos.size()),
-		static_cast<std::size_t>(1),
-		[this](auto&& it) {
-		ChunkSideUpdateInfo& info = chunks_right_side_update_infos[it];
+	}
+	for (ChunkSideUpdateInfo& info: chunks_right_side_update_infos) {
 		Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
 		std::size_t chunk_index = chunk_map.find(chunk_coordinate)->second;
 		Chunk& chunk = chunks[chunk_index];
 		chunk.update_neighbour_count_right_side(info.data);
-	},
-	concurrency::static_partitioner()
-	);
+	}
 
-
-	concurrency::parallel_for(
-		static_cast<std::size_t>(0),
-		static_cast<std::size_t>(chunks_top_side_update_infos.size()),
-		static_cast<std::size_t>(1),
-		[this](auto&& it) {
-		ChunkSideUpdateInfo& info = chunks_top_side_update_infos[it];
+	for (ChunkSideUpdateInfo& info: chunks_top_side_update_infos) {
 		Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
 		std::size_t chunk_index = chunk_map.find(chunk_coordinate)->second;
 		Chunk& chunk = chunks[chunk_index];
 		chunk.update_neighbour_count_top_side(info.data);
-	},
-	concurrency::static_partitioner()
-	);
-
-	concurrency::parallel_for(
-		static_cast<std::size_t>(0),
-		static_cast<std::size_t>(chunks_bottom_side_update_infos.size()),
-		static_cast<std::size_t>(1),
-		[this](auto&& it) {
-		ChunkSideUpdateInfo& info = chunks_bottom_side_update_infos[it];
+	}
+	for (ChunkSideUpdateInfo& info: chunks_bottom_side_update_infos) {
 		Coordinate chunk_coordinate = info.chunk_to_update_coordinate;
 		std::size_t chunk_index = chunk_map.find(chunk_coordinate)->second;
 		Chunk& chunk = chunks[chunk_index];
 		chunk.update_neighbour_count_bottom_side(info.data);
-	},
-	concurrency::static_partitioner()
-	);
+	}
 	
-
-	concurrency::parallel_for(
-		static_cast<std::size_t>(0),
-		static_cast<std::size_t>(top_left_corner_update_infos.size()),
-		static_cast<std::size_t>(1),
-		[this](auto&& it) {
-		Coordinate& chunk_coordinate = top_left_corner_update_infos[it];
+	for (Coordinate& chunk_coordinate: top_left_corner_update_infos) {
 		std::size_t chunk_index = chunk_map.find(chunk_coordinate)->second;
 		Chunk& chunk = chunks[chunk_index];
 		chunk.update_neighbour_count_top_left_corner();
-	},
-	concurrency::static_partitioner()
-	);
+	}
 		
-
-	concurrency::parallel_for(
-		static_cast<std::size_t>(0),
-		static_cast<std::size_t>(top_right_corner_update_infos.size()),
-		static_cast<std::size_t>(1),
-		[this](auto&& it) {
-		Coordinate& chunk_coordinate = top_right_corner_update_infos[it];
+	for (Coordinate& chunk_coordinate: top_right_corner_update_infos) {
 		std::size_t chunk_index = chunk_map.find(chunk_coordinate)->second;
 		Chunk& chunk = chunks[chunk_index];
 		chunk.update_neighbour_count_top_right_corner();
-	},
-	concurrency::static_partitioner()
-	);
-
-	concurrency::parallel_for(
-		static_cast<std::size_t>(0),
-		static_cast<std::size_t>(bottom_left_corner_update_infos.size()),
-		static_cast<std::size_t>(1),
-		[this](auto&& it) {
-		Coordinate& chunk_coordinate = bottom_left_corner_update_infos[it];
+	}
+	for (Coordinate& chunk_coordinate: bottom_left_corner_update_infos) {
 		std::size_t chunk_index = chunk_map.find(chunk_coordinate)->second;
 		Chunk& chunk = chunks[chunk_index];
 		chunk.update_neighbour_count_bottom_left_corner();
-	},
-	concurrency::static_partitioner()
-	);
-
-	concurrency::parallel_for(
-		static_cast<std::size_t>(0),
-		static_cast<std::size_t>(bottom_right_corner_update_infos.size()),
-		static_cast<std::size_t>(1),
-		[this](auto&& it) {
-		Coordinate& chunk_coordinate = bottom_right_corner_update_infos[it];
+	}
+	for (Coordinate& chunk_coordinate: bottom_right_corner_update_infos) {
 		std::size_t chunk_index = chunk_map.find(chunk_coordinate)->second;
 		Chunk& chunk = chunks[chunk_index];
 		chunk.update_neighbour_count_bottom_right_corner();
-	},
-	concurrency::static_partitioner()
-	);
+	}
 }
 
 
 void Grid::update_cells_of_all_chunks() {
 	ZoneScoped;
 
-	concurrency::parallel_for(
-		static_cast<std::size_t>(0),
-		static_cast<std::size_t>(chunks.size()),
-		static_cast<std::size_t>(1),
-		[this](auto&& it) {
-		chunks[it].update_cells();
-	},
-	concurrency::static_partitioner()
-	);
+	for(std::size_t idx = 0; idx < chunks.size(); idx++) {
+		chunks[idx].update_cells();
+	}
 }
 
 

@@ -7,10 +7,9 @@
 #include "opencl_context.hpp"
 #include "chunk.hpp"
 
-#include <ppl.h>
-#include <concurrent_vector.h>
-#include <concurrent_unordered_set.h>
 #include "coordinate.hpp"
+
+#include <execution>
 
 
 //--------------------------------------------------------------------------------
@@ -52,17 +51,17 @@ public:
 	boost::unordered_flat_map<Coordinate, std::size_t> chunk_map;
 	std::vector<Chunk> chunks;
 
-	concurrency::concurrent_vector<ChunkSideUpdateInfo> chunks_left_side_update_infos;
-	concurrency::concurrent_vector<ChunkSideUpdateInfo> chunks_right_side_update_infos;
-	concurrency::concurrent_vector<ChunkSideUpdateInfo> chunks_top_side_update_infos;
-	concurrency::concurrent_vector<ChunkSideUpdateInfo> chunks_bottom_side_update_infos;
+	std::vector<ChunkSideUpdateInfo> chunks_left_side_update_infos;
+	std::vector<ChunkSideUpdateInfo> chunks_right_side_update_infos;
+	std::vector<ChunkSideUpdateInfo> chunks_top_side_update_infos;
+	std::vector<ChunkSideUpdateInfo> chunks_bottom_side_update_infos;
 
-	concurrency::concurrent_vector<Coordinate> top_left_corner_update_infos;
-	concurrency::concurrent_vector<Coordinate> top_right_corner_update_infos;
-	concurrency::concurrent_vector<Coordinate> bottom_left_corner_update_infos;
-	concurrency::concurrent_vector<Coordinate> bottom_right_corner_update_infos;
+	std::vector<Coordinate> top_left_corner_update_infos;
+	std::vector<Coordinate> top_right_corner_update_infos;
+	std::vector<Coordinate> bottom_left_corner_update_infos;
+	std::vector<Coordinate> bottom_right_corner_update_infos;
 	
-	concurrency::concurrent_vector<Coordinate> coordinates_of_chunks_to_create;
+	std::vector<Coordinate> coordinates_of_chunks_to_create;
 
 	std::shared_ptr<OpenCLContext> opencl_context;
 };
