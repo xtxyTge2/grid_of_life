@@ -56,7 +56,7 @@ add_library(glad ${GLAD_SOURCES})
 target_include_directories(glad PRIVATE ${GLAD_INCLUDE_DIR})
 
 # boost library
-set(BOOST_DIR "${PROJECT_LIBRARIES_DIR}/boost_1_81_0")
+set(BOOST_DIR "${PROJECT_LIBRARIES_DIR}/boost_unordered_flat_map_extract")
 
 # stb: header only lib
 set(STB_DIR "${PROJECT_LIBRARIES_DIR}/stb")

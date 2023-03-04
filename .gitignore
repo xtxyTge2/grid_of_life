@@ -31,7 +31,4 @@
 *.out
 *.app
 
-Debug/
-x64/
-.vs/
 build/
