@@ -34,5 +34,5 @@
 Debug/
 x64/
 .vs/
-3rdparty
 build/
+libs/boost_1_81_0/
