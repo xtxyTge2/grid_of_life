@@ -169,13 +169,17 @@ endif()
 # Dependencies
 ################################################################################
 
-target_link_libraries(${PROJECT_NAME} PUBLIC 
-	libomp 
+target_link_libraries(${PROJECT_NAME} PUBLIC  
 	glfw 
 	imgui
 	glad
 	Tracy::TracyClient
 )
+
+if(WIN32)
+	target_link_libraries(${PROJECT_NAME} PUBLIC libomp)
+endif()
+
 
 
 # install instructions -> copy data and shader files into build folder
