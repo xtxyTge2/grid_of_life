@@ -1,7 +1,7 @@
 #pragma once
 
 //--------------------------------------------------------------------------------
-#include <Tracy/Tracy.hpp>
+#include <tracy/Tracy.hpp>
 #include "opengl.hpp"
 
 #include <vector>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Tracy/Tracy.hpp>
+#include <tracy/Tracy.hpp>
 
 #include "omp.h"
 #include "ui_state.hpp"

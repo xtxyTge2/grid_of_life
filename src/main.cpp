@@ -1,4 +1,4 @@
-#include <Tracy/Tracy.hpp>
+#include <tracy/Tracy.hpp>
 // General remark for tracy: Set the /Zi compiler flag in visual studio, or otherwise there will be a vs
 // studio bug/feature regarding macro expansions. Otherwise the macros of Tracy, e.g. ZoneScoped, FrameMark wont work.
 

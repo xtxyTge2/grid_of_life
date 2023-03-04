@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Tracy/Tracy.hpp>
+#include <tracy/Tracy.hpp>
 #include <boost/container_hash/hash.hpp>
 
 class Coordinate {

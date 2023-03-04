@@ -3,7 +3,7 @@
 //#define CL_TARGET_OPENCL_VERSION 300
 //#include <CL/cl.h>
 
-#include <Tracy/Tracy.hpp>
+#include <tracy/Tracy.hpp>
 
 
 #include <vector>

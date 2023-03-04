@@ -14,8 +14,9 @@ set(CMAKE_CONFIGURATION_TYPES
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
-
+if(WIN32)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
+endif()
 
 set(PROJECT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src")
 set(PROJECT_LIBRARIES_DIR "${CMAKE_SOURCE_DIR}/libs")
@@ -64,7 +65,9 @@ set(STB_DIR "${PROJECT_LIBRARIES_DIR}/stb")
 # - Tracy
 option(TRACY_ENABLE "" ON)
 option(TRACY_ON_DEMAND "" ON)
-add_subdirectory("${PROJECT_LIBRARIES_DIR}/tracy")
+set(TRACY_DIR "${PROJECT_LIBRARIES_DIR}/tracy")
+set(TRACY_INCLUDE_DIR "${TRACY_DIR}/public")
+add_subdirectory(${TRACY_DIR} EXCLUDE_FROM_ALL)
 
 ################################################################################
 # Source groups
@@ -100,6 +103,7 @@ target_include_directories(
 	  ${BOOST_DIR}
 	  ${GLM_DIR}
 	  ${STB_DIR}
+	  ${TRACY_INCLUDE_DIR}
 	PRIVATE
       ${PROJECT_SOURCE_DIR}
 )
