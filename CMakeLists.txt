@@ -2,21 +2,12 @@ cmake_minimum_required(VERSION 3.16.0)
 
 project(grid_of_life)
 
-
-################################################################################
-set(CMAKE_CONFIGURATION_TYPES
-    "Debug"
-    "Release"
-)
-
-
-################################################################################
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
 endif()
+
 
 set(PROJECT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src")
 set(PROJECT_LIBRARIES_DIR "${CMAKE_SOURCE_DIR}/libs")
@@ -64,7 +55,6 @@ set(STB_DIR "${PROJECT_LIBRARIES_DIR}/stb")
 
 # - Tracy
 option(TRACY_ENABLE "" ON)
-option(TRACY_ON_DEMAND "" ON)
 set(TRACY_DIR "${PROJECT_LIBRARIES_DIR}/tracy")
 set(TRACY_INCLUDE_DIR "${TRACY_DIR}/public")
 add_subdirectory(${TRACY_DIR} EXCLUDE_FROM_ALL)
@@ -108,66 +98,15 @@ target_include_directories(
       ${PROJECT_SOURCE_DIR}
 )
 
-#if(MSVC OR CLANG)
-#	set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY MultiThreadedDebugDLL)
-#endif()
-
 ################################################################################
 # Compile definitions
 ################################################################################
-
-
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-    "$<$<CONFIG:Debug>:"
-    	   "_DEBUG"
-    ">"
-    "$<$<CONFIG:Release>:"
-    	   "NDEBUG;"
-		"TRACY_ENABLE"  
-    ">"
-)
 
 ################################################################################
 # Compile and link options
 ################################################################################
 
 target_compile_options(${PROJECT_NAME} PRIVATE "-mavx2")
-
-if(MSVC OR CLANG)
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        $<$<CONFIG:Release>:
-            /Ob2;
-            /Oi;
-            /GT;
-            /arch:AVX2;
-            /Oy;
-            /Gy;
-            /fp:fast;
-			/Qpar
-			/Qpar-report:2
-			/openmp;
-			/Ox
-			/O3
-        >
-        /permissive-;
-        /sdl;
-        /W3;
-        ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
-        ${DEFAULT_CXX_EXCEPTION_HANDLING}
-    )
-    target_link_options(${PROJECT_NAME} PRIVATE
-        $<$<CONFIG:Release>:
-            /OPT:REF;
-            /OPT:ICF
-        >
-        /SUBSYSTEM:CONSOLE
-    )
-endif()
-
-
-################################################################################
-# Dependencies
-################################################################################
 
 target_link_libraries(${PROJECT_NAME} PUBLIC  
 	glfw 
@@ -176,19 +115,14 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 	Tracy::TracyClient
 )
 
-if(WIN32)
-	target_link_libraries(${PROJECT_NAME} PUBLIC libomp)
-endif()
-
-
-
-# install instructions -> copy data and shader files into build folder
+#copy assets into build dir
 add_custom_command(
   TARGET ${PROJECT_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory 
     ${CMAKE_CURRENT_SOURCE_DIR}/assets
     $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets)
 
+#copy shader source files into build dir
 add_custom_command(
   TARGET ${PROJECT_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory 
