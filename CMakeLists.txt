@@ -2,84 +2,63 @@ cmake_minimum_required(VERSION 3.16.0)
 
 project(grid_of_life)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-if(WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
-endif()
 
 
-set(PROJECT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src")
 set(PROJECT_LIBRARIES_DIR "${CMAKE_SOURCE_DIR}/libs")
-set(PROJECT_VENDORED_LIBRARIES_DIR "${CMAKE_SOURCE_DIR}/libs/vendored")
-
-# GLM
-set(GLM_DIR "${PROJECT_VENDORED_LIBRARIES_DIR}/glm")
-add_subdirectory(${GLM_DIR} EXCLUDE_FROM_ALL)
 
 # GLFW
-set(GLFW_DIR "${PROJECT_VENDORED_LIBRARIES_DIR}/glfw")
-set(GLFW_INCLUDE_DIR "${GLFW_DIR}/include")
-add_subdirectory(${GLFW_DIR} EXCLUDE_FROM_ALL)
+add_subdirectory("${PROJECT_LIBRARIES_DIR}/vendored/glfw" EXCLUDE_FROM_ALL)
 
 # Dear Imgui
-set(IMGUI_DIR  "${PROJECT_LIBRARIES_DIR}/imgui")
-file(GLOB IMGUI_SOURCES
-   "${IMGUI_DIR}/*.cpp"
-   "${IMGUI_DIR}/backends/imgui_impl_glfw.cpp"
-   "${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp"
+add_library(imgui 
+	"${PROJECT_LIBRARIES_DIR}/imgui/imgui.cpp"
+	"${PROJECT_LIBRARIES_DIR}/imgui/imgui_demo.cpp"
+	"${PROJECT_LIBRARIES_DIR}/imgui/imgui_draw.cpp"
+	"${PROJECT_LIBRARIES_DIR}/imgui/imgui_tables.cpp"
+	"${PROJECT_LIBRARIES_DIR}/imgui/imgui_widgets.cpp"
+	"${PROJECT_LIBRARIES_DIR}/imgui/backends/imgui_impl_glfw.cpp"
+	"${PROJECT_LIBRARIES_DIR}/imgui/backends/imgui_impl_opengl3.cpp"
 )
-add_library(imgui ${IMGUI_SOURCES})
 target_include_directories(
    imgui
    PUBLIC
-      ${IMGUI_DIR}
-      "${IMGUI_DIR}/backends"
-	  ${GLFW_INCLUDE_DIR}
+      "${PROJECT_LIBRARIES_DIR}/imgui"
+      "${PROJECT_LIBRARIES_DIR}/imgui/backends"
+	  
+	  
+	  "${PROJECT_LIBRARIES_DIR}/vendored/glfw/include"
 )
 
-
 # glad - opengl loader
-set(GLAD_DIR "${PROJECT_LIBRARIES_DIR}/glad")
-set(GLAD_SOURCES_DIR "${GLAD_DIR}/src")
-set(GLAD_INCLUDE_DIR "${GLAD_DIR}/include")
-file(GLOB GLAD_SOURCES "${GLAD_SOURCES_DIR}/glad.c")
-add_library(glad ${GLAD_SOURCES})
-target_include_directories(glad PRIVATE ${GLAD_INCLUDE_DIR})
-
-# boost library
-set(BOOST_DIR "${PROJECT_LIBRARIES_DIR}/boost_minimal")
-
-# stb: header only lib
-set(STB_DIR "${PROJECT_LIBRARIES_DIR}/stb")
+add_library(glad "${PROJECT_LIBRARIES_DIR}/glad/src/glad.c")
+target_include_directories(glad PRIVATE "${PROJECT_LIBRARIES_DIR}/glad/include")
 
 # - Tracy
 option(TRACY_ENABLE "" ON)
-set(TRACY_DIR "${PROJECT_LIBRARIES_DIR}/tracy")
-set(TRACY_INCLUDE_DIR "${TRACY_DIR}/public")
-add_subdirectory(${TRACY_DIR} EXCLUDE_FROM_ALL)
-
+add_library(tracy "${PROJECT_LIBRARIES_DIR}/tracy/public/TracyClient.cpp")
+target_include_directories(tracy PRIVATE "${PROJECT_LIBRARIES_DIR}/tracy")
 ################################################################################
 # Source groups
 ################################################################################
 
+
 add_executable(${PROJECT_NAME}
-    "${PROJECT_SOURCE_DIR}/camera.cpp"
-    "${PROJECT_SOURCE_DIR}/chunk.cpp"
-    "${PROJECT_SOURCE_DIR}/coordinate.cpp"
-    "${PROJECT_SOURCE_DIR}/cube.cpp"
-    "${PROJECT_SOURCE_DIR}/cube_system.cpp"
-    "${PROJECT_SOURCE_DIR}/grid.cpp"
-    "${PROJECT_SOURCE_DIR}/main.cpp"
-    "${PROJECT_SOURCE_DIR}/opencl_context.cpp"
-    "${PROJECT_SOURCE_DIR}/opencl_grid.c"
-    "${PROJECT_SOURCE_DIR}/read.cpp"
-    "${PROJECT_SOURCE_DIR}/renderer.cpp"
-    "${PROJECT_SOURCE_DIR}/shader.cpp"
-    "${PROJECT_SOURCE_DIR}/state.cpp"
-    "${PROJECT_SOURCE_DIR}/texture.cpp"
-    "${PROJECT_SOURCE_DIR}/ui_state.cpp"
-    "${PROJECT_SOURCE_DIR}/world.cpp"
+    "${PROJECT_SOURCE_DIR}/src/camera.cpp"
+    "${PROJECT_SOURCE_DIR}/src/chunk.cpp"
+    "${PROJECT_SOURCE_DIR}/src/coordinate.cpp"
+    "${PROJECT_SOURCE_DIR}/src/cube.cpp"
+    "${PROJECT_SOURCE_DIR}/src/cube_system.cpp"
+    "${PROJECT_SOURCE_DIR}/src/grid.cpp"
+    "${PROJECT_SOURCE_DIR}/src/main.cpp"
+    "${PROJECT_SOURCE_DIR}/src/opencl_context.cpp"
+    "${PROJECT_SOURCE_DIR}/src/opencl_grid.c"
+    "${PROJECT_SOURCE_DIR}/src/read.cpp"
+    "${PROJECT_SOURCE_DIR}/src/renderer.cpp"
+    "${PROJECT_SOURCE_DIR}/src/shader.cpp"
+    "${PROJECT_SOURCE_DIR}/src/state.cpp"
+    "${PROJECT_SOURCE_DIR}/src/texture.cpp"
+    "${PROJECT_SOURCE_DIR}/src/ui_state.cpp"
+    "${PROJECT_SOURCE_DIR}/src/world.cpp"
 )
 
 ################################################################################
@@ -89,30 +68,29 @@ add_executable(${PROJECT_NAME}
 target_include_directories(
    ${PROJECT_NAME}
    PUBLIC
-	  ${GLAD_INCLUDE_DIR}
-	  ${BOOST_DIR}
-	  ${GLM_DIR}
-	  ${STB_DIR}
-	  ${TRACY_INCLUDE_DIR}
+	  "${PROJECT_LIBRARIES_DIR}/glad/include"
+	  "${PROJECT_LIBRARIES_DIR}/boost_minimal"
+	  "${PROJECT_LIBRARIES_DIR}/stb"
+	  "${PROJECT_LIBRARIES_DIR}/tracy/public"
+	  
+	  "${PROJECT_LIBRARIES_DIR}/vendored/glm"
+	  "${PROJECT_LIBRARIES_DIR}/vendored/glfw/include"
 	PRIVATE
       ${PROJECT_SOURCE_DIR}
 )
-
-################################################################################
-# Compile definitions
-################################################################################
 
 ################################################################################
 # Compile and link options
 ################################################################################
 
 target_compile_options(${PROJECT_NAME} PRIVATE "-mavx2")
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC  
-	glfw 
+target_link_libraries(${PROJECT_NAME} PUBLIC   
 	imgui
+	glfw
 	glad
-	Tracy::TracyClient
+	tracy
 )
 
 #copy assets into build dir

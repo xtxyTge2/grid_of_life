@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <memory>
 
 #include "shader.hpp"
 #include "texture.hpp"

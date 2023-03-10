@@ -42,8 +42,8 @@ public:
 	// data
 	GLFWwindow* m_window;
 
-	GLuint m_VAO;
-	GLuint m_VBO;
+	GLuint grid_cubes_VAO;
+	GLuint grid_cubes_VBO;
 
 	GLuint cubes_instances_VBO;
 

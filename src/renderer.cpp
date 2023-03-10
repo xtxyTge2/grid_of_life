@@ -3,8 +3,8 @@
 //--------------------------------------------------------------------------------
 Renderer::Renderer() :
 	m_window(nullptr),
-m_VAO(0),
-m_VBO(0),
+grid_cubes_VAO(0),
+grid_cubes_VBO(0),
 cubes_instances_VBO(0),
 texture_catalog(nullptr),
 m_shader_program(nullptr)
@@ -23,8 +23,8 @@ void Renderer::initialise(GLFWwindow* window) {
 	glViewport(0, 0, (int) window_width, (int) window_height);
 	glEnable(GL_DEPTH_TEST);
 
-	glGenVertexArrays(1, &m_VAO);
-	glGenBuffers(1, &m_VBO);
+	glGenVertexArrays(1, &grid_cubes_VAO);
+	glGenBuffers(1, &grid_cubes_VBO);
 	glGenBuffers(1, &cubes_instances_VBO);
 
 	m_shader_program = std::make_unique < Shader_Program > (m_vertex_shader_path, m_fragment_shader_path);
@@ -32,7 +32,6 @@ void Renderer::initialise(GLFWwindow* window) {
 
 	//--------------------------------------------------------------------------------
 	std::vector<std::string> texture_file_paths = {
-		"assets/textures/awesomeface.png",
 		"assets/textures/container.jpg"
 	};
 
@@ -129,10 +128,10 @@ void Renderer::initialise_cube_rendering() {
 	};
 
 	
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, grid_cubes_VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glBindVertexArray(m_VAO);
+	glBindVertexArray(grid_cubes_VAO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// texture attribute
@@ -157,7 +156,7 @@ void Renderer::initialise_cube_rendering() {
 void Renderer::render_grid(std::shared_ptr<Cube_System> cube_system) {
 	ZoneScoped;
 
-	glBindVertexArray(m_VAO);
+	glBindVertexArray(grid_cubes_VAO);
 	m_shader_program->use();
 
 	// send the mvp matrices to the corresponding buffer
@@ -190,7 +189,7 @@ void Renderer::set_projection_view_matrix_in_shader(std::shared_ptr<World> world
 void Renderer::render_world(std::shared_ptr<World> world, std::shared_ptr<Cube_System> cube_system) {
 	ZoneScoped;
 
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.0f, 25.0f / 255.0f, 51.0f / 255.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	set_projection_view_matrix_in_shader(world);

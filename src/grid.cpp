@@ -157,7 +157,7 @@ opencl_context(context)
 	
 	std::vector<Coordinate> chunk_coordinates;
 
-	int length = 40;
+	int length = 10;
 	for (int r = -length; r < length; r++) {
 		for (int c = -length; c < length; c++) {
 			create_new_chunk_and_set_alive_cells(Coordinate(r, c), initial_coordinates);
