@@ -19,9 +19,10 @@ void World::initialise(GLFWwindow* window) {
 	m_mouse->initialise(0.0f, 0.0f);
 
 	m_camera = std::make_unique < Camera > ();
-	m_camera->position = glm::vec3(Chunk::rows / 2, Chunk::columns / 2, 1250.0f);
 
-	m_camera->target_position = glm::vec3(0.0f);
+	m_camera->position = glm::vec3(0.0f, 0.0f, 10.0f);
+
+	m_camera->target_position = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	grid_manager = std::make_shared<Grid_Manager>();
 }

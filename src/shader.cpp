@@ -81,6 +81,13 @@ void Shader_Program::set_uniform_mat4(const std::string& name, glm::mat4 value) 
 }
 
 //--------------------------------------------------------------------------------
+void Shader_Program::set_uniform_vec3(const std::string& name, glm::vec3 value) {
+	ZoneScoped;
+	unsigned int location = glGetUniformLocation(id, name.c_str());
+	glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+//--------------------------------------------------------------------------------
 void Shader_Program::load_texture_catalog(Texture_Catalog& catalog) {
 	ZoneScoped;
 	for (int i = 0; i < catalog.textures.size(); i++) {

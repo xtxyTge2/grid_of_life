@@ -47,9 +47,15 @@ public:
 
 	GLuint cubes_instances_VBO;
 
+	GLuint light_VAO;
+
 	std::unique_ptr<Texture_Catalog> texture_catalog;
 
-	std::unique_ptr<Shader_Program> m_shader_program;
-	const std::string m_vertex_shader_path = "shaders/shader.vertex_shader";
-	const std::string m_fragment_shader_path = "shaders/shader.fragment_shader";
+	std::unique_ptr<Shader_Program> cubes_shader_program;
+	const std::string cubes_vertex_shader_path = "shaders/cubes_shader.vertex_shader";
+	const std::string cubes_fragment_shader_path = "shaders/cubes_shader.fragment_shader";
+
+	std::unique_ptr<Shader_Program> light_shader_program;
+	const std::string light_vertex_shader_path = "shaders/light_shader.vertex_shader";
+	const std::string light_fragment_shader_path = "shaders/light_shader.fragment_shader";
 };

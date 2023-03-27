@@ -6,8 +6,9 @@ Renderer::Renderer() :
 grid_cubes_VAO(0),
 grid_cubes_VBO(0),
 cubes_instances_VBO(0),
+light_VAO(0),
 texture_catalog(nullptr),
-m_shader_program(nullptr)
+cubes_shader_program(nullptr)
 {
 
 }
@@ -26,20 +27,23 @@ void Renderer::initialise(GLFWwindow* window) {
 	glGenVertexArrays(1, &grid_cubes_VAO);
 	glGenBuffers(1, &grid_cubes_VBO);
 	glGenBuffers(1, &cubes_instances_VBO);
+	glGenVertexArrays(1, &light_VAO);
 
-	m_shader_program = std::make_unique < Shader_Program > (m_vertex_shader_path, m_fragment_shader_path);
-	m_shader_program->link_and_cleanup();
+	cubes_shader_program = std::make_unique<Shader_Program>(cubes_vertex_shader_path, cubes_fragment_shader_path);
+	cubes_shader_program->link_and_cleanup();
 
 	//--------------------------------------------------------------------------------
 	std::vector<std::string> texture_file_paths = {
 		"assets/textures/container.jpg"
 	};
 
-	texture_catalog = std::make_unique < Texture_Catalog > ();
+	texture_catalog = std::make_unique<Texture_Catalog>();
 	texture_catalog->load_and_bind_all_textures(texture_file_paths);
 
-	m_shader_program->load_texture_catalog(*texture_catalog);
+	cubes_shader_program->load_texture_catalog(*texture_catalog);
 
+	//light_shader_program = std::make_unique<Shader_Program>(light_vertex_shader_path, light_fragment_shader_path);
+	//light_shader_program->link_and_cleanup();
 
 	initialise_cube_rendering();
 }
@@ -48,12 +52,12 @@ void Renderer::initialise(GLFWwindow* window) {
 //--------------------------------------------------------------------------------
 void Renderer::update_shader_program(glm::mat4 model, glm::mat4 view, glm::mat4 projection) {
 	ZoneScoped;
-	m_shader_program->set_uniform_mat4("model", model);
-	m_shader_program->set_uniform_mat4("view", view);
-	m_shader_program->set_uniform_mat4("projection", projection);
+	cubes_shader_program->set_uniform_mat4("model", model);
+	cubes_shader_program->set_uniform_mat4("view", view);
+	cubes_shader_program->set_uniform_mat4("projection", projection);
 }
 
-void Renderer::render_frame(std::shared_ptr<World> world, std::shared_ptr<Cube_System> cube_system) {
+void Renderer::render_frame(std::shared_ptr < World > world, std::shared_ptr < Cube_System > cube_system) {
 	ZoneScoped;
 
 	// world
@@ -66,7 +70,7 @@ void Renderer::render_frame(std::shared_ptr<World> world, std::shared_ptr<Cube_S
 }
 
 void Renderer::swap_backbuffer() {
-	ZoneScoped; 
+	ZoneScoped;
 
 	glfwSwapBuffers(m_window);
 }
@@ -148,16 +152,25 @@ void Renderer::initialise_cube_rendering() {
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	/*
+	glBindVertexArray(light_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubes_instances_VBO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(0);
+	*/
 }
 
 
-
-
-void Renderer::render_grid(std::shared_ptr<Cube_System> cube_system) {
+void Renderer::render_grid(std::shared_ptr < Cube_System > cube_system) {
 	ZoneScoped;
 
+
 	glBindVertexArray(grid_cubes_VAO);
-	m_shader_program->use();
+	
+	cubes_shader_program->use();
 
 	// send the mvp matrices to the corresponding buffer
 	std::size_t number_of_cubes = cube_system->number_of_translation_data;
@@ -173,26 +186,55 @@ void Renderer::render_grid(std::shared_ptr<Cube_System> cube_system) {
 	glBindVertexArray(0);
 }
 
-void Renderer::set_projection_view_matrix_in_shader(std::shared_ptr<World> world) {
+void Renderer::set_projection_view_matrix_in_shader(std::shared_ptr < World > world) {
 	int window_width, window_height;
 	glfwGetWindowSize(world->m_window, &window_width, &window_height);
 	glm::mat4 view_matrix = world->m_camera->get_view_matrix();
 	glm::mat4 projection_matrix = world->m_camera->get_projection_matrix(window_width, window_height);
 	glm::mat4 projection_view_matrix = projection_matrix * view_matrix;
 	
-	m_shader_program->use();
-	unsigned int projection_view_matrix_location = glGetUniformLocation(m_shader_program->id, "projection_view");
-	glUniformMatrix4fv(projection_view_matrix_location, 1, GL_FALSE, glm::value_ptr(projection_view_matrix));
+	cubes_shader_program->use();
+	cubes_shader_program->set_uniform_mat4("projection_view", projection_view_matrix);
+
+	glm::vec3 light_color = glm::vec3(1.0f);
+	glm::vec3 object_color = glm::vec3(0.3f, 0.3f, 1.0f);
+	cubes_shader_program->set_uniform_vec3("light_color", light_color);
+	cubes_shader_program->set_uniform_vec3("object_color", object_color);
+
+	/*
+	light_shader_program->use();
+	unsigned int projection_light_shader_location = glGetUniformLocation(light_shader_program->id, "projection_view");
+	glUniformMatrix4fv(projection_light_shader_location, 1, GL_FALSE, glm::value_ptr(projection_view_matrix));
+	*/
+	//fragment_color = texture(texture1, texture_coordinate);
 }
 
+
 //--------------------------------------------------------------------------------
-void Renderer::render_world(std::shared_ptr<World> world, std::shared_ptr<Cube_System> cube_system) {
+void Renderer::render_world(std::shared_ptr < World > world, std::shared_ptr < Cube_System > cube_system) {
 	ZoneScoped;
+	
 
 	glClearColor(0.0f, 25.0f / 255.0f, 51.0f / 255.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	set_projection_view_matrix_in_shader(world);
-
 	render_grid(cube_system);
+
+	/*
+	light_shader_program->use();
+	unsigned int light_shader_object_color_location = glGetUniformLocation(light_shader_program->id, "object_color");
+	glUniformMatrix3fv(light_shader_object_color_location, 1, GL_FALSE, glm::value_ptr(light_color));
+
+	unsigned int light_shader_color_location = glGetUniformLocation(light_shader_program->id, "light_color");
+	glUniformMatrix3fv(light_shader_color_location, 1, GL_FALSE, glm::value_ptr(object_color));
+
+	glm::vec3 light_pos = glm::vec3(0.0f, 0.0f, -3.0f);
+	glm::mat4 light_model = glm::mat4(1.0f);
+	light_model = glm::translate(light_model, light_pos);
+	light_model = glm::scale(light_model, glm::vec3(0.2f)); 
+
+	glBindVertexArray(light_VAO);
+	glDrawArrays(GL_TRIANGLES, 0, 36);	
+	*/
 }

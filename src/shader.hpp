@@ -48,6 +48,8 @@ public:
 
 	void set_uniform_mat4(const std::string& name, glm::mat4 value);
 
+	void set_uniform_vec3(const std::string& name, glm::vec3 value);
+
 	void load_texture_catalog(Texture_Catalog& catalog);
 	//--------------------------------------------------------------------------------
 	// data
